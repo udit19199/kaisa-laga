@@ -11,7 +11,7 @@ brand
 
 ## Product Purpose
 
-PulseDrop captures voice feedback at the point of experience and turns it into structured operator insight (transcripts, sentiment, tags, alerts). Success: customers complete a recording in seconds; operators act on negative feedback before it becomes a pattern.
+Pulse Drop captures voice feedback at the point of experience and turns it into structured operator insight (transcripts, sentiment, tags, alerts). Success: customers complete a recording in seconds; operators act on negative feedback before it becomes a pattern.
 
 ## Brand Personality
 

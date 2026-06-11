@@ -1,5 +1,5 @@
 ---
-name: PulseDrop
+name: Pulse Drop
 description: Voice feedback capture — Clubhouse-inspired capture colors, neutral dashboard
 status: capture-colors-applied in globals.css
 reference: Clubhouse iOS (Mobbin)
@@ -102,13 +102,13 @@ components:
     size: "8rem"
 ---
 
-# Design System: PulseDrop
+# Design System: Pulse Drop
 
 ## Overview
 
 **Creative North Star: "The Encouraging Nudge"**
 
-PulseDrop's current visual system is the **default neutral shadcn `base-nova` preset** — a clean, achromatic OKLCH palette with Geist typography and modest corner radii. It reads as competent SaaS infrastructure, not yet as the friendly, playful, Headspace/Duolingo energy described in `PRODUCT.md`. This document captures the **honest baseline** so agents know what exists today and where the gap is.
+Pulse Drop's current visual system is the **default neutral shadcn `base-nova` preset** — a clean, achromatic OKLCH palette with Geist typography and modest corner radii. It reads as competent SaaS infrastructure, not yet as the friendly, playful, Headspace/Duolingo energy described in `PRODUCT.md`. This document captures the **honest baseline** so agents know what exists today and where the gap is.
 
 The product has **two surfaces** with different visual dialects:
 

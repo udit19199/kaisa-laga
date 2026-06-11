@@ -40,7 +40,7 @@ export default function LoginPage() {
     <div className="flex min-h-dvh items-center justify-center px-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Sign in to PulseDrop</CardTitle>
+          <CardTitle>Sign in to Pulse Drop</CardTitle>
           <CardDescription>Access your feedback dashboard</CardDescription>
         </CardHeader>
         <CardContent>

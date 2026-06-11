@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PulseDrop — Voice Feedback Platform",
+  title: "Pulse Drop — Voice Feedback Platform",
   description: "Frictionless voice feedback capture for physical businesses",
 };
 

@@ -76,7 +76,7 @@ export default function LocationsPage() {
       canvas.height = img.height;
       ctx?.drawImage(img, 0, 0);
       const link = document.createElement("a");
-      link.download = `pulsedrop-qr-${name.replace(/\s+/g, "-").toLowerCase()}.png`;
+      link.download = `pulse-drop-qr-${name.replace(/\s+/g, "-").toLowerCase()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     };

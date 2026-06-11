@@ -111,7 +111,7 @@ function RoomChrome({ locationName }: { locationName: string }) {
     <header className="flex items-start justify-between gap-4 px-5 pb-1 pt-[max(0.75rem,env(safe-area-inset-top))]">
       <div className="min-w-0 flex-1">
         <p className="text-[0.9375rem] font-semibold lowercase tracking-tight text-[var(--capture-ink)]">
-          pulsedrop
+          pulse drop
         </p>
         {locationName ? (
           <h1 className="mt-1 truncate text-base font-medium text-[var(--capture-muted)]">
