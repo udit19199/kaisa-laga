@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { LandingHero } from "@/components/marketing/landing-hero";
 import { StoryNarrative } from "@/components/marketing/story-narrative";
-import { SocialProof } from "@/components/marketing/social-proof";
 import { WhyVoice } from "@/components/marketing/why-voice";
-import { HowItWorks } from "@/components/marketing/how-it-works";
 import { DashboardShowcase } from "@/components/marketing/dashboard-showcase";
 import { PrivateFeedback } from "@/components/marketing/private-feedback";
 import { PricingSection } from "@/components/marketing/pricing-section";
@@ -22,13 +20,13 @@ function LandingNav() {
 
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
-            href="/dashboard/login"
+            href="/sign-in"
             className="text-sm text-[var(--brand-muted)] transition-colors hover:text-[var(--brand-ink)]"
           >
             Log in
           </Link>
           <Link
-            href="/dashboard/signup"
+            href="/sign-up"
             className={cn(
               buttonVariants(),
               "h-9 rounded-full bg-[var(--brand-ink)] px-4 text-sm text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90",
@@ -49,10 +47,8 @@ export function LandingPage() {
 
       <main className="relative">
         <LandingHero />
-        <SocialProof />
         <StoryNarrative />
         <WhyVoice />
-        <HowItWorks />
         <DashboardShowcase />
         <PrivateFeedback />
         <PricingSection />

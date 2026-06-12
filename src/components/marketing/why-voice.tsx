@@ -3,10 +3,10 @@ export function WhyVoice() {
     <section className="px-4 py-24 sm:px-6 sm:py-32 bg-white/50">
       <div className="mx-auto max-w-5xl text-center">
         <h2 className="text-3xl font-bold tracking-tight text-[var(--brand-ink)] sm:text-4xl">
-          A 3-star rating tells you nothing. <br /> Their voice tells you everything.
+          Customers won&apos;t type. But they will talk.
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-[var(--brand-muted)]">
-          Traditional surveys have a 2% completion rate because they feel like homework. Voice is effortless, and it contains the nuance that a simple rating strips away.
+          Most customers never complete feedback forms because typing is work. Speaking is effortless. When you replace a keyboard with a microphone, you get more feedback, more context, and more signal.
         </p>
 
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2">

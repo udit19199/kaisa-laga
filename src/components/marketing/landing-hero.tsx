@@ -15,11 +15,11 @@ export function LandingHero() {
           "[text-wrap:balance]",
         )}
       >
-        Replace ignored surveys with 5-second voice reviews.
+        Most customers never tell you what went wrong.
       </h1>
       
-      <p className="mt-6 max-w-[42ch] text-[clamp(1rem,1.5vw,1.125rem)] leading-relaxed text-[var(--brand-muted)] [text-wrap:balance]">
-        Customers scan a QR code to leave a quick voice note. Our AI instantly turns it into operational insights for your dashboard. No typing. No apps. Just the truth.
+      <p className="mt-6 mx-auto max-w-[46ch] text-[clamp(1rem,1.5vw,1.125rem)] leading-relaxed text-[var(--brand-muted)] [text-wrap:balance]">
+        Traditional surveys feel like homework, so most customers ignore them. You are operating blind. Auris replaces forms with a frictionless 5-second voice note.
       </p>
 
       <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">

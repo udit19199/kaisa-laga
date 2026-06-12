@@ -5,45 +5,36 @@ import { cn } from "@/lib/utils";
 
 const FAQS = [
   {
-    category: "Business",
-    questions: [
-      {
-        q: "How do I get my QR code?",
-        a: "Upon signup, you can instantly download and print your code. We also mail you a premium acrylic display for your counter within 3-5 business days."
-      },
-      {
-        q: "Do I need to train staff?",
-        a: "Zero training required. Customers interact entirely with their own phones and the QR code. Your staff just does their job."
-      },
-      {
-        q: "Can I export feedback?",
-        a: "Yes, all structured data and raw transcripts can be exported to CSV."
-      }
-    ]
-  },
-  {
     category: "Customer Experience",
     questions: [
       {
         q: "Do customers need an app?",
-        a: "No. The QR code opens a lightweight webpage directly in their mobile browser."
+        a: "No. They simply scan the QR code and it opens immediately in their mobile browser."
       },
       {
-        q: "Is the feedback public?",
+        q: "Is feedback anonymous?",
+        a: "Customers can leave their feedback anonymously, but they have the option to leave their contact info if they want a follow-up."
+      },
+      {
+        q: "Is feedback public?",
         a: "Absolutely not. Auris is a private channel directly to management. Nothing is posted to Google or Yelp."
       }
     ]
   },
   {
-    category: "AI & Insights",
+    category: "Getting Started",
     questions: [
       {
-        q: "How are insights generated?",
-        a: "We use advanced speech-to-text models combined with LLMs to transcribe the audio, detect emotional tone, and categorize the feedback into operational themes."
+        q: "How long does setup take?",
+        a: "Less than 5 minutes. You sign up, enter your location name, and your QR code is generated instantly."
       },
       {
-        q: "Can I listen to original recordings?",
-        a: "Yes. While the AI gives you the summary, you always have access to the raw audio to hear the exact tone of your customer."
+        q: "How do I get my QR code?",
+        a: "You can download it instantly from your dashboard to print yourself, or we can mail you a premium acrylic counter display."
+      },
+      {
+        q: "Can I start today?",
+        a: "Yes. You can start collecting voice feedback the moment you print your code. No complex integrations required."
       }
     ]
   }

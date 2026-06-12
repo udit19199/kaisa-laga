@@ -2,12 +2,10 @@ export const STORY_MOCK = {
   captureUrl: "https://pulsedrop.app/f/demo",
   displayUrl: "url.com",
   locationName: "Harbor Café",
-  summary: "Wait was long but staff were lovely",
-  sentiment: "Positive" as const,
-  tag: "Wait times",
-  tagMentions: 4,
-  secondTheme: "Friendly staff",
-  secondThemeMentions: 6,
+  rawTranscript: "The service was good, but I had to wait longer than expected and the staff seemed rushed today.",
+  tag1: "Wait time issue",
+  tag2: "Staff seemed rushed",
+  action: "Check peak-hour staffing",
   voiceCount: 12,
 } as const;
 
@@ -15,6 +13,7 @@ export type StorySceneId =
   | "scan"
   | "link"
   | "record"
+  | "transcript"
   | "process"
   | "overview"
   | "full";
@@ -24,6 +23,7 @@ export const STORY_SCENES: { id: StorySceneId; label: string }[] = [
   { id: "scan", label: "Scan QR" },
   { id: "link", label: "Open Link" },
   { id: "record", label: "Record Voice" },
+  { id: "transcript", label: "Transcript" },
   { id: "process", label: "AI Process" },
   { id: "overview", label: "Dashboard" },
 ];
@@ -32,18 +32,20 @@ export const STORY_SCENES: { id: StorySceneId; label: string }[] = [
 export const STORY_SEGMENT_ENDS: Record<StorySceneId, number> = {
   scan: 1.15,
   link: 2.05,
-  record: 4.55,
-  process: 6.0,
-  overview: 8.0,
-  full: 8.0,
+  record: 4.0,
+  transcript: 5.5,
+  process: 7.5,
+  overview: 9.5,
+  full: 9.5,
 };
 
 export const STORY_SEGMENT_STARTS: Record<Exclude<StorySceneId, "full">, number> = {
   scan: 0,
   link: 1.15,
   record: 2.05,
-  process: 4.55,
-  overview: 6.0,
+  transcript: 4.0,
+  process: 5.5,
+  overview: 7.5,
 };
 
 export const STORY_TOTAL_DURATION = STORY_SEGMENT_ENDS.full;

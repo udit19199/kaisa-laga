@@ -18,7 +18,6 @@ const EASE_OUT = "power3.out";
 const CHIP_W = STORY_MORPH_SIZE;
 const CHIP_H = STORY_MORPH_SIZE;
 const CHIP_RADIUS = 22;
-const CHIP_PADDING_REM = 0.85;
 const LINK_W = 168;
 const LINK_H = 56;
 const LINK_RADIUS = LINK_H / 2;
@@ -28,7 +27,6 @@ const PANEL_H = 232;
 const PANEL_RADIUS = 20;
 
 const MORPH_DURATION = 0.58;
-const PANEL_MORPH_DURATION = 1.0;
 
 function fadeRamp(progress: number, start: number, end: number) {
   return gsap.utils.clamp(0, 1, (progress - start) / (end - start));
@@ -147,12 +145,11 @@ function applyLinkToWaveformMorphFrame(
   crossfadeContent(linkContent, waveformContent, p);
 }
 
-function applyWaveformToOverviewMorphFrame(
+function applyWaveformToTranscriptMorphFrame(
   progress: number,
   vessel: HTMLElement | null,
   layerMorph: Element | null,
-  layerShimmer: Element | null,
-  layerOverview: Element | null,
+  layerTranscript: Element | null,
 ) {
   const p = gsap.utils.clamp(0, 1, progress);
   const { width, height, radius } = morphFrameDims(
@@ -161,7 +158,7 @@ function applyWaveformToOverviewMorphFrame(
     STORY_WAVEFORM_H,
     WAVEFORM_RADIUS,
     PANEL_W,
-    PANEL_H,
+    160,
     PANEL_RADIUS,
   );
 
@@ -171,9 +168,7 @@ function applyWaveformToOverviewMorphFrame(
   }
 
   const morphFade = fadeRamp(p, 0, 0.3);
-  const shimmerIn = fadeRamp(p, 0.1, 0.4);
-  const shimmerOut = fadeRamp(p, 0.6, 0.8);
-  const overviewFade = fadeRamp(p, 0.7, 1.0);
+  const transcriptFade = fadeRamp(p, 0.7, 1.0);
 
   if (layerMorph) {
     gsap.set(layerMorph, {
@@ -182,9 +177,42 @@ function applyWaveformToOverviewMorphFrame(
     });
   }
 
-  if (layerShimmer) {
-    gsap.set(layerShimmer, {
-      opacity: Math.max(0, shimmerIn - shimmerOut),
+  if (layerTranscript) {
+    gsap.set(layerTranscript, {
+      opacity: transcriptFade,
+      y: gsap.utils.interpolate(10, 0, transcriptFade),
+    });
+  }
+}
+
+function applyTranscriptToOverviewMorphFrame(
+  progress: number,
+  vessel: HTMLElement | null,
+  layerTranscript: Element | null,
+  layerOverview: Element | null,
+) {
+  const p = gsap.utils.clamp(0, 1, progress);
+  const { width, height, radius } = morphFrameDims(
+    p,
+    PANEL_W,
+    160,
+    PANEL_RADIUS,
+    PANEL_W,
+    PANEL_H,
+    PANEL_RADIUS,
+  );
+
+  if (vessel) {
+    gsap.set(vessel, { width, height, borderRadius: radius });
+  }
+
+  const transcriptFade = fadeRamp(p, 0, 0.3);
+  const overviewFade = fadeRamp(p, 0.7, 1.0);
+
+  if (layerTranscript) {
+    gsap.set(layerTranscript, {
+      opacity: 1 - transcriptFade,
+      scale: gsap.utils.interpolate(1, 0.96, transcriptFade),
     });
   }
 
@@ -205,6 +233,8 @@ export function resetPipeline(root: ParentNode) {
   const anchor = q<HTMLElement>(root, "[data-story-vessel-anchor]");
   const layerMorph = q(root, "[data-story-layer-morph]");
   const layerShimmer = q(root, "[data-story-layer-shimmer]");
+  const layerTranscript = q(root, "[data-story-layer-transcript]");
+  const transcriptHighlight = q<HTMLElement>(root, "[data-story-transcript-highlight]");
   const qrContent = q(root, "[data-story-qr-content]");
   const linkContent = q(root, "[data-story-link-content]");
   const waveformContent = q(root, "[data-story-waveform-content]");
@@ -228,6 +258,8 @@ export function resetPipeline(root: ParentNode) {
   }
   if (layerMorph) gsap.set(layerMorph, { opacity: 1, scale: 1, clearProps: "transform" });
   if (layerShimmer) gsap.set(layerShimmer, { opacity: 0 });
+  if (layerTranscript) gsap.set(layerTranscript, { opacity: 0, y: 10, clearProps: "transform" });
+  if (transcriptHighlight) gsap.set(transcriptHighlight, { clearProps: "all" });
   if (qrContent) gsap.set(qrContent, { opacity: 1, scale: 1 });
   if (linkContent) gsap.set(linkContent, { opacity: 0, scale: 0.94 });
   if (waveformContent) gsap.set(waveformContent, { opacity: 0, scale: 0.96 });
@@ -244,6 +276,8 @@ export function buildFluidPipelineTimeline(root: ParentNode): gsap.core.Timeline
   const vessel = q<HTMLElement>(root, "[data-story-vessel]");
   const layerMorph = q(root, "[data-story-layer-morph]");
   const layerShimmer = q(root, "[data-story-layer-shimmer]");
+  const layerTranscript = q(root, "[data-story-layer-transcript]");
+  const transcriptHighlight = q<HTMLElement>(root, "[data-story-transcript-highlight]");
   const qrContent = q(root, "[data-story-qr-content]");
   const linkContent = q(root, "[data-story-link-content]");
   const waveformContent = q(root, "[data-story-waveform-content]");
@@ -278,18 +312,39 @@ export function buildFluidPipelineTimeline(root: ParentNode): gsap.core.Timeline
   }
   if (glow) tl.to(glow, { opacity: 0, duration: 0.25 }, 2.05);
 
-  // Process / Overview scene (The Magic AI Reveal)
-  tl.addLabel("process", 4.55);
-  tl.addLabel("overview", 6.0);
-
-  if (vessel && layerMorph && layerOverview) {
+  // Transcript scene
+  tl.addLabel("transcript", 4.0);
+  if (vessel && layerMorph && layerTranscript) {
     addMorphTween(
       tl,
-      4.55,
+      4.0,
       (progress) => {
-        applyWaveformToOverviewMorphFrame(progress, vessel, layerMorph, layerShimmer, layerOverview);
+        applyWaveformToTranscriptMorphFrame(progress, vessel, layerMorph, layerTranscript);
       },
-      1.45,
+      1.0,
+    );
+  }
+
+  // Process scene (The Magic AI Reveal)
+  tl.addLabel("process", 5.5);
+  if (layerShimmer) {
+    tl.to(layerShimmer, { opacity: 1, duration: 0.4, ease: EASE }, 5.5);
+    tl.to(layerShimmer, { opacity: 0, duration: 0.4, ease: EASE }, 6.5);
+  }
+  if (transcriptHighlight) {
+    tl.to(transcriptHighlight, { color: "var(--brand-accent)", fontWeight: 600, duration: 0.3 }, 5.8);
+  }
+
+  // Overview scene
+  tl.addLabel("overview", 7.5);
+  if (vessel && layerTranscript && layerOverview) {
+    addMorphTween(
+      tl,
+      7.5,
+      (progress) => {
+        applyTranscriptToOverviewMorphFrame(progress, vessel, layerTranscript, layerOverview);
+      },
+      1.0,
     );
   }
 

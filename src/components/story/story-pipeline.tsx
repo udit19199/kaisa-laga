@@ -24,6 +24,16 @@ export function StoryPipeline() {
               <StoryMorphChip glyphSize={132} />
             </div>
 
+            {/* Transcript layer */}
+            <div
+              className="absolute inset-0 flex items-center justify-center p-6 opacity-0 bg-[var(--brand-paper)]"
+              data-story-layer-transcript
+            >
+              <p className="text-lg leading-relaxed text-[var(--brand-ink)] text-center italic">
+                &quot;<span data-story-transcript-highlight>{STORY_MOCK.rawTranscript}</span>&quot;
+              </p>
+            </div>
+
             {/* AI Shimmer effect container */}
             <div 
               className="absolute inset-0 flex items-center justify-center opacity-0 bg-[var(--brand-paper)]"
@@ -33,39 +43,30 @@ export function StoryPipeline() {
             </div>
 
             <div
-              className="absolute inset-0 flex min-w-0 flex-col p-5 text-left opacity-0"
+              className="absolute inset-0 flex min-w-0 flex-col p-5 text-left opacity-0 bg-white"
               data-story-layer-overview
             >
-              <div className="flex min-w-0 items-baseline justify-between gap-2">
-                <p className="min-w-0 truncate text-base font-semibold text-[var(--brand-ink)]">
-                  {STORY_MOCK.locationName}
+              <div className="flex min-w-0 items-baseline justify-between gap-2 border-b border-gray-100 pb-3">
+                <p className="min-w-0 text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                  Actionable Insights
                 </p>
-                <p className="shrink-0 text-sm text-[var(--brand-muted)]">{STORY_MOCK.voiceCount} voices</p>
               </div>
-              <div className="mt-3" data-story-overview-sentiment>
-                <p className="text-sm text-[var(--brand-muted)]">Overall sentiment</p>
-                <div className="story-sentiment-track mt-2 h-2 overflow-hidden rounded-full">
-                  <span className="block h-full w-[68%] rounded-full bg-[var(--brand-accent)]" />
+              <div className="mt-4 flex flex-col gap-3" data-story-overview-themes>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-red-500" />
+                  <span className="text-base font-medium text-gray-900">
+                    {STORY_MOCK.tag1}
+                  </span>
                 </div>
-                <p className="mt-1.5 text-sm text-[var(--brand-muted)]">Mostly positive · 1 theme flagged</p>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span className="text-base font-medium text-gray-900">
+                    {STORY_MOCK.tag2}
+                  </span>
+                </div>
               </div>
-              <div className="mt-3 flex flex-col gap-2" data-story-overview-themes>
-                <div className="story-theme-row story-theme-row-alert">
-                  <span className="min-w-0 truncate text-sm font-medium text-[var(--brand-ink)]">
-                    {STORY_MOCK.tag}
-                  </span>
-                  <span className="shrink-0 text-sm text-[var(--brand-muted)]">
-                    {STORY_MOCK.tagMentions} mentions
-                  </span>
-                </div>
-                <div className="story-theme-row">
-                  <span className="min-w-0 truncate text-sm font-medium text-[var(--brand-ink)]">
-                    {STORY_MOCK.secondTheme}
-                  </span>
-                  <span className="shrink-0 text-sm text-[var(--brand-muted)]">
-                    {STORY_MOCK.secondThemeMentions} mentions
-                  </span>
-                </div>
+              <div className="mt-auto pt-4 border-t border-gray-100" data-story-overview-sentiment>
+                <p className="text-sm font-semibold text-[var(--brand-accent)]">Action: {STORY_MOCK.action}</p>
               </div>
             </div>
           </div>
