@@ -9,7 +9,7 @@
     "unrs-resolver"
   ],
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--no-deprecation' next dev",
     "inngest:dev": "inngest-cli dev -u http://localhost:3000/api/inngest",
     "build": "next build",
     "start": "next start",

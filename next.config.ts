@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
       html2canvas: "html2canvas-pro",
     },
   },
+  // @ts-ignore - Supress TS error if allowedDevOrigins isn't in types yet
+  allowedDevOrigins: ['192.168.1.48'],
 };
 
 export default nextConfig;
