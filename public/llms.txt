@@ -1,0 +1,26 @@
+# Auris - AI-Powered Voice Reviews for Local Businesses
+
+> Replace ignored surveys with 5-second voice reviews. 
+
+Auris is an internal early-warning system for local service businesses (salons, restaurants, clinics). 
+Customers scan a QR code to leave a quick voice note. Our AI instantly turns it into operational insights for your dashboard. No typing. No apps. Just the truth.
+
+## Why Voice?
+Traditional surveys have a 2% completion rate because they feel like homework. Voice is effortless, and it contains the nuance that a simple rating strips away.
+
+## How it works:
+1. Place the QR Code: We mail you a premium acrylic display. Place it on your counter or tables.
+2. Customers Speak: They scan and record a 5-second note. No app downloads required.
+3. AI Synthesizes: You get a daily summary of sentiment, flagged issues, and operational alerts.
+
+## Pricing:
+- Starter: $49/month (1 Location, 500 voice reviews)
+- Growth: $129/month (Up to 3 Locations, Unlimited reviews, Real-time SMS alerts)
+
+## Privacy:
+100% Private to Management. Auris is not a public megaphone. Give angry customers a private channel to vent directly to you, so they don't take their frustration to Yelp.
+
+## Resources
+- [Main Website](https://pulsedrop.app)
+- [Start Free Trial](https://pulsedrop.app/dashboard/signup)
+- [Login](https://pulsedrop.app/dashboard/login)
