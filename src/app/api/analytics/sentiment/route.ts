@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireOrgContext } from "@/lib/clerk-org";
 import { subDays, format } from "date-fns";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await requireOrgContext();
+  if (!ctx.ok) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
   const { searchParams } = request.nextUrl;
@@ -17,18 +13,33 @@ export async function GET(request: NextRequest) {
   const days = Math.min(90, Math.max(1, parseInt(searchParams.get("days") ?? "7", 10)));
   const since = subDays(new Date(), days).toISOString();
 
-  let query = supabase
+  const { data: orgLocations } = await ctx.admin
+    .from("locations")
+    .select("id")
+    .eq("org_id", ctx.organization.id);
+
+  const locationIds = (orgLocations ?? []).map((l) => l.id);
+  if (locationIds.length === 0) {
+    const series = Array.from({ length: days }, (_, i) => ({
+      date: format(subDays(new Date(), days - 1 - i), "yyyy-MM-dd"),
+      Positive: 0,
+      Neutral: 0,
+      Negative: 0,
+    }));
+    return NextResponse.json({ days, series });
+  }
+
+  if (locationId && !locationIds.includes(locationId)) {
+    return NextResponse.json({ error: "Location not found" }, { status: 404 });
+  }
+
+  const { data, error } = await ctx.admin
     .from("submissions")
     .select("sentiment, created_at, location_id")
+    .in("location_id", locationId ? [locationId] : locationIds)
     .eq("status", "processed")
     .gte("created_at", since)
     .not("sentiment", "is", null);
-
-  if (locationId) {
-    query = query.eq("location_id", locationId);
-  }
-
-  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

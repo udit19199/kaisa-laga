@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
+import { LiquidGlass } from "@/components/liquid-glass";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/dashboard", label: "Inbox" },
@@ -16,42 +15,33 @@ const navItems = [
 
 export function DashboardNav() {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/dashboard/login");
-  };
 
   return (
-    <header className="border-b bg-background">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <div className="flex items-center gap-6">
+    <LiquidGlass as="header" variant="nav" className="sticky top-0 border-b-0">
+      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex items-center justify-between gap-4">
           <Link href="/dashboard" className="text-lg font-semibold">
             Pulse Drop
           </Link>
-          <nav className="hidden items-center gap-1 sm:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "rounded-md px-3 py-1.5 text-sm transition-colors",
-                  pathname === item.href
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <UserButton />
         </div>
-        <Button variant="outline" size="sm" onClick={handleSignOut}>
-          Sign out
-        </Button>
+        <nav className="-mx-1 flex gap-1 overflow-x-auto pb-0.5 sm:mx-0 sm:pb-0">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "shrink-0 rounded-md px-3 py-1.5 text-sm transition-colors",
+                pathname === item.href
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
       </div>
-    </header>
+    </LiquidGlass>
   );
 }

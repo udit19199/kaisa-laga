@@ -5,7 +5,8 @@ export interface Organization {
   name: string;
   primary_language: string;
   alert_email: string | null;
-  owner_user_id: string;
+  owner_user_id: string | null;
+  clerk_user_id: string | null;
   created_at: string;
   updated_at: string;
 }

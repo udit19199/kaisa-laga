@@ -1,56 +1,32 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
-import { getSupabasePublishableKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export async function proxy(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/f(.*)",
+  "/demo(.*)",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+  "/api/inngest(.*)",
+  "/api/webhooks(.*)",
+]);
 
-  const supabase = createServerClient(
-    getSupabaseUrl(),
-    getSupabasePublishableKey(),
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (request.nextUrl.pathname.startsWith("/dashboard") && !request.nextUrl.pathname.startsWith("/dashboard/login") && !request.nextUrl.pathname.startsWith("/dashboard/signup")) {
-    if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard/login";
-      return NextResponse.redirect(url);
-    }
-  }
-
+export default clerkMiddleware(async (auth, request) => {
   if (
-    (request.nextUrl.pathname === "/dashboard/login" ||
-      request.nextUrl.pathname === "/dashboard/signup") &&
-    user
+    request.nextUrl.pathname === "/api/submissions" &&
+    request.method === "POST"
   ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    return;
   }
 
-  return supabaseResponse;
-}
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+});
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+    "/__clerk/:path*",
+  ],
 };

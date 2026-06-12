@@ -23,6 +23,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DASHBOARD_POLL_INTERVAL_MS } from "@/lib/constants";
 
 interface Location {
@@ -39,6 +40,7 @@ export default function AnalyticsPage() {
   const [categoryData, setCategoryData] = useState<
     Array<{ tag: string; count: number }>
   >([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     const locParam = selectedLocation === "all" ? "" : `&locationId=${selectedLocation}`;
@@ -61,9 +63,11 @@ export default function AnalyticsPage() {
       const data = await catRes.json();
       setCategoryData(data.categories ?? []);
     }
+    setLoading(false);
   }, [selectedLocation]);
 
   useEffect(() => {
+    setLoading(true);
     fetchData();
     const interval = setInterval(fetchData, DASHBOARD_POLL_INTERVAL_MS);
     return () => clearInterval(interval);
@@ -97,6 +101,15 @@ export default function AnalyticsPage() {
             <CardTitle>Daily Sentiment (7 days)</CardTitle>
           </CardHeader>
           <CardContent>
+            {loading ? (
+              <Skeleton className="h-64 w-full" />
+            ) : sentimentData.every(
+                (d) => d.Positive === 0 && d.Neutral === 0 && d.Negative === 0,
+              ) ? (
+              <p className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+                No processed feedback in the last 7 days.
+              </p>
+            ) : (
             <ChartContainer
               config={{
                 Positive: { label: "Positive", color: "hsl(var(--chart-1))" },
@@ -115,6 +128,7 @@ export default function AnalyticsPage() {
                 <Line type="monotone" dataKey="Negative" stroke="var(--color-Negative)" />
               </LineChart>
             </ChartContainer>
+            )}
           </CardContent>
         </Card>
 
@@ -123,6 +137,13 @@ export default function AnalyticsPage() {
             <CardTitle>Top Categories (7 days)</CardTitle>
           </CardHeader>
           <CardContent>
+            {loading ? (
+              <Skeleton className="h-64 w-full" />
+            ) : categoryData.length === 0 ? (
+              <p className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+                No tags yet — categories appear after feedback is processed.
+              </p>
+            ) : (
             <ChartContainer
               config={{
                 count: { label: "Count", color: "hsl(var(--chart-1))" },
@@ -137,6 +158,7 @@ export default function AnalyticsPage() {
                 <Bar dataKey="count" fill="var(--color-count)" radius={4} />
               </BarChart>
             </ChartContainer>
+            )}
           </CardContent>
         </Card>
       </div>

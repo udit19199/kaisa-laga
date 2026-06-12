@@ -27,6 +27,15 @@ export const processSubmission = inngest.createFunction(
       return data;
     });
 
+    if (submission.status === "processed" && submission.processed_at) {
+      return {
+        submissionId,
+        sentiment: submission.sentiment,
+        alertSent: false,
+        skipped: true,
+      };
+    }
+
     const audioBase64 = await step.run("download-audio", async () => {
       const { data, error } = await supabase.storage
         .from("submissions-audio")

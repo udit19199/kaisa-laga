@@ -9,7 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-geist-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,38 +49,59 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(0.985 0.008 245);
+  --foreground: oklch(0.18 0.01 245);
+  --card: oklch(0.995 0.006 245);
+  --card-foreground: oklch(0.18 0.01 245);
+  --popover: oklch(0.995 0.006 245);
+  --popover-foreground: oklch(0.18 0.01 245);
+  --primary: oklch(0.205 0.01 245);
+  --primary-foreground: oklch(0.985 0.008 245);
+  --secondary: oklch(0.96 0.01 245);
+  --secondary-foreground: oklch(0.205 0.01 245);
+  --muted: oklch(0.96 0.01 245);
+  --muted-foreground: oklch(0.48 0.015 245);
+  --accent: oklch(0.94 0.015 240);
+  --accent-foreground: oklch(0.205 0.01 245);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.91 0.012 245);
+  --input: oklch(0.91 0.012 245);
+  --ring: oklch(0.68 0.04 245);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.985 0.008 245);
+  --sidebar-foreground: oklch(0.18 0.01 245);
+  --sidebar-primary: oklch(0.205 0.01 245);
+  --sidebar-primary-foreground: oklch(0.985 0.008 245);
+  --sidebar-accent: oklch(0.96 0.01 245);
+  --sidebar-accent-foreground: oklch(0.205 0.01 245);
+  --sidebar-border: oklch(0.91 0.012 245);
+  --sidebar-ring: oklch(0.68 0.04 245);
+
+  /* Shared brand layer — sky/glass across marketing, auth, capture, dashboard */
+  --brand-sky-soft: oklch(0.92 0.04 240);
+  --brand-sky: oklch(0.82 0.08 240);
+  --brand-paper: oklch(0.97 0.008 245);
+  --brand-sand: oklch(0.93 0.012 242);
+  --brand-ink: oklch(0.18 0.01 245);
+  --brand-muted: oklch(0.48 0.015 245);
+  --brand-mic: oklch(0.22 0 0);
+  --brand-live: oklch(0.72 0.19 155);
+  --brand-live-ring: oklch(0.72 0.19 155 / 0.35);
+  --brand-accent: oklch(0.58 0.11 245);
+  --brand-accent-ring: oklch(0.58 0.11 245 / 0.22);
+  --brand-join: oklch(0.62 0.19 255);
+  --glass-bg: oklch(1 0 0 / 0.55);
+  --glass-border: oklch(1 0 0 / 0.65);
+  --glass-blur: 24px;
+  --glass-saturate: 1.5;
+  --glass-highlight:
+    inset 0 1px 0 oklch(1 0 0 / 0.35),
+    0 8px 24px oklch(0.52 0.08 255 / 0.1);
 }
 
 .dark {
@@ -129,30 +150,143 @@
   }
 }
 
-/* Customer capture surface — Clubhouse-inspired (see DESIGN.md Color Decision) */
+/* Brand surface — cool sky gradient background */
+.brand-surface {
+  --landing-paper: var(--brand-paper);
+  --landing-bg: var(--brand-sand);
+  --landing-card: oklch(0.995 0.006 245);
+  --landing-sand: var(--brand-sand);
+  --landing-sky: var(--brand-sky);
+  --landing-sky-soft: var(--brand-sky-soft);
+  --landing-ink: var(--brand-ink);
+  --landing-muted: var(--brand-muted);
+  --landing-mic: var(--brand-mic);
+  --landing-live: var(--brand-live);
+  --landing-join: var(--brand-join);
+  --landing-accent: var(--brand-accent);
+  --landing-accent-ring: var(--brand-accent-ring);
+  --story-accent: var(--brand-accent);
+  --story-accent-ring: var(--brand-accent-ring);
+  --landing-mint: oklch(0.78 0.11 165);
+  --landing-peach: oklch(0.62 0.12 45);
+  --landing-sun: oklch(0.88 0.14 95);
+  --landing-lavender: oklch(0.78 0.08 285);
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background: linear-gradient(
+    180deg,
+    var(--brand-sky-soft) 0%,
+    var(--brand-sky) 38%,
+    var(--brand-paper) 72%
+  );
+  color: var(--brand-ink);
+}
+
+
+/* liquidGL — WebGL glass with CSS fallback (see LiquidGlassProvider) */
+:root {
+  --liquid-glass-z: 50;
+}
+
+.liquidGL-root {
+  isolation: isolate;
+}
+
+.liquidGL {
+  z-index: 1;
+}
+
+.liquid-glass-content {
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+body[data-liquid-glass="ready"] .liquidGL.glass-nav,
+body[data-liquid-glass="ready"] .liquidGL.glass-panel,
+body[data-liquid-glass="ready"] .liquidGL.glass-card {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.glass-nav {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.4),
+    0 1px 0 oklch(0.18 0 0 / 0.04);
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.35);
+}
+
+.glass-card {
+  background: oklch(1 0 0 / 0.72);
+  backdrop-filter: blur(16px) saturate(1.35);
+  -webkit-backdrop-filter: blur(16px) saturate(1.35);
+  border: 1px solid oklch(1 0 0 / 0.55);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.3);
+}
+
+.landing-glass-nav {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.4),
+    0 1px 0 oklch(0.18 0 0 / 0.04);
+}
+
+.landing-sky-glow {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.95 0.04 240 / 0.9), transparent 70%),
+    radial-gradient(ellipse 40% 30% at 20% 20%, oklch(1 0 0 / 0.5), transparent 60%),
+    radial-gradient(ellipse 35% 28% at 80% 18%, oklch(1 0 0 / 0.45), transparent 60%);
+}
+
+.landing-display {
+  font-family: var(--font-landing-display), ui-serif, Georgia, serif;
+}
+
+/* Customer capture surface — cool sky-paper (aligned with brand) */
 .capture-surface {
-  --capture-bg: oklch(0.93 0.014 78);
-  --capture-card: oklch(0.99 0.005 85);
-  --capture-sand: oklch(0.9 0.016 72);
-  --capture-ink: oklch(0.18 0 0);
-  --capture-muted: oklch(0.52 0.015 78);
-  --capture-mic: oklch(0.22 0 0);
-  --capture-live: oklch(0.72 0.19 155);
+  --capture-bg: var(--brand-sand);
+  --capture-card: var(--brand-paper);
+  --capture-sand: oklch(0.91 0.012 242);
+  --capture-ink: var(--brand-ink);
+  --capture-muted: var(--brand-muted);
+  --capture-mic: var(--brand-mic);
+  --capture-live: var(--brand-live);
   --capture-live-soft: oklch(0.72 0.19 155 / 0.14);
-  --capture-live-ring: oklch(0.72 0.19 155 / 0.35);
+  --capture-live-ring: var(--brand-live-ring);
   --capture-join: oklch(0.62 0.19 255);
   --capture-peach: oklch(0.62 0.12 45);
   --capture-mint: oklch(0.78 0.11 165);
-  --capture-sky: oklch(0.72 0.1 240);
+  --capture-sky: var(--brand-sky);
   --capture-sun: oklch(0.88 0.14 95);
   position: relative;
   isolation: isolate;
-  background-color: var(--capture-bg);
+  background: linear-gradient(
+    180deg,
+    var(--brand-sky-soft) 0%,
+    var(--brand-sand) 55%,
+    var(--brand-paper) 100%
+  );
   color: var(--capture-ink);
 }
 
 .capture-dock {
-  box-shadow: 0 -1px 0 oklch(0.18 0 0 / 0.07);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.35);
 }
 
 .capture-status {

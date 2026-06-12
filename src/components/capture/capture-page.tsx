@@ -6,6 +6,12 @@ import { extensionForAudioMimeType, getSupportedRecordingMimeType } from "@/lib/
 import { MAX_RECORDING_SECONDS } from "@/lib/constants";
 import type { Locale } from "@/lib/i18n/capture";
 import { t } from "@/lib/i18n/capture";
+import {
+  DEFAULT_RECORD_SIZE,
+  RecordProgressRing,
+  RecordingWaveform,
+} from "@/components/capture/record-primitives";
+import { LiquidGlass, LiquidGlassProvider } from "@/components/liquid-glass";
 import { cn } from "@/lib/utils";
 
 type CaptureState = "idle" | "recording" | "uploading" | "done" | "error";
@@ -16,67 +22,9 @@ interface CapturePageProps {
   locale: Locale;
 }
 
-const RECORD_SIZE = 136;
-const RING_STROKE = 3;
-const RING_RADIUS = (RECORD_SIZE - RING_STROKE) / 2;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+const RECORD_SIZE = DEFAULT_RECORD_SIZE;
 
 const STEP_KEYS = ["stepHold", "stepTalk", "stepRelease"] as const;
-
-function RecordingWaveform({ levels }: { levels: number[] }) {
-  return (
-    <div className="flex h-7 items-end justify-center gap-[3px]" aria-hidden>
-      {levels.map((scale, i) => (
-        <span
-          key={i}
-          className="w-[3px] rounded-full bg-[var(--capture-live)] transition-[height] duration-150 ease-out"
-          style={{ height: `${Math.max(18, scale * 100)}%` }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function RecordProgressRing({
-  progress,
-  showProgress = true,
-}: {
-  progress: number;
-  showProgress?: boolean;
-}) {
-  const offset = RING_CIRCUMFERENCE * (1 - progress);
-  return (
-    <svg
-      className="pointer-events-none absolute inset-0 size-full -rotate-90"
-      viewBox={`0 0 ${RECORD_SIZE} ${RECORD_SIZE}`}
-      aria-hidden
-    >
-      <circle
-        cx={RECORD_SIZE / 2}
-        cy={RECORD_SIZE / 2}
-        r={RING_RADIUS}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={RING_STROKE}
-        className="text-[var(--capture-live-ring)] opacity-35"
-      />
-      {showProgress ? (
-        <circle
-          cx={RECORD_SIZE / 2}
-          cy={RECORD_SIZE / 2}
-          r={RING_RADIUS}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={RING_STROKE}
-          strokeLinecap="round"
-          strokeDasharray={RING_CIRCUMFERENCE}
-          strokeDashoffset={offset}
-          className="text-[var(--capture-live)] transition-[stroke-dashoffset] duration-300 ease-out"
-        />
-      ) : null}
-    </svg>
-  );
-}
 
 function CaptureSteps({
   locale,
@@ -114,9 +62,12 @@ function RoomChrome({ locationName }: { locationName: string }) {
           pulse drop
         </p>
         {locationName ? (
-          <h1 className="mt-1 truncate text-base font-medium text-[var(--capture-muted)]">
+          <LiquidGlass
+            variant="panel"
+            className="mt-2 inline-block max-w-full truncate rounded-full px-3 py-1 text-sm font-medium text-[var(--capture-muted)]"
+          >
             {locationName}
-          </h1>
+          </LiquidGlass>
         ) : null}
       </div>
     </header>
@@ -271,7 +222,7 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
 
   if (state === "done") {
     return (
-      <main className="capture-surface flex min-h-dvh flex-col">
+      <LiquidGlassProvider className="capture-surface flex min-h-dvh flex-col">
         <RoomChrome locationName={locationName} />
         <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
           <div className="capture-done-enter max-w-[18rem]">
@@ -289,12 +240,12 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
             </p>
           </div>
         </div>
-      </main>
+      </LiquidGlassProvider>
     );
   }
 
   return (
-    <main className="capture-surface flex min-h-dvh flex-col">
+    <LiquidGlassProvider className="capture-surface flex min-h-dvh flex-col">
       <RoomChrome locationName={locationName} />
 
       <div className="relative z-10 flex flex-1 flex-col px-5 pt-10">
@@ -308,7 +259,11 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
         </div>
       </div>
 
-      <div className="capture-dock relative z-10 rounded-t-2xl bg-[var(--capture-card)] px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-7">
+      <LiquidGlass
+        variant="panel"
+        className="capture-dock relative rounded-t-2xl px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-7"
+        data-liquid-dynamic
+      >
         <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5">
           <CaptureSteps locale={locale} activeStep={activeStep} />
 
@@ -316,7 +271,12 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
             className="relative flex items-center justify-center"
             style={{ width: RECORD_SIZE, height: RECORD_SIZE }}
           >
-            <RecordProgressRing progress={recordingProgress} showProgress={isRecording} />
+            <RecordProgressRing
+              size={RECORD_SIZE}
+              progress={recordingProgress}
+              showProgress={isRecording}
+              progressClassName="transition-[stroke-dashoffset] duration-300 ease-out"
+            />
 
             <button
               type="button"
@@ -392,7 +352,7 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
             {t(locale, "privacyNote")}
           </p>
         </div>
-      </div>
-    </main>
+      </LiquidGlass>
+    </LiquidGlassProvider>
   );
 }

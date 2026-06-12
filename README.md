@@ -7,7 +7,8 @@ Frictionless voice feedback capture for physical businesses. Customers scan a QR
 ## Stack
 
 - **Next.js 16** (App Router monolith)
-- **Supabase** (Postgres + Auth + Storage + RLS)
+- **Supabase** (Postgres + Storage + RLS)
+- **Clerk** (operator auth)
 - **Inngest** (async AI pipeline)
 - **OpenAI / Gemini** (STT + categorization with automatic provider fallback)
 - **Resend** (email alerts)
@@ -29,11 +30,21 @@ bun install
 cp .env.example .env.local
 ```
 
-Fill in Supabase, at least one AI provider (OpenAI and/or Gemini), Inngest, and Resend credentials.
+Fill in Supabase, Clerk, at least one AI provider (OpenAI and/or Gemini), Inngest, and Resend credentials.
 
 ### 3. Set up Supabase
 
-Run the migration in `supabase/migrations/001_initial_schema.sql` against your Supabase project (SQL Editor or CLI).
+Run migrations in `supabase/migrations/` against your Supabase project (SQL Editor or CLI).
+
+After enabling Clerk, apply the Clerk column migration and verify:
+
+```bash
+# Option A — SQL Editor: paste supabase/migrations/003_clerk_auth.sql
+
+# Option B — CLI (requires database password from Supabase dashboard)
+SUPABASE_DB_PASSWORD='…' bun run db:apply-clerk
+bun run db:verify-clerk   # should print OK
+```
 
 ### 4. Run locally
 
@@ -49,7 +60,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### 5. Operator onboarding
 
-1. Sign up at `/dashboard/signup`
+1. Sign up at `/sign-up` (Clerk) → name your business at `/dashboard/onboarding`
 2. Add locations at `/dashboard/locations`
 3. Download QR codes and deploy at tables/counters
 4. Configure alert email and primary language in Settings
@@ -59,6 +70,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | Route | Description |
 |---|---|
 | `/f/[locationId]` | Customer capture (no auth) |
+| `/sign-in`, `/sign-up` | Clerk operator auth |
+| `/dashboard/onboarding` | Create organization after signup |
 | `/dashboard` | Operator inbox |
 | `/dashboard/analytics` | Sentiment + category charts |
 | `/dashboard/locations` | Location CRUD + QR download |
@@ -77,9 +90,16 @@ bun run build   # Production build
 
 See `docs/adr/` for architecture decision records and `docs/REVISIT.md` for pre-production checklist.
 
-## Deployment (Vercel)
+## Ship to production
 
-1. Push to GitHub and import in Vercel
-2. Add all env vars from `.env.example`
-3. Run Supabase migration on production project
-4. Register Inngest app with your Vercel deployment URL
+```bash
+git add -A && git commit -m "your change" && git push origin main
+```
+
+Push to `main` → Vercel builds and deploys automatically to [pulsedrop-six.vercel.app](https://pulsedrop-six.vercel.app).
+
+See [`docs/DEPLOY.md`](docs/DEPLOY.md) for the full workflow, preview deploys, and CI.
+
+**One-time setup** (already done): GitHub repo connected to Vercel, env vars in project settings, migration 003 applied.
+
+**Manual deploy only if needed:** `vercel deploy --prod`

@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { requireOrgContext } from "@/lib/clerk-org";
 import { inngest } from "@/inngest/client";
 import { extensionForAudioMimeType, normalizeStorageContentType } from "@/lib/audio";
 import { MAX_AUDIO_SIZE_BYTES } from "@/lib/constants";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { randomUUID } from "crypto";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await requireOrgContext();
+  if (!ctx.ok) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
   const { searchParams } = request.nextUrl;
@@ -22,15 +19,32 @@ export async function GET(request: NextRequest) {
   const pageSize = 20;
   const offset = (page - 1) * pageSize;
 
-  let query = supabase
+  const { data: orgLocations } = await ctx.admin
+    .from("locations")
+    .select("id")
+    .eq("org_id", ctx.organization.id);
+
+  const locationIds = (orgLocations ?? []).map((l) => l.id);
+  if (locationIds.length === 0) {
+    return NextResponse.json({
+      items: [],
+      page,
+      pageSize,
+      total: 0,
+      totalPages: 0,
+    });
+  }
+
+  if (locationId && !locationIds.includes(locationId)) {
+    return NextResponse.json({ error: "Location not found" }, { status: 404 });
+  }
+
+  let query = ctx.admin
     .from("submissions")
     .select("*, locations(id, name)", { count: "exact" })
+    .in("location_id", locationId ? [locationId] : locationIds)
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);
-
-  if (locationId) {
-    query = query.eq("location_id", locationId);
-  }
 
   const { data, error, count } = await query;
 
@@ -49,6 +63,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+
     const formData = await request.formData();
     const locationId = formData.get("locationId") as string | null;
     const audio = formData.get("audio") as File | null;
@@ -57,6 +74,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "locationId and audio are required" },
         { status: 400 },
+      );
+    }
+
+    const rateKey = `submit:${clientIp}:${locationId}`;
+    const rate = checkRateLimit(rateKey, 10, 60_000);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "Too many submissions. Please try again later." },
+        {
+          status: 429,
+          headers: rate.retryAfterSec
+            ? { "Retry-After": String(rate.retryAfterSec) }
+            : undefined,
+        },
       );
     }
 
@@ -118,6 +149,10 @@ export async function POST(request: NextRequest) {
       });
     } catch (inngestError) {
       console.error("Inngest dispatch failed:", inngestError);
+      return NextResponse.json(
+        { error: "Submission saved but processing could not be started" },
+        { status: 503 },
+      );
     }
 
     return NextResponse.json({ id: submissionId, status: "pending" }, { status: 201 });

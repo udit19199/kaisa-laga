@@ -6,12 +6,30 @@ brand
 
 ## Users
 
-- **Customers** at physical locations: scanning a QR on their phone, often in a hurry, one-handed, ambient noise. Job: leave quick voice feedback without friction or account creation.
-- **Operators** (restaurant/retail managers): checking feedback between shifts, often on desktop or tablet. Job: spot fixable problems fast, understand sentiment trends, configure locations and alerts.
+- **Customers** anywhere they have a link or QR: in-store, after a visit, or later when something comes to mind. Often on mobile, one-handed, little patience for forms. Job: leave quick spoken feedback without friction or account creation.
+- **Operators** (owners and managers at any business or startup that needs richer customer input than forms): checking feedback between shifts, often on desktop or tablet. Job: see how each outlet is performing, spot themes and sentiment fast, drill into transcripts only when needed.
 
 ## Product Purpose
 
-Pulse Drop captures voice feedback at the point of experience and turns it into structured operator insight (transcripts, sentiment, tags, alerts). Success: customers complete a recording in seconds; operators act on negative feedback before it becomes a pattern.
+Pulse Drop gives customers a voice-first channel for feedback and turns it into structured operator insight (sentiment overview, themes, tags, alerts; transcripts on drill-down). Success: customers complete a recording in seconds; operators see the big picture per location and act before issues become patterns.
+
+## Homepage (marketing `/`)
+
+**Audience:** Any business or startup where generic forms and comment cards are not enough.
+
+**Page structure (illustration-led, minimal copy):**
+
+1. **Hero** — "Your channel for feedback, insights, and action" only. No duplicate signup CTAs on the page.
+2. **Nav** — Log in + 7-day free trial (single conversion path for users who want to skip ahead).
+3. **Narrative (3 floating illustrated steps)** — Scan → hold and speak → overview first. CSS scroll reveals; no phone chrome, no Remotion for now.
+
+**Operator onboarding (implied in product, not a long landing section):** Sign up → add location(s) → QR generated per outlet for performance monitoring.
+
+**Trial:** 7 days free so owners can see how it feels before committing.
+
+## Operator experience (direction)
+
+MVP inbox may list individual transcripts; **target experience** is overview-first: overall sentiment and recurring themes per outlet, with drill-down to specific voices when the operator chooses.
 
 ## Brand Personality
 

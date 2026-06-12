@@ -3,5 +3,5 @@ export default function DashboardAuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <div className="brand-surface min-h-dvh">{children}</div>;
 }

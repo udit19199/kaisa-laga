@@ -1,0 +1,8 @@
+# Minimal Supabase CLI config for remote migrations.
+# Run: npx supabase login && npx supabase link --project-ref wfnvlxtdblyrxgewzauw
+# Then: npx supabase db push
+
+project_id = "wfnvlxtdblyrxgewzauw"
+
+[db]
+major_version = 15

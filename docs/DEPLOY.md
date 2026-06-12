@@ -1,0 +1,73 @@
+# Deploy workflow
+
+PulseDrop uses **Vercel Git integration**: every push to `main` builds and deploys to production automatically.
+
+**Production URL:** https://pulsedrop-six.vercel.app
+
+## Day-to-day flow
+
+```bash
+# 1. Work locally
+bun dev
+
+# 2. Verify (optional but recommended)
+bun test
+bun run build
+
+# 3. Ship
+git add -A
+git commit -m "Describe your change"
+git push origin main
+```
+
+Within ~1–2 minutes, Vercel picks up the push, runs `bun install` + `bun run build`, and promotes the deployment to production.
+
+Track progress: [Vercel → pulsedrop → Deployments](https://vercel.com/udit19199/pulsedrop)
+
+## What runs automatically
+
+| Trigger | What happens |
+|---------|----------------|
+| Push to `main` | Vercel **production** deploy |
+| Push to other branch | Vercel **preview** deploy (unique URL) |
+| Pull request | GitHub Actions **CI** (tests + build); Vercel preview if branch is pushed |
+
+## What does *not* auto-deploy
+
+| Item | Where it lives |
+|------|----------------|
+| Environment variables | [Vercel project settings](https://vercel.com/udit19199/pulsedrop/settings/environment-variables) — change once, all future deploys pick them up |
+| Supabase SQL migrations | Run manually in SQL Editor, or `SUPABASE_DB_PASSWORD=… bun run db:apply-clerk` for new migration files |
+| Clerk / Inngest dashboard config | Clerk + Inngest consoles |
+
+Do **not** commit `.env.local`. Secrets stay in Vercel env vars.
+
+## First-time / manual deploy
+
+Only needed if Git integration is disconnected:
+
+```bash
+vercel link          # once per machine
+vercel deploy --prod # emergency manual production deploy
+```
+
+Git is already connected: `vercel git connect` reports `udit19199/pulsedrop` is linked.
+
+## Optional: require CI before merge
+
+In GitHub → **Settings → Branches** → branch protection on `main`:
+
+- Require status check: `test-and-build` (from `.github/workflows/ci.yml`)
+
+Vercel still deploys on push; this only blocks merging PRs that fail tests.
+
+## Preview URLs
+
+Open a PR or push a feature branch:
+
+```bash
+git checkout -b feature/my-change
+git push -u origin feature/my-change
+```
+
+Vercel comments on the PR with a preview URL (if GitHub integration is enabled on the Vercel project).
