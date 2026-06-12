@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { LandingHero } from "@/components/marketing/landing-hero";
-import { StoryNarrative } from "@/components/marketing/story-narrative";
-import { WhyVoice } from "@/components/marketing/why-voice";
-import { DashboardShowcase } from "@/components/marketing/dashboard-showcase";
+import { ProductDemo } from "@/components/marketing/product-demo";
+import { SocialProof } from "@/components/marketing/social-proof";
 import { PrivateFeedback } from "@/components/marketing/private-feedback";
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { FaqSection } from "@/components/marketing/faq-section";
@@ -14,9 +13,33 @@ function LandingNav() {
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-5 sm:px-6">
       <nav className="glass-nav pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-4 rounded-full px-4 py-2.5 sm:px-5">
-        <Link href="/" className="shrink-0 text-sm font-bold tracking-[0.18em] text-[var(--brand-ink)]">
-          PULSE DROP
+        <Link
+          href="/"
+          className="shrink-0 text-sm font-bold tracking-[0.18em] text-[var(--brand-ink)]"
+        >
+          AURIS
         </Link>
+
+        <div className="hidden items-center gap-5 sm:flex">
+          <a
+            href="#product"
+            className="text-sm text-[var(--brand-muted)] transition-colors hover:text-[var(--brand-ink)]"
+          >
+            Product
+          </a>
+          <a
+            href="#faq"
+            className="text-sm text-[var(--brand-muted)] transition-colors hover:text-[var(--brand-ink)]"
+          >
+            FAQ
+          </a>
+          <a
+            href="#pricing"
+            className="text-sm text-[var(--brand-muted)] transition-colors hover:text-[var(--brand-ink)]"
+          >
+            Pricing
+          </a>
+        </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
@@ -32,7 +55,7 @@ function LandingNav() {
               "h-9 rounded-full bg-[var(--brand-ink)] px-4 text-sm text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90",
             )}
           >
-            Start free trial
+            Join private pilot
           </Link>
         </div>
       </nav>
@@ -47,9 +70,8 @@ export function LandingPage() {
 
       <main className="relative">
         <LandingHero />
-        <StoryNarrative />
-        <WhyVoice />
-        <DashboardShowcase />
+        <ProductDemo />
+        <SocialProof />
         <PrivateFeedback />
         <PricingSection />
         <FaqSection />

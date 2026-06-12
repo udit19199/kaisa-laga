@@ -5,32 +5,31 @@ import { cn } from "@/lib/utils";
 export function LandingHero() {
   return (
     <section
-      className="relative flex flex-col items-center px-4 pt-28 text-center sm:px-6 sm:pt-32"
+      className="relative flex flex-col items-center px-4 pt-32 pb-16 text-center sm:px-6 sm:pt-40 sm:pb-20"
       aria-label="Auris introduction"
     >
+      <p className="text-xs font-semibold tracking-[0.22em] text-[var(--brand-muted)] uppercase">
+        Built for local service businesses
+      </p>
       <h1
         className={cn(
-          "landing-display mx-auto max-w-[20ch]",
-          "text-[clamp(2.5rem,6vw,4rem)] leading-[1.05] tracking-[-0.02em] text-[var(--brand-ink)]",
+          "landing-display mx-auto mt-6 max-w-[16ch]",
+          "text-[clamp(3rem,7vw,5.5rem)] leading-[0.97] tracking-[-0.03em] text-[var(--brand-ink)]",
           "[text-wrap:balance]",
         )}
       >
-        Most customers never tell you what went wrong.
+        Some things customers only say out loud.
       </h1>
-      
-      <p className="mt-6 mx-auto max-w-[46ch] text-[clamp(1rem,1.5vw,1.125rem)] leading-relaxed text-[var(--brand-muted)] [text-wrap:balance]">
-        Traditional surveys feel like homework, so most customers ignore them. You are operating blind. Auris replaces forms with a frictionless 5-second voice note.
-      </p>
 
-      <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
+      <div className="mt-16 flex flex-col items-center gap-4 sm:flex-row">
         <Link
-          href="/dashboard/signup"
+          href="/sign-up"
           className={cn(
             buttonVariants({ size: "lg" }),
-            "rounded-full bg-[var(--brand-ink)] px-8 text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90",
+            "h-12 rounded-full bg-[var(--brand-ink)] px-8 text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90",
           )}
         >
-          Start your free trial
+          Join the private pilot
         </Link>
       </div>
     </section>

@@ -1,13 +1,21 @@
 export function SocialProof() {
   return (
-    <section className="border-y border-[var(--brand-ink)]/5 bg-[var(--brand-paper)]/50 py-12 text-center">
-      <p className="text-sm font-medium uppercase tracking-widest text-[var(--brand-muted)]">
-        Currently in private pilot with
-      </p>
-      <div className="mx-auto mt-6 flex max-w-4xl flex-wrap justify-center gap-x-12 gap-y-6 opacity-60">
-        <div className="text-xl font-bold text-[var(--brand-ink)] tracking-tight">Independent Salons</div>
-        <div className="text-xl font-bold text-[var(--brand-ink)] tracking-tight">Boutique Fitness</div>
-        <div className="text-xl font-bold text-[var(--brand-ink)] tracking-tight">Neighborhood Cafes</div>
+    <section className="py-[4.5rem] text-center sm:py-24">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <p className="text-sm font-medium uppercase tracking-widest text-[var(--brand-muted)]">
+          Already being shaped with
+        </p>
+        <div className="mx-auto mt-8 flex max-w-4xl flex-wrap justify-center gap-x-14 gap-y-7 opacity-72">
+          <div className="text-xl font-bold tracking-tight text-[var(--brand-ink)]">
+            Independent Salons
+          </div>
+          <div className="text-xl font-bold tracking-tight text-[var(--brand-ink)]">
+            Boutique Fitness
+          </div>
+          <div className="text-xl font-bold tracking-tight text-[var(--brand-ink)]">
+            Neighborhood Cafes
+          </div>
+        </div>
       </div>
     </section>
   );

@@ -5,36 +5,45 @@ import { cn } from "@/lib/utils";
 
 const FAQS = [
   {
-    category: "Customer Experience",
+    category: "Business",
     questions: [
       {
-        q: "Do customers need an app?",
-        a: "No. They simply scan the QR code and it opens immediately in their mobile browser."
+        q: "How is this different from Google Reviews?",
+        a: "Google Reviews are public and usually show up after the damage is done. Auris gives customers an easier, private way to tell you what happened while you still have a chance to fix it."
       },
       {
-        q: "Is feedback anonymous?",
-        a: "Customers can leave their feedback anonymously, but they have the option to leave their contact info if they want a follow-up."
+        q: "Will customers actually use this?",
+        a: "That is the whole point of the product. We are betting that speaking for a few seconds is much easier than filling out a form, especially right after the experience."
       },
       {
-        q: "Is feedback public?",
-        a: "Absolutely not. Auris is a private channel directly to management. Nothing is posted to Google or Yelp."
+        q: "What does my business actually get?",
+        a: "Auris turns those voice notes into clear themes, transcripts, and issues your team can act on instead of leaving you with vague ratings."
       }
     ]
   },
   {
-    category: "Getting Started",
+    category: "Customer Experience",
     questions: [
       {
-        q: "How long does setup take?",
-        a: "Less than 5 minutes. You sign up, enter your location name, and your QR code is generated instantly."
+        q: "Do customers need an app?",
+        a: "No. The QR code opens a lightweight webpage directly in their mobile browser."
       },
       {
-        q: "How do I get my QR code?",
-        a: "You can download it instantly from your dashboard to print yourself, or we can mail you a premium acrylic counter display."
+        q: "Is the feedback public?",
+        a: "No. Auris is a private channel for the business. Nothing is automatically posted to Google or anywhere else."
+      }
+    ]
+  },
+  {
+    category: "Operations",
+    questions: [
+      {
+        q: "Do I need to train staff or change my workflow?",
+        a: "No major workflow change. Customers use their own phones, and your team only needs to review the feedback Auris organizes for them."
       },
       {
-        q: "Can I start today?",
-        a: "Yes. You can start collecting voice feedback the moment you print your code. No complex integrations required."
+        q: "Can I still hear the original voice note?",
+        a: "Yes. The summaries make feedback easier to work with, but the original recording stays available when tone or context matters."
       }
     ]
   }
@@ -48,17 +57,17 @@ export function FaqSection() {
   };
 
   return (
-    <section className="px-4 py-24 sm:px-6 sm:py-32 bg-white" id="faq">
+    <section className="bg-white px-4 py-24 sm:px-6 sm:py-32" id="faq">
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
           <h2 className="text-3xl font-bold tracking-tight text-[var(--brand-ink)] sm:text-4xl">
-            Questions? We have answers.
+            The questions every owner asks first.
           </h2>
         </div>
         <div className="mt-16 space-y-12">
           {FAQS.map((group) => (
             <div key={group.category}>
-              <h3 className="text-xl font-semibold text-[var(--brand-ink)] mb-4">{group.category}</h3>
+              <h3 className="mb-4 text-xl font-semibold text-[var(--brand-ink)]">{group.category}</h3>
               <div className="space-y-4">
                 {group.questions.map((faq, idx) => {
                   const id = `${group.category}-${idx}`;
@@ -72,7 +81,10 @@ export function FaqSection() {
                         <span>{faq.q}</span>
                         <span className="ml-6 flex h-7 items-center">
                           <svg
-                            className={cn("h-6 w-6 transform transition-transform duration-200", isOpen ? "rotate-180" : "rotate-0")}
+                            className={cn(
+                              "h-6 w-6 transform transition-transform duration-200",
+                              isOpen ? "rotate-180" : "rotate-0",
+                            )}
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth="1.5"
