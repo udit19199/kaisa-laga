@@ -7,8 +7,10 @@ interface RouteContext {
 }
 
 export async function POST(_: Request, { params }: RouteContext) {
-  const { id } = await params;
-  const supabase = await createClient();
+  const [{ id }, supabase] = await Promise.all([
+    params,
+    createClient(),
+  ]);
   const {
     data: { user },
   } = await supabase.auth.getUser();

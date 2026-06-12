@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canOwnOrganization, getMembershipForUser } from "@/lib/org-access";
 
 const invitationSchema = z.object({
-  invited_email: z.string().email(),
+  invited_email: z.email(),
   role: z.enum(["owner", "manager", "viewer"]).default("viewer"),
 });
 

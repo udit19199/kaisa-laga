@@ -77,8 +77,10 @@ function drawBars(
   }
 }
 
+const EMPTY_DATA: number[] = [];
+
 export function Waveform({
-  data = [],
+  data = EMPTY_DATA,
   barWidth = 4,
   barHeight: baseBarHeight = 4,
   barGap = 2,

@@ -3,11 +3,10 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Check, Loader2, Mic } from "lucide-react";
 import { extensionForAudioMimeType, getSupportedRecordingMimeType } from "@/lib/audio";
-import { MAX_RECORDING_SECONDS } from "@/lib/constants";
+import { MAX_RECORDING_SECONDS, DEFAULT_RECORD_SIZE } from "@/lib/constants";
 import type { Locale } from "@/lib/i18n/capture";
 import { t } from "@/lib/i18n/capture";
 import {
-  DEFAULT_RECORD_SIZE,
   RecordProgressRing,
   RecordingWaveform,
 } from "@/components/capture/record-primitives";

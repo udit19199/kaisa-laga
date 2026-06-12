@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, use } from "react";
 import type { LiquidGlassApi } from "@/lib/liquid-glass/types";
 
 type LiquidGlassContextValue = {
@@ -16,5 +16,5 @@ export const LiquidGlassContext = createContext<LiquidGlassContextValue>({
 });
 
 export function useLiquidGlass() {
-  return useContext(LiquidGlassContext);
+  return use(LiquidGlassContext);
 }

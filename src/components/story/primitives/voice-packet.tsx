@@ -1,10 +1,11 @@
 import { cn } from "@/lib/utils";
 
+const WAVEFORM_HEIGHTS = [40, 70, 100, 55, 85, 45, 65];
+
 function MiniWaveform() {
-  const heights = [40, 70, 100, 55, 85, 45, 65];
   return (
     <div className="flex h-4 items-end gap-[2px]" aria-hidden>
-      {heights.map((h, i) => (
+      {WAVEFORM_HEIGHTS.map((h, i) => (
         <span
           key={i}
           className="w-[2px] rounded-full bg-[var(--story-accent)]"

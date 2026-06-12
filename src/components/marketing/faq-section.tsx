@@ -73,8 +73,9 @@ export function FaqSection() {
                   const id = `${group.category}-${idx}`;
                   const isOpen = openIndex === id;
                   return (
-                    <div key={idx} className="border-b border-gray-100 pb-4">
+                    <div key={faq.q} className="border-b border-gray-100 pb-4">
                       <button
+                        type="button"
                         onClick={() => toggle(id)}
                         className="flex w-full items-start justify-between text-left text-lg font-medium text-gray-900 focus:outline-none"
                       >

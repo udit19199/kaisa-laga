@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { inngest } from "@/inngest/client";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { canManageOrganization, getMembershipForUser } from "@/lib/org-access";
+import { canManageOrganization } from "@/lib/org-access";
+import { requireOrgContext } from "@/lib/clerk-org";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -10,26 +9,28 @@ interface RouteContext {
 
 export async function POST(_: Request, { params }: RouteContext) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await requireOrgContext();
+  if (!ctx.ok) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
-  const membership = await getMembershipForUser(supabase, user);
-  if (!membership || !canManageOrganization(membership.role)) {
+  // Fetch membership role
+  const { data: membership, error: memError } = await ctx.admin
+    .from("organization_memberships")
+    .select("role")
+    .eq("clerk_user_id", ctx.clerkUserId)
+    .eq("organization_id", ctx.organization.id)
+    .maybeSingle();
+
+  if (memError || !membership || !canManageOrganization(membership.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const admin = createAdminClient();
-  const { data: submission, error } = await admin
+  const { data: submission, error } = await ctx.admin
     .from("submissions")
     .select("id, organization_id, status")
     .eq("id", id)
-    .eq("organization_id", membership.organization_id)
+    .eq("organization_id", ctx.organization.id)
     .maybeSingle();
 
   if (error || !submission) {
@@ -41,7 +42,7 @@ export async function POST(_: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "Submission cannot be retried in its current state" }, { status: 409 });
   }
 
-  const { error: updateError } = await admin
+  const { error: updateError } = await ctx.admin
     .from("submissions")
     .update({
       status: "processing",
@@ -50,7 +51,7 @@ export async function POST(_: Request, { params }: RouteContext) {
       processing_started_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .eq("organization_id", membership.organization_id);
+    .eq("organization_id", ctx.organization.id);
 
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
@@ -62,7 +63,7 @@ export async function POST(_: Request, { params }: RouteContext) {
       data: { submissionId: id },
     });
   } catch (dispatchError) {
-    await admin
+    await ctx.admin
       .from("submissions")
       .update({
         status: "failed",
@@ -70,7 +71,7 @@ export async function POST(_: Request, { params }: RouteContext) {
         error_message: "Failed to queue retry",
       })
       .eq("id", id)
-      .eq("organization_id", membership.organization_id);
+      .eq("organization_id", ctx.organization.id);
 
     return NextResponse.json(
       { error: dispatchError instanceof Error ? dispatchError.message : "Failed to queue retry" },

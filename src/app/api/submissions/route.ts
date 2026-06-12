@@ -1,25 +1,15 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 import { inngest } from "@/inngest/client";
 import { extensionForAudioMimeType, normalizeStorageContentType } from "@/lib/audio";
 import { MAX_AUDIO_SIZE_BYTES } from "@/lib/constants";
-import { getMembershipForUser } from "@/lib/org-access";
+import { requireOrgContext } from "@/lib/clerk-org";
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const membership = await getMembershipForUser(supabase, user);
-  if (!membership) {
-    return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+  const ctx = await requireOrgContext();
+  if (!ctx.ok) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
   const { searchParams } = request.nextUrl;
@@ -28,10 +18,10 @@ export async function GET(request: NextRequest) {
   const pageSize = 20;
   const offset = (page - 1) * pageSize;
 
-  let query = supabase
+  let query = ctx.admin
     .from("submissions")
     .select("*, locations(id, name)", { count: "exact" })
-    .eq("organization_id", membership.organization_id)
+    .eq("organization_id", ctx.organization.id)
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);
 

@@ -25,13 +25,12 @@ export function normalizeCategorization(raw: unknown): {
     };
   }
 
-  const validTags = parsed.data.tags
-    .map((tag) => {
-      const result = tagSchema.safeParse(tag);
-      return result.success ? result.data : "Other";
-    })
-    .filter((tag, index, arr) => arr.indexOf(tag) === index)
-    .slice(0, 3);
+  const uniqueTags = new Set<(typeof TAG_TAXONOMY)[number]>();
+  for (const tag of parsed.data.tags) {
+    const result = tagSchema.safeParse(tag);
+    uniqueTags.add(result.success ? result.data : "Other");
+  }
+  const validTags = Array.from(uniqueTags).slice(0, 3);
 
   return {
     sentiment: parsed.data.sentiment,
@@ -41,7 +40,7 @@ export function normalizeCategorization(raw: unknown): {
 }
 
 export const createSubmissionSchema = z.object({
-  locationId: z.string().uuid(),
+  locationId: z.uuid(),
 });
 
 export const createLocationSchema = z.object({
@@ -51,5 +50,5 @@ export const createLocationSchema = z.object({
 export const updateOrganizationSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   primary_language: z.string().min(2).max(10).optional(),
-  alert_email: z.string().email().nullable().optional(),
+  alert_email: z.email().nullable().optional(),
 });

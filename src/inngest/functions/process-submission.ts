@@ -16,49 +16,50 @@ export const processSubmission = inngest.createFunction(
     const supabase = createAdminClient();
     const ai = createAIProvider();
 
-    const submission = await step.run("fetch-submission", async () => {
-      const { data, error } = await supabase
-        .from("submissions")
-        .select(
-          "*, locations(id, name, organization_id, organizations(primary_language, default_alert_email, alert_email, name))",
-        )
-        .eq("id", submissionId)
-        .single();
+    const [submission, attemptNumber] = await Promise.all([
+      step.run("fetch-submission", async () => {
+        const { data, error } = await supabase
+          .from("submissions")
+          .select(
+            "*, locations(id, name, organization_id, organizations(primary_language, default_alert_email, alert_email, name))",
+          )
+          .eq("id", submissionId)
+          .single();
 
-      if (error || !data) throw new Error(`Submission not found: ${submissionId}`);
-      return data;
-    });
+        if (error || !data) throw new Error(`Submission not found: ${submissionId}`);
+        return data;
+      }),
+      step.run("create-processing-attempt", async () => {
+        const { data: latestAttempt } = await supabase
+          .from("submission_processing_attempts")
+          .select("attempt_number")
+          .eq("submission_id", submissionId)
+          .order("attempt_number", { ascending: false })
+          .limit(1);
 
-    const attemptNumber = await step.run("create-processing-attempt", async () => {
-      const { data: latestAttempt } = await supabase
-        .from("submission_processing_attempts")
-        .select("attempt_number")
-        .eq("submission_id", submissionId)
-        .order("attempt_number", { ascending: false })
-        .limit(1);
+        const nextAttemptNumber = ((latestAttempt?.[0]?.attempt_number as number | undefined) ?? 0) + 1;
 
-      const nextAttemptNumber = ((latestAttempt?.[0]?.attempt_number as number | undefined) ?? 0) + 1;
+        const { data, error } = await supabase
+          .from("submission_processing_attempts")
+          .insert({
+            submission_id: submissionId,
+            attempt_number: nextAttemptNumber,
+            stage: "download",
+            provider: "auto",
+            model: null,
+            status: "processing",
+            started_at: new Date().toISOString(),
+          })
+          .select("attempt_number")
+          .single();
 
-      const { data, error } = await supabase
-        .from("submission_processing_attempts")
-        .insert({
-          submission_id: submissionId,
-          attempt_number: nextAttemptNumber,
-          stage: "download",
-          provider: "auto",
-          model: null,
-          status: "processing",
-          started_at: new Date().toISOString(),
-        })
-        .select("attempt_number")
-        .single();
+        if (error || !data) {
+          throw new Error(`Failed to create processing attempt: ${error?.message ?? "unknown"}`);
+        }
 
-      if (error || !data) {
-        throw new Error(`Failed to create processing attempt: ${error?.message ?? "unknown"}`);
-      }
-
-      return data.attempt_number as number;
-    });
+        return data.attempt_number as number;
+      }),
+    ]);
 
     await step.run("mark-processing", async () => {
       const { error } = await supabase

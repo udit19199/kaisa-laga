@@ -3,10 +3,13 @@ export const STORY_MOCK = {
   displayUrl: "url.com",
   locationName: "Harbor Café",
   rawTranscript: "The service was good, but I had to wait longer than expected and the staff seemed rushed today.",
+  tag: "Wait time issue",
   tag1: "Wait time issue",
   tag2: "Staff seemed rushed",
   action: "Check peak-hour staffing",
   voiceCount: 12,
+  sentiment: "Mixed",
+  summary: "Customer praised service but complained about wait time and rushed staff.",
 } as const;
 
 export type StorySceneId =

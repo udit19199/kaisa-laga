@@ -88,8 +88,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error || !data) {
-      await admin.from("organization_memberships").delete().eq("organization_id", organization.id);
-      await admin.from("organizations").delete().eq("id", organization.id);
+      await Promise.all([
+        admin.from("organization_memberships").delete().eq("organization_id", organization.id),
+        admin.from("organizations").delete().eq("id", organization.id),
+      ]);
       return NextResponse.json({ error: error?.message ?? "Failed to create subscription period" }, { status: 500 });
     }
 
@@ -101,9 +103,11 @@ export async function POST(request: NextRequest) {
       .eq("id", organization.id);
 
     if (updateError) {
-      await admin.from("organization_subscription_periods").delete().eq("id", data.id);
-      await admin.from("organization_memberships").delete().eq("organization_id", organization.id);
-      await admin.from("organizations").delete().eq("id", organization.id);
+      await Promise.all([
+        admin.from("organization_subscription_periods").delete().eq("id", data.id),
+        admin.from("organization_memberships").delete().eq("organization_id", organization.id),
+        admin.from("organizations").delete().eq("id", organization.id),
+      ]);
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
   }

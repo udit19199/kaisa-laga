@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { use } from "react"
 import * as RechartsPrimitive from "recharts"
 import type { TooltipValueType } from "recharts"
 
@@ -30,7 +31,7 @@ type ChartContextProps = {
 const ChartContext = React.createContext<ChartContextProps | null>(null)
 
 function useChart() {
-  const context = React.useContext(ChartContext)
+  const context = use(ChartContext)
 
   if (!context) {
     throw new Error("useChart must be used within a <ChartContainer />")
@@ -59,8 +60,10 @@ function ChartContainer({
   const uniqueId = React.useId()
   const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`
 
+  const contextValue = React.useMemo(() => ({ config }), [config])
+
   return (
-    <ChartContext.Provider value={{ config }}>
+    <ChartContext.Provider value={contextValue}>
       <div
         data-slot="chart"
         data-chart={chartId}
@@ -91,11 +94,10 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   }
 
   return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
+    <style>
+      {Object.entries(THEMES)
+        .map(
+          ([theme, prefix]) => `
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
@@ -107,10 +109,9 @@ ${colorConfig
   .join("\n")}
 }
 `
-          )
-          .join("\n"),
-      }}
-    />
+        )
+        .join("\n")}
+    </style>
   )
 }
 
@@ -146,8 +147,10 @@ function ChartTooltipContent({
   >) {
   const { config } = useChart()
 
+  const nestLabel = payload?.length === 1 && indicator !== "dot"
+
   const tooltipLabel = React.useMemo(() => {
-    if (hideLabel || !payload?.length) {
+    if (hideLabel || !active || !payload?.length) {
       return null
     }
 
@@ -180,38 +183,40 @@ function ChartTooltipContent({
     labelClassName,
     config,
     labelKey,
+    active,
   ])
 
   if (!active || !payload?.length) {
     return null
   }
 
-  const nestLabel = payload.length === 1 && indicator !== "dot"
-
   return (
     <div
       className={cn(
-        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        "grid min-w-32 items-start gap-1.5 rounded-xl bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-lg ring-1 ring-foreground/5 dark:ring-foreground/10",
         className
       )}
     >
       {!nestLabel ? tooltipLabel : null}
       <div className="grid gap-1.5">
-        {payload
-          .filter((item) => item.type !== "none")
-          .map((item, index) => {
-            const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`
-            const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color ?? item.payload?.fill ?? item.color
+        {payload.map((item, index) => {
+          if (item.type === "none") {
+            return null
+          }
 
-            return (
-              <div
-                key={index}
-                className={cn(
-                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
-                  indicator === "dot" && "items-center"
-                )}
-              >
+          const key = `${nameKey ?? item.name ?? item.dataKey ?? "value"}`
+          const itemConfig = getPayloadConfigFromPayload(config, item, key)
+          const indicatorColor = color ?? item.payload?.fill ?? item.color
+          const itemKey = `${item.dataKey || item.name || key}`
+
+          return (
+            <div
+              key={itemKey}
+              className={cn(
+                "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+                indicator === "dot" && "items-center"
+              )}
+            >
                 {formatter && item?.value !== undefined && item.name ? (
                   formatter(item.value, item.name, item, index, item.payload)
                 ) : (
@@ -296,33 +301,35 @@ function ChartLegendContent({
         className
       )}
     >
-      {payload
-        .filter((item) => item.type !== "none")
-        .map((item, index) => {
-          const key = `${nameKey ?? item.dataKey ?? "value"}`
-          const itemConfig = getPayloadConfigFromPayload(config, item, key)
+      {payload.map((item, index) => {
+        if (item.type === "none") {
+          return null
+        }
 
-          return (
-            <div
-              key={index}
-              className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
-              )}
-            >
-              {itemConfig?.icon && !hideIcon ? (
-                <itemConfig.icon />
-              ) : (
-                <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
-                  style={{
-                    backgroundColor: item.color,
-                  }}
-                />
-              )}
-              {itemConfig?.label}
-            </div>
-          )
-        })}
+        const key = `${nameKey ?? item.dataKey ?? "value"}`
+        const itemConfig = getPayloadConfigFromPayload(config, item, key)
+
+        return (
+          <div
+            key={key}
+            className={cn(
+              "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+            )}
+          >
+            {itemConfig?.icon && !hideIcon ? (
+              <itemConfig.icon />
+            ) : (
+              <div
+                className="h-2 w-2 shrink-0 rounded-[2px]"
+                style={{
+                  backgroundColor: item.color,
+                }}
+              />
+            )}
+            {itemConfig?.label}
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Inbox, QrCode } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/liquid-glass";
@@ -44,10 +46,16 @@ const sentimentVariant: Record<Sentiment, "default" | "secondary" | "destructive
 function SubmissionAudio({ submissionId }: { submissionId: string }) {
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const prevIdRef = useRef<string | null>(null);
+
+  if (submissionId !== prevIdRef.current) {
+    prevIdRef.current = submissionId;
+    setUrl(null);
+    setLoading(true);
+  }
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     fetch(`/api/submissions/${submissionId}/audio`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -67,7 +75,11 @@ function SubmissionAudio({ submissionId }: { submissionId: string }) {
 
   if (!url) return null;
 
-  return <audio controls preload="none" src={url} className="h-8 w-full max-w-sm" />;
+  return (
+    <audio controls preload="none" src={url} className="h-8 w-full max-w-sm">
+      <track kind="captions" />
+    </audio>
+  );
 }
 
 export function DashboardInbox() {
@@ -148,11 +160,24 @@ export function DashboardInbox() {
           ))}
         </div>
       ) : submissions.length === 0 ? (
-        <GlassCard>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            No submissions yet. Deploy QR codes to start collecting feedback.
-          </CardContent>
-        </GlassCard>
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="relative mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border bg-card/50 text-muted-foreground shadow-sm">
+            <div className="absolute inset-0 -z-10 rounded-2xl bg-primary/5 blur-xl" />
+            <Inbox className="h-10 w-10 text-primary" />
+          </div>
+          <h3 className="text-xl font-semibold tracking-tight animate-fade-in">No feedback captured yet</h3>
+          <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+            Deploy QR codes at your locations to start collecting real-time voice feedback from customers.
+          </p>
+          <div className="mt-6">
+            <Link href="/dashboard/locations">
+              <Button className="cursor-pointer">
+                <QrCode className="mr-2 h-4 w-4" />
+                Go to Locations
+              </Button>
+            </Link>
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col gap-4">
           {submissions.map((sub) => (

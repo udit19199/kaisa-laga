@@ -1,13 +1,14 @@
+import { DEFAULT_RECORD_SIZE } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export const DEFAULT_RECORD_SIZE = 136;
-export const DEFAULT_RING_STROKE = 3;
+const DEFAULT_RING_STROKE = 3;
 
-export function getRingMetrics(size: number, stroke = DEFAULT_RING_STROKE) {
+function getRingMetrics(size: number, stroke = DEFAULT_RING_STROKE) {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   return { radius, circumference, stroke };
 }
+
 
 export function RecordingWaveform({
   levels,

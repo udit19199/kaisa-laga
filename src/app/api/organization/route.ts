@@ -1,50 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
-import { canOwnOrganization, getMembershipForUser, getOrganizationForUser } from "@/lib/org-access";
-import { createClient } from "@/lib/supabase/server";
+import { canOwnOrganization } from "@/lib/org-access";
+import { requireOrgContext } from "@/lib/clerk-org";
 import { updateOrganizationSchema } from "@/lib/schemas";
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await requireOrgContext();
+  if (!ctx.ok) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
-  try {
-    const organization = await getOrganizationForUser(supabase, user);
-    if (!organization) {
-      return NextResponse.json({ error: "Organization not found" }, { status: 404 });
-    }
-    return NextResponse.json({
-      organization: {
-        ...organization,
-        alert_email:
-          (organization as { default_alert_email?: string | null }).default_alert_email ??
-          (organization as { alert_email?: string | null }).alert_email ??
-          null,
-      },
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load organization";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+  return NextResponse.json({
+    organization: {
+      ...ctx.organization,
+      alert_email:
+        ctx.organization.default_alert_email ??
+        ctx.organization.alert_email ??
+        null,
+    },
+  });
 }
 
 export async function PATCH(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await requireOrgContext();
+  if (!ctx.ok) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
-  const membership = await getMembershipForUser(supabase, user);
-  if (!membership || !canOwnOrganization(membership.role)) {
+  // Fetch membership role
+  const { data: membership, error: memError } = await ctx.admin
+    .from("organization_memberships")
+    .select("role")
+    .eq("clerk_user_id", ctx.clerkUserId)
+    .eq("organization_id", ctx.organization.id)
+    .maybeSingle();
+
+  if (memError || !membership || !canOwnOrganization(membership.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -54,7 +44,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await ctx.admin
     .from("organizations")
     .update({
       ...(parsed.data.name ? { name: parsed.data.name } : {}),
@@ -66,7 +56,7 @@ export async function PATCH(request: NextRequest) {
           }
         : {}),
     })
-    .eq("id", membership.organization_id)
+    .eq("id", ctx.organization.id)
     .select()
     .single();
 

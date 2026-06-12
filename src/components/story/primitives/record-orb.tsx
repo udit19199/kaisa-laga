@@ -1,6 +1,6 @@
+import { DEFAULT_RECORD_SIZE } from "@/lib/constants";
 import { Mic } from "lucide-react";
 import {
-  DEFAULT_RECORD_SIZE,
   RecordProgressRing,
   RecordingWaveform,
 } from "@/components/capture/record-primitives";

@@ -6,7 +6,7 @@ import { PrivateFeedback } from "@/components/marketing/private-feedback";
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { FaqSection } from "@/components/marketing/faq-section";
 import { FinalCta } from "@/components/marketing/final-cta";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 
 function LandingNav() {

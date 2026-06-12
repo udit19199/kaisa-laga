@@ -2,6 +2,7 @@ export const MAX_RECORDING_SECONDS = 30;
 export const MAX_AUDIO_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 export const DASHBOARD_POLL_INTERVAL_MS = 30_000;
 export const AUDIO_RETENTION_DAYS = 90;
+export const DEFAULT_RECORD_SIZE = 136;
 
 export const TAG_TAXONOMY = [
   "Wait Time",

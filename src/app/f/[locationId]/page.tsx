@@ -11,28 +11,35 @@ interface PageProps {
 }
 
 export default async function FeedbackPage({ params }: PageProps) {
-  const { locationId } = await params;
-  const headersList = await headers();
+  const [{ locationId }, headersList] = await Promise.all([
+    params,
+    headers(),
+  ]);
   const acceptLanguage = headersList.get("accept-language");
   const locale = detectLocale(acceptLanguage);
 
   let locationName = "";
   let captureToken = "";
+  let data = null;
   try {
     const supabase = createAdminClient();
-    const { data } = await supabase
+    const res = await supabase
       .from("locations")
       .select("name, public_capture_token, is_active")
       .eq("id", locationId)
       .eq("is_active", true)
       .single();
-
-    if (!data) notFound();
-    locationName = data.name;
-    captureToken = data.public_capture_token;
+    data = res.data;
   } catch {
+    // Database query failed (e.g. invalid UUID, database down)
+  }
+
+  if (!data) {
     notFound();
   }
+
+  locationName = data.name;
+  captureToken = data.public_capture_token;
 
   return (
     <CapturePage captureToken={captureToken} locationName={locationName} locale={locale} />

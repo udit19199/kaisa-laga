@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 
 type AuthControlsProps = {
