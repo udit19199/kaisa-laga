@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useOrganization } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import {
   Calendar,
   Inbox,
@@ -67,12 +68,14 @@ function Sparkline({
   data,
   width = 120,
   height = 30,
-  color = "hsl(var(--primary))",
+  color = "var(--primary)",
+  ariaLabel = "Trend sparkline",
 }: {
   data: number[];
   width?: number;
   height?: number;
   color?: string;
+  ariaLabel?: string;
 }) {
   if (!data || data.length === 0) return null;
   const max = Math.max(...data, 1);
@@ -88,7 +91,14 @@ function Sparkline({
     .join(" ");
 
   return (
-    <svg width={width} height={height} className="overflow-visible">
+    <svg
+      width={width}
+      height={height}
+      className="overflow-visible"
+      role="img"
+      aria-label={ariaLabel}
+    >
+      <title>{ariaLabel}</title>
       <polyline
         fill="none"
         stroke={color}
@@ -104,6 +114,7 @@ function Sparkline({
 export default function OverviewPage() {
   const { organization } = useOrganization();
   const orgName = organization?.name ?? "your business";
+  const router = useRouter();
 
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -179,6 +190,14 @@ export default function OverviewPage() {
   const neutralSeries = sentimentData.map((d) => d.Neutral);
   const negativeSeries = sentimentData.map((d) => d.Negative);
 
+  const dailyActiveLocationsSeries = sentimentData.map((d) => {
+    const targetDate = d.date;
+    return locationsBreakdown.filter((loc) => {
+      const dayData = loc.daily.find((day) => day.date === targetDate);
+      return dayData ? dayData.total > 0 : false;
+    }).length;
+  });
+
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       {/* Header Section */}
@@ -236,11 +255,23 @@ export default function OverviewPage() {
             </h2>
           </CardHeader>
           <CardContent className="pt-0 pb-3">
-            <div className="h-8 flex items-end">
-              {loading ? (
-                <Skeleton className="h-4 w-full" />
-              ) : (
-                <Sparkline data={totalFeedbackSeries} color="oklch(0.55 0.01 45)" width={160} />
+            <div className="flex flex-col gap-1 w-full">
+              <div className="h-8 flex items-end">
+                {loading ? (
+                  <Skeleton className="h-4 w-full" />
+                ) : (
+                  <Sparkline
+                    data={totalFeedbackSeries}
+                    color="var(--brand-muted)"
+                    width={160}
+                    ariaLabel={`${days}d feedback volume trend`}
+                  />
+                )}
+              </div>
+              {!loading && (
+                <span className="text-[10px] text-muted-foreground font-medium">
+                  {days}d feedback volume trend
+                </span>
               )}
             </div>
           </CardContent>
@@ -257,11 +288,23 @@ export default function OverviewPage() {
             </h2>
           </CardHeader>
           <CardContent className="pt-0 pb-3">
-            <div className="h-8 flex items-end">
-              {loading ? (
-                <Skeleton className="h-4 w-full" />
-              ) : (
-                <Sparkline data={positiveRateSeries} color="oklch(0.70 0.12 150)" width={160} />
+            <div className="flex flex-col gap-1 w-full">
+              <div className="h-8 flex items-end">
+                {loading ? (
+                  <Skeleton className="h-4 w-full" />
+                ) : (
+                  <Sparkline
+                    data={positiveRateSeries}
+                    color="var(--brand-live)"
+                    width={160}
+                    ariaLabel={`${days}d positive rate trend`}
+                  />
+                )}
+              </div>
+              {!loading && (
+                <span className="text-[10px] text-muted-foreground font-medium">
+                  {days}d positive rate trend
+                </span>
               )}
             </div>
           </CardContent>
@@ -278,11 +321,23 @@ export default function OverviewPage() {
             </h2>
           </CardHeader>
           <CardContent className="pt-0 pb-3">
-            <div className="h-8 flex items-end">
-              {loading ? (
-                <Skeleton className="h-4 w-full" />
-              ) : (
-                <Sparkline data={neutralSeries} color="oklch(0.55 0.01 45)" width={160} />
+            <div className="flex flex-col gap-1 w-full">
+              <div className="h-8 flex items-end">
+                {loading ? (
+                  <Skeleton className="h-4 w-full" />
+                ) : (
+                  <Sparkline
+                    data={dailyActiveLocationsSeries}
+                    color="var(--brand-accent)"
+                    width={160}
+                    ariaLabel={`${days}d active locations trend`}
+                  />
+                )}
+              </div>
+              {!loading && (
+                <span className="text-[10px] text-muted-foreground font-medium">
+                  {days}d active locations trend
+                </span>
               )}
             </div>
           </CardContent>
@@ -299,11 +354,23 @@ export default function OverviewPage() {
             </h2>
           </CardHeader>
           <CardContent className="pt-0 pb-3">
-            <div className="h-8 flex items-end">
-              {loading ? (
-                <Skeleton className="h-4 w-full" />
-              ) : (
-                <Sparkline data={negativeSeries} color="oklch(0.55 0.01 45)" width={160} />
+            <div className="flex flex-col gap-1 w-full">
+              <div className="h-8 flex items-end">
+                {loading ? (
+                  <Skeleton className="h-4 w-full" />
+                ) : (
+                  <Sparkline
+                    data={negativeSeries}
+                    color="var(--destructive)"
+                    width={160}
+                    ariaLabel={`${days}d negative volume trend`}
+                  />
+                )}
+              </div>
+              {!loading && (
+                <span className="text-[10px] text-muted-foreground font-medium">
+                  {days}d negative volume trend
+                </span>
               )}
             </div>
           </CardContent>
@@ -341,9 +408,9 @@ export default function OverviewPage() {
             ) : (
               <ChartContainer
                 config={{
-                  Positive: { label: "Positive", color: "oklch(0.72 0.19 155)" },
-                  Neutral: { label: "Neutral", color: "oklch(0.84 0.048 227)" },
-                  Negative: { label: "Negative", color: "oklch(0.64 0.16 38)" },
+                  Positive: { label: "Positive", color: "var(--brand-live)" },
+                  Neutral: { label: "Neutral", color: "var(--brand-sky)" },
+                  Negative: { label: "Negative", color: "var(--destructive)" },
                 }}
                 className="h-64 w-full"
               >
@@ -432,8 +499,14 @@ export default function OverviewPage() {
                       const trendData = item.daily.map((d) => d.total);
 
                       return (
-                        <TableRow key={item.locationId}>
-                          <TableCell className="font-semibold text-sm pl-4 truncate max-w-[120px]">
+                        <TableRow
+                          key={item.locationId}
+                          className="group cursor-pointer hover:bg-muted/30 transition-colors"
+                          onClick={() =>
+                            router.push(`/dashboard/inbox?locationId=${item.locationId}`)
+                          }
+                        >
+                          <TableCell className="font-semibold text-sm pl-4 truncate max-w-[120px] group-hover:text-primary transition-colors">
                             {locationName}
                           </TableCell>
                           <TableCell className="text-right font-medium text-sm">
@@ -458,7 +531,8 @@ export default function OverviewPage() {
                                 data={trendData}
                                 width={60}
                                 height={18}
-                                color="hsl(var(--primary))"
+                                color="var(--primary)"
+                                ariaLabel={`Daily volume trend for ${locationName}`}
                               />
                             </div>
                           </TableCell>
@@ -500,7 +574,7 @@ export default function OverviewPage() {
           ) : (
             <ChartContainer
               config={{
-                count: { label: "Count", color: "hsl(var(--primary))" },
+                count: { label: "Count", color: "var(--primary)" },
               }}
               className="h-64 w-full"
             >

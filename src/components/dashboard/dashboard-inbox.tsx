@@ -85,14 +85,24 @@ function SubmissionAudio({ submissionId }: { submissionId: string }) {
 export function DashboardInbox() {
   const searchParams = useSearchParams();
   const highlightId = searchParams.get("submission");
+  const queryLocationId = searchParams.get("locationId");
   const highlightRef = useRef<HTMLDivElement>(null);
 
   const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<string>("all");
+  const [selectedLocation, setSelectedLocation] = useState<string>(
+    queryLocationId ?? "all"
+  );
   const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    if (queryLocationId) {
+      setSelectedLocation(queryLocationId);
+      setPage(1);
+    }
+  }, [queryLocationId]);
 
   const fetchData = useCallback(async () => {
     const locParam = selectedLocation === "all" ? "" : `&locationId=${selectedLocation}`;
