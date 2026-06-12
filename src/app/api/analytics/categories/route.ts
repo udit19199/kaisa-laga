@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireOrgContext } from "@/lib/clerk-org";
+import { createClient } from "@/lib/supabase/server";
 import { subDays } from "date-fns";
+import { getMembershipForUser } from "@/lib/org-access";
 
 export async function GET(request: NextRequest) {
-  const ctx = await requireOrgContext();
-  if (!ctx.ok) {
-    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const membership = await getMembershipForUser(supabase, user);
+  if (!membership) {
+    return NextResponse.json({ error: "Organization not found" }, { status: 404 });
   }
 
   const { searchParams } = request.nextUrl;
@@ -13,26 +23,18 @@ export async function GET(request: NextRequest) {
   const days = Math.min(90, Math.max(1, parseInt(searchParams.get("days") ?? "7", 10)));
   const since = subDays(new Date(), days).toISOString();
 
-  const { data: orgLocations } = await ctx.admin
-    .from("locations")
-    .select("id")
-    .eq("org_id", ctx.organization.id);
-
-  const locationIds = (orgLocations ?? []).map((l) => l.id);
-  if (locationIds.length === 0) {
-    return NextResponse.json({ days, categories: [] });
-  }
-
-  if (locationId && !locationIds.includes(locationId)) {
-    return NextResponse.json({ error: "Location not found" }, { status: 404 });
-  }
-
-  const { data, error } = await ctx.admin
+  let query = supabase
     .from("submissions")
     .select("tags")
-    .in("location_id", locationId ? [locationId] : locationIds)
     .eq("status", "processed")
+    .eq("organization_id", membership.organization_id)
     .gte("created_at", since);
+
+  if (locationId) {
+    query = query.eq("location_id", locationId);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

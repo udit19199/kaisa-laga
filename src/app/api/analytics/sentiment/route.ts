@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireOrgContext } from "@/lib/clerk-org";
 import { subDays, format } from "date-fns";
+import { getMembershipForUser } from "@/lib/org-access";
 
 export async function GET(request: NextRequest) {
   const ctx = await requireOrgContext();
   if (!ctx.ok) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status });
+  }
+
+  const membership = await getMembershipForUser(supabase, user);
+  if (!membership) {
+    return NextResponse.json({ error: "Organization not found" }, { status: 404 });
   }
 
   const { searchParams } = request.nextUrl;
@@ -38,6 +44,7 @@ export async function GET(request: NextRequest) {
     .select("sentiment, created_at, location_id")
     .in("location_id", locationId ? [locationId] : locationIds)
     .eq("status", "processed")
+    .eq("organization_id", membership.organization_id)
     .gte("created_at", since)
     .not("sentiment", "is", null);
 

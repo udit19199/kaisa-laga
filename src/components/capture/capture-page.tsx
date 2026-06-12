@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 type CaptureState = "idle" | "recording" | "uploading" | "done" | "error";
 
 interface CapturePageProps {
-  locationId: string;
+  captureToken: string;
   locationName: string;
   locale: Locale;
 }
@@ -74,7 +74,7 @@ function RoomChrome({ locationName }: { locationName: string }) {
   );
 }
 
-export function CapturePage({ locationId, locationName, locale }: CapturePageProps) {
+export function CapturePage({ captureToken, locationName, locale }: CapturePageProps) {
   const [state, setState] = useState<CaptureState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -86,6 +86,7 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const animationRef = useRef<number | null>(null);
+  const idempotencyKeyRef = useRef<string | null>(null);
   const statusId = useId();
 
   const cleanup = useCallback(() => {
@@ -135,11 +136,17 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
     setState("uploading");
     const extension = extensionForAudioMimeType(mimeType);
     const formData = new FormData();
-    formData.append("locationId", locationId);
+    formData.append("captureToken", captureToken);
     formData.append("audio", blob, `recording.${extension}`);
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = crypto.randomUUID();
+    }
 
     const response = await fetch("/api/submissions", {
       method: "POST",
+      headers: {
+        "Idempotency-Key": idempotencyKeyRef.current,
+      },
       body: formData,
     });
 
@@ -162,6 +169,7 @@ export function CapturePage({ locationId, locationName, locale }: CapturePagePro
   const startRecording = async () => {
     try {
       setErrorMessage(null);
+      idempotencyKeyRef.current = crypto.randomUUID();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       startWaveform(stream);

@@ -1,16 +1,25 @@
+import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { requireOrgContext } from "@/lib/clerk-org";
+import { createClient } from "@/lib/supabase/server";
 import { inngest } from "@/inngest/client";
 import { extensionForAudioMimeType, normalizeStorageContentType } from "@/lib/audio";
 import { MAX_AUDIO_SIZE_BYTES } from "@/lib/constants";
-import { checkRateLimit } from "@/lib/rate-limit";
-import { randomUUID } from "crypto";
+import { getMembershipForUser } from "@/lib/org-access";
 
 export async function GET(request: NextRequest) {
-  const ctx = await requireOrgContext();
-  if (!ctx.ok) {
-    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const membership = await getMembershipForUser(supabase, user);
+  if (!membership) {
+    return NextResponse.json({ error: "Organization not found" }, { status: 404 });
   }
 
   const { searchParams } = request.nextUrl;
@@ -19,32 +28,16 @@ export async function GET(request: NextRequest) {
   const pageSize = 20;
   const offset = (page - 1) * pageSize;
 
-  const { data: orgLocations } = await ctx.admin
-    .from("locations")
-    .select("id")
-    .eq("org_id", ctx.organization.id);
-
-  const locationIds = (orgLocations ?? []).map((l) => l.id);
-  if (locationIds.length === 0) {
-    return NextResponse.json({
-      items: [],
-      page,
-      pageSize,
-      total: 0,
-      totalPages: 0,
-    });
-  }
-
-  if (locationId && !locationIds.includes(locationId)) {
-    return NextResponse.json({ error: "Location not found" }, { status: 404 });
-  }
-
-  let query = ctx.admin
+  let query = supabase
     .from("submissions")
     .select("*, locations(id, name)", { count: "exact" })
-    .in("location_id", locationId ? [locationId] : locationIds)
+    .eq("organization_id", membership.organization_id)
     .order("created_at", { ascending: false })
     .range(offset, offset + pageSize - 1);
+
+  if (locationId) {
+    query = query.eq("location_id", locationId);
+  }
 
   const { data, error, count } = await query;
 
@@ -63,32 +56,24 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const clientIp =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-
     const formData = await request.formData();
-    const locationId = formData.get("locationId") as string | null;
+    const captureTokenField = formData.get("captureToken") as string | null;
+    const locationIdField = formData.get("locationId") as string | null;
     const audio = formData.get("audio") as File | null;
+    const idempotencyKey =
+      request.headers.get("Idempotency-Key") ??
+      request.headers.get("x-idempotency-key") ??
+      (formData.get("idempotencyKey") as string | null);
 
-    if (!locationId || !audio) {
+    if (!audio) {
       return NextResponse.json(
-        { error: "locationId and audio are required" },
+        { error: "captureToken or locationId and audio are required" },
         { status: 400 },
       );
     }
 
-    const rateKey = `submit:${clientIp}:${locationId}`;
-    const rate = checkRateLimit(rateKey, 10, 60_000);
-    if (!rate.allowed) {
-      return NextResponse.json(
-        { error: "Too many submissions. Please try again later." },
-        {
-          status: 429,
-          headers: rate.retryAfterSec
-            ? { "Retry-After": String(rate.retryAfterSec) }
-            : undefined,
-        },
-      );
+    if (!idempotencyKey) {
+      return NextResponse.json({ error: "Idempotency-Key is required" }, { status: 400 });
     }
 
     if (audio.size > MAX_AUDIO_SIZE_BYTES) {
@@ -96,11 +81,37 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createAdminClient();
+    let captureToken = captureTokenField;
+    let locationId = locationIdField;
+
+    if (!captureToken) {
+      if (!locationId) {
+        return NextResponse.json(
+          { error: "captureToken or locationId is required" },
+          { status: 400 },
+        );
+      }
+
+      const { data: locationLookup, error: lookupError } = await supabase
+        .from("locations")
+        .select("id, public_capture_token, is_active")
+        .eq("id", locationId)
+        .eq("is_active", true)
+        .single();
+
+      if (lookupError || !locationLookup) {
+        return NextResponse.json({ error: "Location not found" }, { status: 404 });
+      }
+
+      captureToken = locationLookup.public_capture_token;
+      locationId = locationLookup.id;
+    }
 
     const { data: location, error: locationError } = await supabase
       .from("locations")
-      .select("id")
-      .eq("id", locationId)
+      .select("id, organization_id, is_active")
+      .eq("public_capture_token", captureToken)
+      .eq("is_active", true)
       .single();
 
     if (locationError || !location) {
@@ -110,14 +121,14 @@ export async function POST(request: NextRequest) {
     const submissionId = randomUUID();
     const contentType = normalizeStorageContentType(audio.type || "audio/webm");
     const extension = extensionForAudioMimeType(contentType);
-    const storagePath = `${locationId}/${submissionId}.${extension}`;
-
+    const storagePath = `${location.id}/${submissionId}.${extension}`;
     const audioBuffer = Buffer.from(await audio.arrayBuffer());
+
     const { error: uploadError } = await supabase.storage
       .from("submissions-audio")
       .upload(storagePath, audioBuffer, {
         contentType,
-        upsert: false,
+        upsert: true,
       });
 
     if (uploadError) {
@@ -128,14 +139,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { error: insertError } = await supabase.from("submissions").insert({
-      id: submissionId,
-      location_id: locationId,
-      status: "pending",
-      audio_storage_path: storagePath,
+    const { data, error: rpcError } = await supabase.rpc("accept_public_submission", {
+      p_capture_token: captureToken,
+      p_submission_id: submissionId,
+      p_idempotency_key: idempotencyKey,
+      p_audio_storage_path: storagePath,
+      p_audio_mime_type: contentType,
     });
 
-    if (insertError) {
+    if (rpcError) {
+      await supabase.storage.from("submissions-audio").remove([storagePath]);
+      const message = rpcError.message ?? "Failed to create submission";
+      const status = message.toLowerCase().includes("cap reached") ? 409 : 500;
+      return NextResponse.json({ error: message }, { status });
+    }
+
+    const result = Array.isArray(data) ? data[0] : null;
+    if (!result) {
+      await supabase.storage.from("submissions-audio").remove([storagePath]);
       return NextResponse.json(
         { error: "Failed to create submission" },
         { status: 500 },
@@ -144,18 +165,22 @@ export async function POST(request: NextRequest) {
 
     try {
       await inngest.send({
+        id: result.submission_id ?? submissionId,
         name: "submission/process",
-        data: { submissionId },
+        data: { submissionId: result.submission_id ?? submissionId },
       });
     } catch (inngestError) {
       console.error("Inngest dispatch failed:", inngestError);
-      return NextResponse.json(
-        { error: "Submission saved but processing could not be started" },
-        { status: 503 },
-      );
     }
 
-    return NextResponse.json({ id: submissionId, status: "pending" }, { status: 201 });
+    return NextResponse.json(
+      {
+        id: result.submission_id ?? submissionId,
+        status: result.status ?? "accepted",
+        created_new: result.created_new ?? true,
+      },
+      { status: result.created_new === false ? 200 : 201 },
+    );
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
