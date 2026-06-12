@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { subDays, format } from "date-fns";
+import { getMembershipForUser } from "@/lib/org-access";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -12,6 +13,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const membership = await getMembershipForUser(supabase, user);
+  if (!membership) {
+    return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+  }
+
   const { searchParams } = request.nextUrl;
   const locationId = searchParams.get("locationId");
   const days = Math.min(90, Math.max(1, parseInt(searchParams.get("days") ?? "7", 10)));
@@ -21,6 +27,7 @@ export async function GET(request: NextRequest) {
     .from("submissions")
     .select("sentiment, created_at, location_id")
     .eq("status", "processed")
+    .eq("organization_id", membership.organization_id)
     .gte("created_at", since)
     .not("sentiment", "is", null);
 

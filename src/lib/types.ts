@@ -5,6 +5,9 @@ export interface Organization {
   name: string;
   primary_language: string;
   alert_email: string | null;
+  default_alert_email?: string | null;
+  current_subscription_period_id?: string | null;
+  billing_status?: string;
   owner_user_id: string;
   created_at: string;
   updated_at: string;
@@ -13,7 +16,11 @@ export interface Organization {
 export interface Location {
   id: string;
   org_id: string;
+  organization_id?: string;
   name: string;
+  public_capture_token?: string;
+  alert_email_override?: string | null;
+  is_active?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -21,17 +28,23 @@ export interface Location {
 export interface Submission {
   id: string;
   location_id: string;
+  organization_id?: string;
   status: SubmissionStatus;
   audio_storage_path: string;
+  original_transcript?: string | null;
   transcript: string | null;
   translated_transcript: string | null;
   summary: string | null;
   sentiment: Sentiment | null;
   tags: Tag[];
   detected_language: string | null;
+  latest_error?: string | null;
   error_message: string | null;
+  accepted_at?: string | null;
+  processing_started_at?: string | null;
   created_at: string;
   processed_at: string | null;
+  audio_deleted_at?: string | null;
 }
 
 export interface SubmissionWithLocation extends Submission {

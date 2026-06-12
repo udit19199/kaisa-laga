@@ -21,7 +21,14 @@ export type Tag = (typeof TAG_TAXONOMY)[number];
 export const SENTIMENTS = ["Positive", "Neutral", "Negative"] as const;
 export type Sentiment = (typeof SENTIMENTS)[number];
 
-export const SUBMISSION_STATUSES = ["pending", "processed", "failed"] as const;
+export const SUBMISSION_STATUSES = [
+  "accepted",
+  "processing",
+  "processed",
+  "failed",
+  "terminal_failed",
+  "pending",
+] as const;
 export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
 
 export const FIXABLE_KEYWORDS = [

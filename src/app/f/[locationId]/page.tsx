@@ -17,25 +17,24 @@ export default async function FeedbackPage({ params }: PageProps) {
   const locale = detectLocale(acceptLanguage);
 
   let locationName = "";
+  let captureToken = "";
   try {
     const supabase = createAdminClient();
     const { data } = await supabase
       .from("locations")
-      .select("name")
+      .select("name, public_capture_token, is_active")
       .eq("id", locationId)
+      .eq("is_active", true)
       .single();
 
     if (!data) notFound();
     locationName = data.name;
+    captureToken = data.public_capture_token;
   } catch {
     notFound();
   }
 
   return (
-    <CapturePage
-      locationId={locationId}
-      locationName={locationName}
-      locale={locale}
-    />
+    <CapturePage captureToken={captureToken} locationName={locationName} locale={locale} />
   );
 }
