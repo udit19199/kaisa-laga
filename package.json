@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "NODE_OPTIONS='--no-deprecation' next dev",
     "inngest:dev": "inngest-cli dev -u http://localhost:3000/api/inngest",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

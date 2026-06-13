@@ -3,10 +3,7 @@ import type { Metadata } from "next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
-import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
-
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "Kaisa Laga — Customer Feedback for Local Service Businesses",
@@ -21,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={cn("h-full antialiased", "font-sans", inter.variable)} suppressHydrationWarning>
+      <html lang="en" className={cn("h-full antialiased", "font-sans")} suppressHydrationWarning>
         <body className="min-h-full flex flex-col">
           <ThemeProvider
             attribute="class"
