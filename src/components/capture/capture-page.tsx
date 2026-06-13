@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { Check, Loader2, Mic } from "lucide-react";
+import { Check, Loader2, Pause, Play } from "lucide-react";
 import { extensionForAudioMimeType, getSupportedRecordingMimeType } from "@/lib/audio";
 import { MAX_RECORDING_SECONDS, DEFAULT_RECORD_SIZE } from "@/lib/constants";
 import type { Locale } from "@/lib/i18n/capture";
@@ -22,36 +22,6 @@ interface CapturePageProps {
 }
 
 const RECORD_SIZE = DEFAULT_RECORD_SIZE;
-
-const STEP_KEYS = ["stepHold", "stepTalk", "stepRelease"] as const;
-
-function CaptureSteps({
-  locale,
-  activeStep,
-}: {
-  locale: Locale;
-  activeStep: 0 | 1 | 2;
-}) {
-  return (
-    <ol className="flex w-full max-w-[15rem] list-none justify-between gap-1 p-0">
-      {STEP_KEYS.map((key, i) => (
-        <li
-          key={key}
-          className={cn(
-            "text-xs transition-colors duration-200 ease-out",
-            i === activeStep
-              ? "font-semibold text-[var(--capture-ink)]"
-              : i < activeStep
-                ? "font-medium text-[var(--capture-live)]"
-                : "text-[var(--capture-muted)]",
-          )}
-        >
-          {t(locale, key)}
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 function RoomChrome({ locationName }: { locationName: string }) {
   return (
@@ -88,6 +58,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
   const audioContextRef = useRef<AudioContext | null>(null);
   const animationRef = useRef<number | null>(null);
   const idempotencyKeyRef = useRef<string | null>(null);
+  const startingRef = useRef(false);
   const statusId = useId();
 
   useEffect(() => {
@@ -173,6 +144,11 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
   }, [stopWaveform]);
 
   const startRecording = async () => {
+    if (startingRef.current) {
+      return;
+    }
+
+    startingRef.current = true;
     try {
       setErrorMessage(null);
       idempotencyKeyRef.current = crypto.randomUUID();
@@ -235,8 +211,11 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
         });
       }, 1000);
     } catch {
+      cleanup();
       setState("error");
       setErrorMessage(t(locale, "micError"));
+    } finally {
+      startingRef.current = false;
     }
   };
 
@@ -244,7 +223,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
   const isRecording = state === "recording";
   const isUploading = state === "uploading";
   const isIdle = state === "idle" || state === "error";
-  const activeStep: 0 | 1 | 2 = isUploading ? 2 : isRecording ? 1 : 0;
+  const recordAriaLabel = isRecording ? t(locale, "pauseToStop") : t(locale, "tapToRecord");
 
   if (state === "done") {
     return (
@@ -291,8 +270,6 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
         data-liquid-dynamic
       >
         <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5">
-          <CaptureSteps locale={locale} activeStep={activeStep} />
-
           <div
             className="relative flex items-center justify-center"
             style={{ width: RECORD_SIZE, height: RECORD_SIZE }}
@@ -306,7 +283,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
 
             <button
               type="button"
-              aria-label={t(locale, "recordAriaLabel")}
+              aria-label={recordAriaLabel}
               aria-describedby={statusId}
               className={cn(
                 "relative z-10 flex select-none items-center justify-center rounded-full bg-[var(--capture-mic)] text-white transition-transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--capture-live)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--capture-card)] active:scale-[0.94]",
@@ -315,26 +292,20 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
               )}
               style={{ width: RECORD_SIZE, height: RECORD_SIZE }}
               disabled={isUploading}
-              onPointerDown={(e) => {
-                e.preventDefault();
-                if (isIdle) startRecording();
-              }}
-              onPointerUp={(e) => {
-                e.preventDefault();
-                if (isRecording) stopRecording();
-              }}
-              onPointerLeave={(e) => {
+              onClick={() => {
                 if (isRecording) {
-                  e.preventDefault();
                   stopRecording();
+                } else if (isIdle) {
+                  void startRecording();
                 }
               }}
-              onContextMenu={(e) => e.preventDefault()}
             >
               {isUploading ? (
                 <Loader2 className="size-11 animate-spin" aria-hidden />
+              ) : isRecording ? (
+                <Pause className="size-11 stroke-[1.75]" aria-hidden />
               ) : (
-                <Mic className="size-11 stroke-[1.75]" aria-hidden />
+                <Play className="size-11 fill-current stroke-[1.75] pl-0.5" aria-hidden />
               )}
             </button>
           </div>
@@ -353,10 +324,10 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
               )}
             >
               {isRecording
-                ? `${recordingSeconds}s · ${t(locale, "releaseToSend")}`
+                ? `${recordingSeconds}s · ${t(locale, "pauseToStop")}`
                 : isUploading
                   ? t(locale, "uploading")
-                  : t(locale, "holdToTalk")}
+                  : t(locale, "tapToRecord")}
             </p>
 
             {isRecording ? <RecordingWaveform levels={waveLevels} /> : null}
