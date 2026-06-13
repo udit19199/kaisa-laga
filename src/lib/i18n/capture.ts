@@ -4,7 +4,7 @@ const messages: Record<Locale, Record<string, string>> = {
   en: {
     title: "Share feedback",
     subtitle: "",
-    instruction: "Tap play to start recording, then tap pause when you are done.",
+    instruction: "Tap play to start recording, speak for at least 3 seconds, then tap pause when you are done.",
     prompt: "What stood out?",
     holdToTalk: "Tap play to talk",
     stepHold: "Hold",
@@ -17,6 +17,8 @@ const messages: Record<Locale, Record<string, string>> = {
     releaseToSend: "pause to send",
     tapToRecord: "Tap play to start recording",
     pauseToStop: "tap pause to stop",
+    speakAtLeast: "Speak for at least",
+    durationHint: "Speak for 3 to 30 seconds.",
     uploading: "Sending…",
     thankYou: "Thank you!",
     thankYouMessage: "We heard you. Your feedback goes straight to the team here.",

@@ -1,6 +1,6 @@
 # Mobbin references — customer capture (`/f/[locationId]`)
 
-PulseDrop serves **any physical location** (retail, clinics, hotels, venues, etc.), not restaurants only. Capture UI follows **Clubhouse** for the mic control; other apps are secondary.
+Kaisa Laga serves **any physical location** (retail, clinics, hotels, venues, etc.), not restaurants only. Capture UI follows **Clubhouse** for the mic control; other apps are secondary.
 
 ## Primary: Clubhouse (mic + label)
 
@@ -27,7 +27,7 @@ Zomato, Swiggy, Grab, Keeta, DoorDash flows are useful for **post-transaction ra
 | [Philips Hue](https://mobbin.com/screens/7ecd51b4-082e-4005-a505-3386320ed0ac) | QR scanner | Clear CTA after scan |
 | [Lyft](https://mobbin.com/screens/3b468deb-4a48-4a29-b5e9-a35573729ddd) | Scan QR | Minimal single-task screen |
 
-## Applied in PulseDrop capture
+## Applied in Kaisa Laga capture
 
 1. Clubhouse layout: instruction → quoted prompt → **152px mic** → lowercase **hold to talk**
 2. Location pill (venue-agnostic; any business name)

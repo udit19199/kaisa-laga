@@ -582,30 +582,29 @@ body[data-liquid-glass="ready"] .liquidGL.glass-card {
   }
 }
 
-/* Customer capture surface — cool sky-paper (aligned with brand) */
+/* Customer capture surface — teal dawn with a warm signal glow */
 .capture-surface {
   --capture-bg: var(--brand-sand);
   --capture-card: var(--brand-paper);
   --capture-sand: oklch(0.91 0.012 242);
   --capture-ink: var(--brand-ink);
   --capture-muted: var(--brand-muted);
-  --capture-mic: var(--brand-mic);
-  --capture-live: var(--brand-live);
-  --capture-live-soft: oklch(0.72 0.19 155 / 0.14);
-  --capture-live-ring: var(--brand-live-ring);
-  --capture-join: oklch(0.62 0.19 255);
-  --capture-peach: oklch(0.62 0.12 45);
-  --capture-mint: oklch(0.78 0.11 165);
+  --capture-mic: oklch(0.24 0.04 248);
+  --capture-live: oklch(0.78 0.16 83);
+  --capture-live-soft: oklch(0.78 0.16 83 / 0.16);
+  --capture-live-ring: oklch(0.78 0.16 83 / 0.36);
+  --capture-join: oklch(0.7 0.09 215);
+  --capture-peach: oklch(0.72 0.14 53);
+  --capture-mint: oklch(0.81 0.09 178);
   --capture-sky: var(--brand-sky);
-  --capture-sun: oklch(0.88 0.14 95);
+  --capture-sun: oklch(0.9 0.14 96);
   position: relative;
   isolation: isolate;
-  background: linear-gradient(
-    180deg,
-    var(--brand-sky-soft) 0%,
-    var(--brand-sand) 55%,
-    var(--brand-paper) 100%
-  );
+  background:
+    radial-gradient(circle at 14% 12%, oklch(0.95 0.1 96 / 0.48), transparent 0 14rem),
+    radial-gradient(circle at 84% 12%, oklch(0.7 0.09 215 / 0.18), transparent 0 16rem),
+    radial-gradient(circle at 50% 0%, oklch(0.83 0.04 225 / 0.18), transparent 0 20rem),
+    linear-gradient(180deg, var(--brand-sky-soft) 0%, var(--brand-sand) 48%, var(--brand-paper) 100%);
   color: var(--capture-ink);
 }
 

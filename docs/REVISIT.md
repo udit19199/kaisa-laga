@@ -1,4 +1,4 @@
-# PulseDrop — Pre-Production Revisit Checklist
+# Kaisa Laga — Pre-Production Revisit Checklist
 
 Review each item before moving beyond early pilots.
 

@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "PulseDrop — Customer Feedback for Local Service Businesses",
+  title: "Kaisa Laga — Customer Feedback for Local Service Businesses",
   description:
-    "A better way for local service businesses to collect customer feedback with quick voice notes instead of ignored surveys.",
+    "Kaisa Laga helps local service businesses collect customer feedback with quick voice notes instead of ignored surveys.",
 };
 
 export default function RootLayout({

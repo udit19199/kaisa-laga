@@ -1,8 +1,8 @@
-# Auris - AI-Powered Voice Reviews for Local Businesses
+# Kaisa Laga - AI-Powered Voice Reviews for Local Businesses
 
 > Replace ignored surveys with 5-second voice reviews. 
 
-Auris is an internal early-warning system for local service businesses (salons, restaurants, clinics). 
+Kaisa Laga is an internal early-warning system for local service businesses (salons, restaurants, clinics). 
 Customers scan a QR code to leave a quick voice note. Our AI instantly turns it into operational insights for your dashboard. No typing. No apps. Just the truth.
 
 ## Why Voice?
@@ -18,7 +18,7 @@ Traditional surveys have a 2% completion rate because they feel like homework. V
 - Growth: $129/month (Up to 3 Locations, Unlimited reviews, Real-time SMS alerts)
 
 ## Privacy:
-100% Private to Management. Auris is not a public megaphone. Give angry customers a private channel to vent directly to you, so they don't take their frustration to Yelp.
+100% Private to Management. Kaisa Laga is not a public megaphone. Give angry customers a private channel to vent directly to you, so they don't take their frustration to Yelp.
 
 ## Resources
 - [Main Website](https://pulsedrop.app)

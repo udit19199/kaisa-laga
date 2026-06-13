@@ -61,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
               <BrandMark className="size-8" imageClassName="h-5 w-5" />
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold">Auris</span>
+                <span className="font-semibold">Kaisa Laga</span>
                 <span className="text-xs text-muted-foreground">Admin</span>
               </div>
             </SidebarMenuButton>

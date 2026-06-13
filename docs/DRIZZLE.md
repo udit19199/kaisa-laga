@@ -1,6 +1,6 @@
 # Drizzle Workflow
 
-Drizzle is the primary forward migration workflow for PulseDrop.
+Drizzle is the primary forward migration workflow for Kaisa Laga.
 
 ## Source of truth
 
@@ -33,7 +33,7 @@ For a brand-new Supabase project:
 
 ## Existing databases
 
-If you already have a development database that matches the current PulseDrop schema, run:
+If you already have a development database that matches the current Kaisa Laga schema, run:
 
 1. `bun run db:baseline`
 

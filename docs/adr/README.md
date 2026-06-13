@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADR)
 
-PulseDrop MVP architecture decisions from the grill-me session. Every choice prioritizes **speed-to-MVP** over production resilience. Revisit before scaling beyond early pilots.
+Kaisa Laga MVP architecture decisions from the grill-me session. Every choice prioritizes **speed-to-MVP** over production resilience. Revisit before scaling beyond early pilots.
 
 See also: [REVISIT.md](../REVISIT.md) — pre-production checklist.
 

@@ -1,6 +1,6 @@
 # Deploy workflow
 
-PulseDrop uses **Vercel Git integration**: every push to `main` builds and deploys to production automatically.
+Kaisa Laga uses **Vercel Git integration**: every push to `main` builds and deploys to production automatically.
 
 **Production URL:** https://pulsedrop-six.vercel.app
 

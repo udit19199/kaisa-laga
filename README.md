@@ -1,8 +1,8 @@
-# Pulse Drop
+# Kaisa Laga
 
-Frictionless voice feedback capture for physical businesses. Customers scan a QR code, hold to record (30s max), and get an instant thank-you. Operators get transcripts, sentiment, tags, charts, and email alerts for fixable negative feedback.
+Frictionless voice feedback capture for physical businesses. Customers scan a QR code, tap play to record, pause to send, and get an instant thank-you. Operators get transcripts, sentiment, tags, charts, and email alerts for fixable negative feedback.
 
-**Agents & issue tracking:** See [`AGENTS.md`](AGENTS.md) for Linear workflow (milestones, sub-issues, sync rules). Work is tracked in the [Pulse Drop Linear project](https://linear.app/udit19199/project/pulsedrop-7bc2b6a39345).
+**Agents & issue tracking:** See [`AGENTS.md`](AGENTS.md) for Linear workflow (milestones, sub-issues, sync rules). Work is tracked in the [Kaisa Laga Linear project](https://linear.app/udit19199/project/pulsedrop-7bc2b6a39345).
 
 ## Stack
 
@@ -41,7 +41,7 @@ DATABASE_DIRECT_URL='…' bun run db:migrate
 bun run db:verify-clerk   # should print OK
 ```
 
-If you already have a dev database that matches the current PulseDrop schema and only need to adopt Drizzle history, run `bun run db:baseline` once. It records just the initial Drizzle baseline so later forward migrations still apply normally.
+If you already have a dev database that matches the current Kaisa Laga schema and only need to adopt Drizzle history, run `bun run db:baseline` once. It records just the initial Drizzle baseline so later forward migrations still apply normally.
 
 ### 3.1 Drizzle
 

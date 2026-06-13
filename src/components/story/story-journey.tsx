@@ -45,7 +45,8 @@ export function StoryJourney({
 
   useEffect(() => {
     if (reducedMotion) {
-      setPlaying(false);
+      const raf = requestAnimationFrame(() => setPlaying(false));
+      return () => cancelAnimationFrame(raf);
     }
   }, [reducedMotion]);
 
@@ -81,7 +82,7 @@ export function StoryJourney({
   return (
     <section
       id={id}
-      aria-label="How Pulse Drop works"
+      aria-label="How Kaisa Laga works"
       className={cn(
         "relative z-20 mx-auto w-full max-w-4xl scroll-mt-24 px-4 py-12 sm:px-6 sm:py-16",
         className,

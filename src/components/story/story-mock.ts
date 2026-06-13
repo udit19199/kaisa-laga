@@ -57,7 +57,7 @@ export const STORY_TOTAL_DURATION = STORY_SEGMENT_ENDS.full;
 export const STORY_REDUCED_MOTION_SCENE: StorySceneId = "overview";
 
 export const STORY_ACCESSIBLE_SUMMARY =
-  "How Auris works: a customer scans a QR code, records a short voice message, and our AI instantly turns it into structured insights and operational alerts on your dashboard.";
+  "How Kaisa Laga works: a customer scans a QR code, records a short voice message, and our AI instantly turns it into structured insights and operational alerts on your dashboard.";
 
 export function clampStoryTime(seconds: number) {
   if (!Number.isFinite(seconds)) return 0;

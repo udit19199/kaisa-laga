@@ -51,7 +51,7 @@ const downloadQr = (locationId: string, name: string) => {
     canvas.height = img.height;
     ctx?.drawImage(img, 0, 0);
     const link = document.createElement("a");
-    link.download = `pulse-drop-qr-${name.replace(/\s+/g, "-").toLowerCase()}.png`;
+    link.download = `kaisa-laga-qr-${name.replace(/\s+/g, "-").toLowerCase()}.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
@@ -74,7 +74,11 @@ export default function LocationsPage() {
   };
 
   useEffect(() => {
-    fetchLocations();
+    const timer = window.setTimeout(() => {
+      void fetchLocations();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   const handleCreate = async (e: React.FormEvent) => {

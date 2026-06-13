@@ -265,7 +265,7 @@ export default function OverviewPage() {
               <BrandMark className="size-9" imageClassName="h-5 w-5" />
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold tracking-[0.18em] uppercase text-[var(--text-main)]">
-                  Auris
+                  Kaisa Laga
                 </span>
                 <span className="text-xs text-[var(--text-light)]">
                   Production dashboard

@@ -77,7 +77,7 @@ export default function OnboardingPage() {
       <GlassCard className="w-full max-w-sm">
         <CardHeader className="items-center text-center">
           <BrandMark className="size-10" imageClassName="h-6 w-6" priority />
-          <CardTitle>Welcome to Auris</CardTitle>
+          <CardTitle>Welcome to Kaisa Laga</CardTitle>
           <CardDescription>What should we call your business?</CardDescription>
         </CardHeader>
         <CardContent>

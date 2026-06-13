@@ -21,7 +21,7 @@ export function BrandMark({
       )}
     >
       <Image
-        src="/brand/auris-icon.png"
+        src="/brand/kaisa-laga-icon.png"
         alt=""
         width={1024}
         height={1024}
