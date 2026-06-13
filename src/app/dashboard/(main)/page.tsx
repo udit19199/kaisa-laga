@@ -10,6 +10,7 @@ import {
   QrCode,
   AudioLines,
 } from "lucide-react";
+import { BrandMark } from "@/components/brand-mark";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -260,6 +261,17 @@ export default function OverviewPage() {
       <div className={`${overviewSectionClass} p-5 md:p-6`}>
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
+            <div className="mb-3 flex items-center gap-3">
+              <BrandMark className="size-9" imageClassName="h-5 w-5" />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-sm font-semibold tracking-[0.18em] uppercase text-[var(--text-main)]">
+                  Auris
+                </span>
+                <span className="text-xs text-[var(--text-light)]">
+                  Production dashboard
+                </span>
+              </div>
+            </div>
             <SectionLabel>Live overview</SectionLabel>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--text-main)] md:text-[2.6rem]">
             {selectedLocationName
