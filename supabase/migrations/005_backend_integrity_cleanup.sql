@@ -45,6 +45,9 @@ RETURNS TABLE (
 ) AS $$
 DECLARE
   v_plan RECORD;
+  v_existing_organization RECORD;
+  v_existing_membership RECORD;
+  v_existing_subscription_period RECORD;
   v_now TIMESTAMPTZ := now();
   v_next_month TIMESTAMPTZ := now() + INTERVAL '1 month';
 BEGIN
@@ -59,63 +62,123 @@ BEGIN
     RAISE EXCEPTION 'No active plan configured';
   END IF;
 
-  INSERT INTO organizations (
-    name,
-    primary_language,
-    default_alert_email,
-    alert_email,
-    billing_status,
-    owner_user_id,
-    clerk_user_id
-  )
-  VALUES (
-    p_name,
-    COALESCE(NULLIF(btrim(p_primary_language), ''), 'en'),
-    p_clerk_user_email,
-    p_clerk_user_email,
-    'active',
-    p_clerk_user_id,
-    p_clerk_user_id
-  )
-  RETURNING id INTO organization_id;
+  SELECT *
+  INTO v_existing_organization
+  FROM organizations
+  WHERE clerk_user_id = p_clerk_user_id
+  LIMIT 1;
 
-  INSERT INTO organization_memberships (
-    organization_id,
-    clerk_user_id,
-    role
-  )
-  VALUES (
-    organization_id,
-    p_clerk_user_id,
-    'owner'
-  )
-  RETURNING id INTO membership_id;
+  IF FOUND THEN
+    organization_id := v_existing_organization.id;
+  ELSE
+    INSERT INTO organizations (
+      name,
+      primary_language,
+      default_alert_email,
+      alert_email,
+      billing_status,
+      owner_user_id,
+      clerk_user_id
+    )
+    VALUES (
+      p_name,
+      COALESCE(NULLIF(btrim(p_primary_language), ''), 'en'),
+      p_clerk_user_email,
+      p_clerk_user_email,
+      'active',
+      p_clerk_user_id,
+      p_clerk_user_id
+    )
+    ON CONFLICT (clerk_user_id) DO NOTHING
+    RETURNING id INTO organization_id;
 
-  INSERT INTO organization_subscription_periods (
-    organization_id,
-    plan_id,
-    period_start,
-    period_end,
-    base_review_limit_snapshot,
-    effective_review_limit,
-    reviews_used,
-    status
-  )
-  VALUES (
-    organization_id,
-    v_plan.id,
-    v_now,
-    v_next_month,
-    v_plan.monthly_review_limit,
-    v_plan.monthly_review_limit,
-    0,
-    'active'
-  )
-  RETURNING id INTO subscription_period_id;
+    IF NOT FOUND THEN
+      SELECT id
+      INTO organization_id
+      FROM organizations
+      WHERE clerk_user_id = p_clerk_user_id
+      LIMIT 1;
+    END IF;
+  END IF;
+
+  SELECT *
+  INTO v_existing_membership
+  FROM organization_memberships
+  WHERE clerk_user_id = p_clerk_user_id
+  LIMIT 1;
+
+  IF FOUND THEN
+    IF v_existing_membership.organization_id <> organization_id THEN
+      RAISE EXCEPTION 'User already belongs to another organization';
+    END IF;
+
+    membership_id := v_existing_membership.id;
+  ELSE
+    INSERT INTO organization_memberships (
+      organization_id,
+      clerk_user_id,
+      role
+    )
+    VALUES (
+      organization_id,
+      p_clerk_user_id,
+      'owner'
+    )
+    ON CONFLICT (clerk_user_id) DO UPDATE SET
+      organization_id = EXCLUDED.organization_id,
+      role = EXCLUDED.role
+    RETURNING id INTO membership_id;
+  END IF;
+
+  SELECT *
+  INTO v_existing_subscription_period
+  FROM organization_subscription_periods sp
+  WHERE sp.organization_id = organization_id
+    AND sp.status = 'active'
+  ORDER BY sp.period_start DESC
+  LIMIT 1;
+
+  IF FOUND THEN
+    subscription_period_id := v_existing_subscription_period.id;
+  ELSE
+    INSERT INTO organization_subscription_periods (
+      organization_id,
+      plan_id,
+      period_start,
+      period_end,
+      base_review_limit_snapshot,
+      effective_review_limit,
+      reviews_used,
+      status
+    )
+    VALUES (
+      organization_id,
+      v_plan.id,
+      v_now,
+      v_next_month,
+      v_plan.monthly_review_limit,
+      v_plan.monthly_review_limit,
+      0,
+      'active'
+    )
+    ON CONFLICT (organization_id) WHERE (status = 'active') DO NOTHING
+    RETURNING id INTO subscription_period_id;
+
+    IF NOT FOUND THEN
+      SELECT id
+      INTO subscription_period_id
+      FROM organization_subscription_periods sp
+      WHERE sp.organization_id = organization_id
+        AND sp.status = 'active'
+      ORDER BY sp.period_start DESC
+      LIMIT 1;
+    END IF;
+  END IF;
 
   UPDATE organizations
   SET current_subscription_period_id = subscription_period_id
-  WHERE id = organization_id;
+  WHERE id = organization_id
+    AND current_subscription_period_id IS DISTINCT FROM subscription_period_id;
 
   RETURN QUERY
   SELECT organization_id, membership_id, subscription_period_id;

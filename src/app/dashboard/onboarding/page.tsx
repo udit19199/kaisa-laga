@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GlassCard, LiquidGlassProvider } from "@/components/liquid-glass";
 import { Button } from "@/components/ui/button";
@@ -12,27 +12,63 @@ export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checkingExistingOrg, setCheckingExistingOrg] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    let isActive = true;
+
+    const checkOrganization = async () => {
+      try {
+        const res = await fetch("/api/organization", { cache: "no-store" });
+        if (!isActive) {
+          return;
+        }
+
+        if (res.ok) {
+          router.replace("/dashboard");
+          return;
+        }
+      } catch {
+        // Ignore preflight failures and let the form handle provisioning.
+      }
+
+      if (isActive) {
+        setCheckingExistingOrg(false);
+      }
+    };
+
+    void checkOrganization();
+
+    return () => {
+      isActive = false;
+    };
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const res = await fetch("/api/organization/provision", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
+    try {
+      const res = await fetch("/api/organization/provision", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      setError(data.error ?? "Could not create organization");
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(data?.error ?? "Could not create organization");
+        return;
+      }
+
+      router.replace("/dashboard");
+    } catch {
+      setError("Could not create organization");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push("/dashboard");
   };
 
   return (
@@ -43,22 +79,26 @@ export default function OnboardingPage() {
           <CardDescription>What should we call your business?</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Business name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Harbor Café"
-                required
-              />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" disabled={loading}>
-              {loading ? "Setting up…" : "Continue to dashboard"}
-            </Button>
-          </form>
+          {checkingExistingOrg ? (
+            <p className="text-sm text-muted-foreground">Checking your account…</p>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="name">Business name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Harbor Café"
+                  required
+                />
+              </div>
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button type="submit" disabled={loading}>
+                {loading ? "Setting up…" : "Continue to dashboard"}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </GlassCard>
     </LiquidGlassProvider>

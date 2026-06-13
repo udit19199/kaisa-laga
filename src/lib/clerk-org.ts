@@ -37,14 +37,32 @@ async function resolveOrgContext(
     throw membershipError;
   }
 
-  if (!membership) {
-    return null;
+  if (membership) {
+    const { data: organization, error: organizationError } = await admin
+      .from("organizations")
+      .select("*")
+      .eq("id", membership.organization_id)
+      .maybeSingle();
+
+    if (organizationError) {
+      throw organizationError;
+    }
+
+    if (!organization) {
+      return null;
+    }
+
+    return {
+      clerkUserId,
+      membership: membership as OrganizationMembership,
+      organization,
+    };
   }
 
   const { data: organization, error: organizationError } = await admin
     .from("organizations")
     .select("*")
-    .eq("id", membership.organization_id)
+    .eq("clerk_user_id", clerkUserId)
     .maybeSingle();
 
   if (organizationError) {
@@ -55,9 +73,26 @@ async function resolveOrgContext(
     return null;
   }
 
+  const { data: repairedMembership, error: repairError } = await admin
+    .from("organization_memberships")
+    .upsert(
+      {
+        organization_id: organization.id,
+        clerk_user_id: clerkUserId,
+        role: "owner",
+      },
+      { onConflict: "clerk_user_id" },
+    )
+    .select("*")
+    .single();
+
+  if (repairError) {
+    throw repairError;
+  }
+
   return {
     clerkUserId,
-    membership: membership as OrganizationMembership,
+    membership: repairedMembership as OrganizationMembership,
     organization,
   };
 }
