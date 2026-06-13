@@ -6,6 +6,7 @@ import { PrivateFeedback } from "@/components/marketing/private-feedback";
 import { PricingSection } from "@/components/marketing/pricing-section";
 import { FaqSection } from "@/components/marketing/faq-section";
 import { FinalCta } from "@/components/marketing/final-cta";
+import { BrandMark } from "@/components/brand-mark";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 
@@ -15,9 +16,12 @@ function LandingNav() {
       <nav className="glass-nav pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-4 rounded-full px-4 py-2.5 sm:px-5">
         <Link
           href="/"
-          className="shrink-0 text-sm font-bold tracking-[0.18em] text-[var(--brand-ink)]"
+          className="flex shrink-0 items-center gap-3"
         >
-          AURIS
+          <BrandMark className="size-9" imageClassName="h-6 w-6" priority />
+          <span className="text-sm font-bold tracking-[0.18em] text-[var(--brand-ink)] uppercase">
+            Auris
+          </span>
         </Link>
 
         <div className="hidden items-center gap-5 sm:flex">

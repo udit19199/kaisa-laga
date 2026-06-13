@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { BrandMark } from "@/components/brand-mark";
 import { GlassCard, LiquidGlassProvider } from "@/components/liquid-glass";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,8 +75,9 @@ export default function OnboardingPage() {
   return (
     <LiquidGlassProvider className="brand-surface flex min-h-dvh items-center justify-center px-4">
       <GlassCard className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Welcome to Pulse Drop</CardTitle>
+        <CardHeader className="items-center text-center">
+          <BrandMark className="size-10" imageClassName="h-6 w-6" priority />
+          <CardTitle>Welcome to Auris</CardTitle>
           <CardDescription>What should we call your business?</CardDescription>
         </CardHeader>
         <CardContent>

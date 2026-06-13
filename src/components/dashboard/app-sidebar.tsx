@@ -5,7 +5,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserButton, useUser } from "@clerk/nextjs"
 import {
-  Activity,
   LayoutDashboard,
   Inbox,
   MapPin,
@@ -25,6 +24,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
+import { BrandMark } from "@/components/brand-mark"
 
 const navItems = [
   {
@@ -59,11 +59,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg border border-border bg-muted/60 text-foreground">
-                <Activity className="size-4" />
-              </div>
+              <BrandMark className="size-8" imageClassName="h-5 w-5" />
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold">Pulse Drop</span>
+                <span className="font-semibold">Auris</span>
                 <span className="text-xs text-muted-foreground">Admin</span>
               </div>
             </SidebarMenuButton>
