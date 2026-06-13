@@ -2,6 +2,7 @@ import { getAIConfig } from "./config";
 import { createFallbackProvider } from "./fallback";
 import { createGeminiProvider } from "./providers/gemini";
 import { createOpenAIProvider } from "./providers/openai";
+import { createSarvamProvider } from "./providers/sarvam";
 import type { AIConfig, AIProvider, AIProviderName } from "./types";
 
 function assertProviderKey(provider: AIProviderName): void {
@@ -11,6 +12,9 @@ function assertProviderKey(provider: AIProviderName): void {
   if (provider === "gemini" && !process.env.GEMINI_API_KEY) {
     throw new Error("GEMINI_API_KEY is required when AI_PRIMARY_PROVIDER is gemini");
   }
+  if (provider === "sarvam" && !process.env.SARVAM_API_KEY) {
+    throw new Error("SARVAM_API_KEY is required when AI_PRIMARY_PROVIDER is sarvam");
+  }
 }
 
 function createProviderByName(name: AIProviderName): AIProvider | null {
@@ -18,8 +22,12 @@ function createProviderByName(name: AIProviderName): AIProvider | null {
     if (!process.env.OPENAI_API_KEY) return null;
     return createOpenAIProvider();
   }
-  if (!process.env.GEMINI_API_KEY) return null;
-  return createGeminiProvider();
+  if (name === "gemini") {
+    if (!process.env.GEMINI_API_KEY) return null;
+    return createGeminiProvider();
+  }
+  if (!process.env.SARVAM_API_KEY) return null;
+  return createSarvamProvider();
 }
 
 export function createAIProvider(config?: AIConfig): AIProvider {
@@ -39,3 +47,4 @@ export type { AIConfig, AIProvider, AIProviderName, TranscriptionResult } from "
 export { getAIConfig } from "./config";
 export { createOpenAIProvider } from "./providers/openai";
 export { createGeminiProvider } from "./providers/gemini";
+export { createSarvamProvider } from "./providers/sarvam";

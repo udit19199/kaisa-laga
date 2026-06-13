@@ -34,17 +34,46 @@ Fill in Supabase, Clerk, at least one AI provider (OpenAI and/or Gemini), Innges
 
 ### 3. Set up Supabase
 
-Run migrations in `supabase/migrations/` against your Supabase project (SQL Editor or CLI).
-
-After enabling Clerk, apply the Clerk column migration and verify:
+For a fresh Supabase database, apply the Drizzle baseline:
 
 ```bash
-# Option A — SQL Editor: paste supabase/migrations/003_clerk_auth.sql
-
-# Option B — CLI (requires database password from Supabase dashboard)
-SUPABASE_DB_PASSWORD='…' bun run db:apply-clerk
+DATABASE_DIRECT_URL='…' bun run db:migrate
 bun run db:verify-clerk   # should print OK
 ```
+
+If you already have a dev database that matches the current PulseDrop schema and only need to adopt Drizzle history, run `bun run db:baseline` once. It records just the initial Drizzle baseline so later forward migrations still apply normally.
+
+### 3.1 Drizzle
+
+Drizzle is the primary schema and forward migration workflow. Keep Supabase JS for Storage and auth-adjacent flows, and use Drizzle for typed Postgres access under [`src/db`](./src/db).
+
+Recommended environment split:
+
+- `DATABASE_URL` for the app runtime. This can be your shared transaction pooler.
+- `DATABASE_DIRECT_URL` for Drizzle migrations, `db:pull`, and smoke tests. This should be the direct Postgres connection.
+
+If `DATABASE_DIRECT_URL` is omitted, Drizzle will derive a direct URL from `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_DB_PASSWORD`.
+
+Example:
+
+```bash
+DATABASE_URL="postgresql://postgres.wfnvlxtdblyrxgewzauw:[YOUR-PASSWORD]@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+DATABASE_DIRECT_URL="postgresql://postgres:[YOUR-PASSWORD]@db.wfnvlxtdblyrxgewzauw.supabase.co:5432/postgres"
+```
+
+The Drizzle runtime client is already configured with `prepare: false`, which is required for Supabase transaction poolers.
+
+Useful commands:
+
+```bash
+bun run db:generate
+bun run db:migrate
+bun run db:pull
+bun run db:studio
+bun run db:smoke:backend
+```
+
+See [`docs/DRIZZLE.md`](./docs/DRIZZLE.md) for the full workflow and the legacy-to-Drizzle handoff.
 
 ### 4. Run locally
 

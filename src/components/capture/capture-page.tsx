@@ -76,10 +76,12 @@ function RoomChrome({ locationName }: { locationName: string }) {
 export function CapturePage({ captureToken, locationName, locale }: CapturePageProps) {
   const [state, setState] = useState<CaptureState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [retainAudio, setRetainAudio] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [waveLevels, setWaveLevels] = useState<number[]>([0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const retainAudioRef = useRef(retainAudio);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -87,6 +89,10 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
   const animationRef = useRef<number | null>(null);
   const idempotencyKeyRef = useRef<string | null>(null);
   const statusId = useId();
+
+  useEffect(() => {
+    retainAudioRef.current = retainAudio;
+  }, [retainAudio]);
 
   const cleanup = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -136,6 +142,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
     const extension = extensionForAudioMimeType(mimeType);
     const formData = new FormData();
     formData.append("captureToken", captureToken);
+    formData.append("retentionConsent", String(retainAudioRef.current));
     formData.append("audio", blob, `recording.${extension}`);
     if (!idempotencyKeyRef.current) {
       idempotencyKeyRef.current = crypto.randomUUID();
@@ -355,9 +362,25 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
             ) : null}
           </div>
 
-          <p className="w-full border-t border-[var(--capture-sand)] pt-4 text-center text-xs leading-relaxed text-[var(--capture-muted)]">
-            {t(locale, "privacyNote")}
-          </p>
+          <div className="w-full border-t border-[var(--capture-sand)] pt-4 text-center text-xs leading-relaxed text-[var(--capture-muted)]">
+            <p>{t(locale, "privacyNote")}</p>
+            <label className="mt-3 flex items-start justify-center gap-2 text-left">
+              <input
+                type="checkbox"
+                checked={retainAudio}
+                onChange={(event) => setRetainAudio(event.target.checked)}
+                className="mt-0.5 size-4 rounded border-[var(--capture-sand)] text-[var(--capture-live)] accent-[var(--capture-live)]"
+              />
+              <span className="max-w-[20rem]">
+                <span className="block font-medium text-[var(--capture-ink)]">
+                  {t(locale, "retentionConsent")}
+                </span>
+                <span className="block text-[var(--capture-muted)]">
+                  {t(locale, "retentionConsentNote")}
+                </span>
+              </span>
+            </label>
+          </div>
         </div>
       </LiquidGlass>
     </LiquidGlassProvider>

@@ -14,16 +14,12 @@ export async function GET(
 
   const { data: submission, error } = await ctx.admin
     .from("submissions")
-    .select("audio_storage_path, location_id, locations(org_id)")
+    .select("audio_storage_path, organization_id")
     .eq("id", id)
+    .eq("organization_id", ctx.organization.id)
     .single();
 
   if (error || !submission) {
-    return NextResponse.json({ error: "Submission not found" }, { status: 404 });
-  }
-
-  const location = submission.locations as unknown as { org_id: string } | null;
-  if (!location?.org_id || location.org_id !== ctx.organization.id) {
     return NextResponse.json({ error: "Submission not found" }, { status: 404 });
   }
 

@@ -20,6 +20,9 @@ const messages: Record<Locale, Record<string, string>> = {
     thankYouMessage: "We heard you. Your feedback goes straight to the team here.",
     maxDuration: "Up to 30 seconds",
     privacyNote: "Only the team at this location hears your recording.",
+    retentionConsent: "Keep my audio after processing",
+    retentionConsentNote:
+      "If you leave this off, the recording is deleted after processing and cannot be retried.",
     encouragement: "A few honest seconds is plenty. Say it however feels natural.",
     recordAriaLabel: "Hold to talk and share feedback",
     micError: "Microphone access is required to leave feedback.",

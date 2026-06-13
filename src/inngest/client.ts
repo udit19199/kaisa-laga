@@ -12,6 +12,13 @@ export type SubmissionProcessEvent = {
   };
 };
 
+export type SubmissionOutboxReconcileEvent = {
+  name: "submission/outbox.reconcile";
+  data: {
+    submissionId?: string;
+  };
+};
+
 export type AlertSendEvent = {
   name: "alert/send";
   data: {

@@ -37,7 +37,7 @@ Track progress: [Vercel → pulsedrop → Deployments](https://vercel.com/udit19
 | Item | Where it lives |
 |------|----------------|
 | Environment variables | [Vercel project settings](https://vercel.com/udit19199/pulsedrop/settings/environment-variables) — change once, all future deploys pick them up |
-| Supabase SQL migrations | Run manually in SQL Editor, or `SUPABASE_DB_PASSWORD=… bun run db:apply-clerk` for new migration files |
+| Database migrations | Use Drizzle for the primary schema baseline and forward migrations (`bun run db:generate` then `bun run db:migrate`); use `bun run db:baseline` only when an existing database already matches the baseline and just needs Drizzle history recorded |
 | Clerk / Inngest dashboard config | Clerk + Inngest consoles |
 
 Do **not** commit `.env.local`. Secrets stay in Vercel env vars.

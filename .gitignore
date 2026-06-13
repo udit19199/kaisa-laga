@@ -40,3 +40,20 @@ bun-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# dashboard preview sandbox
+/src/app/dashboard-preview
+
+# Codex / agent artifacts
+/.agents/
+/.codex/
+/.github/skills/
+/.hermes/
+/.pi/
+/.impeccable/critique/
+/.impeccable/live/
+/skills/
+/skills-lock.json
+
+# Drizzle generated audit output
+/drizzle/introspect/

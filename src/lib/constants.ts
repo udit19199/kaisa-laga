@@ -27,7 +27,6 @@ export const SUBMISSION_STATUSES = [
   "processing",
   "processed",
   "failed",
-  "terminal_failed",
   "pending",
 ] as const;
 export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];

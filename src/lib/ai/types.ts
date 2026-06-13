@@ -1,10 +1,11 @@
 import type { CategorizationResult } from "../types";
 
-export type AIProviderName = "openai" | "gemini";
+export type AIProviderName = "openai" | "gemini" | "sarvam";
 
 export interface TranscriptionResult {
   text: string;
   language: string;
+  englishText?: string;
 }
 
 export interface AIProvider {

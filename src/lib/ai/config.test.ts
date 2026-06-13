@@ -42,4 +42,14 @@ describe("getAIConfig", () => {
 
     expect(getAIConfig().fallback).toBeNull();
   });
+
+  it("supports sarvam as an explicit provider", () => {
+    process.env.SARVAM_API_KEY = "sarvam-test";
+    process.env.AI_PRIMARY_PROVIDER = "sarvam";
+    delete process.env.AI_FALLBACK_PROVIDER;
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+
+    expect(getAIConfig()).toEqual({ primary: "sarvam", fallback: null });
+  });
 });

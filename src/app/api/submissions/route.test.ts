@@ -21,9 +21,11 @@ describe("submission API validation", () => {
   it("accepts valid multipart fields", () => {
     const formData = new FormData();
     formData.append("locationId", "00000000-0000-4000-8000-000000000001");
+    formData.append("retentionConsent", "false");
     formData.append("audio", new Blob(["test"], { type: "audio/webm" }), "recording.webm");
 
     expect(formData.get("locationId")).toBe("00000000-0000-4000-8000-000000000001");
+    expect(formData.get("retentionConsent")).toBe("false");
     expect(formData.get("audio")).toBeTruthy();
   });
 });

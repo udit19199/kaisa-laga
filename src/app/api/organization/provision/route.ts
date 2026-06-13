@@ -1,8 +1,6 @@
-import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { getMembershipForUser } from "@/lib/org-access";
 import { z } from "zod";
 
 const provisionSchema = z.object({
@@ -10,16 +8,23 @@ const provisionSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const { userId } = await auth();
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const existingMembership = await getMembershipForUser(supabase, user);
+  const user = await currentUser();
+  const admin = createAdminClient();
+  const { data: existingMembership, error: membershipLookupError } = await admin
+    .from("organization_memberships")
+    .select("id")
+    .eq("clerk_user_id", userId)
+    .maybeSingle();
+
+  if (membershipLookupError) {
+    return NextResponse.json({ error: membershipLookupError.message }, { status: 500 });
+  }
+
   if (existingMembership) {
     return NextResponse.json({ error: "User already belongs to an organization" }, { status: 409 });
   }
@@ -29,97 +34,48 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-  const now = new Date();
-  const nextMonth = new Date(now);
-  nextMonth.setMonth(nextMonth.getMonth() + 1);
-
-  const { data: organization, error: orgError } = await admin
-    .from("organizations")
-    .insert({
-      name: parsed.data.name,
-      primary_language: "en",
-      default_alert_email: user.email ?? null,
-      alert_email: user.email ?? null,
-      billing_status: "active",
-    })
-    .select()
-    .single();
-
-  if (orgError || !organization) {
-    return NextResponse.json({ error: orgError?.message ?? "Failed to provision organization" }, { status: 500 });
-  }
-
-  const { error: membershipError } = await admin.from("organization_memberships").insert({
-    id: randomUUID(),
-    organization_id: organization.id,
-    clerk_user_id: user.id,
-    role: "owner",
+  const primaryEmail = user
+    ? user.emailAddresses.find((address) => address.id === user.primaryEmailAddressId)
+        ?.emailAddress ?? null
+    : null;
+  const { data: provisionResult, error: provisionError } = await admin.rpc("provision_organization", {
+    p_name: parsed.data.name,
+    p_clerk_user_id: userId,
+    p_clerk_user_email: primaryEmail,
   });
 
-  if (membershipError) {
-    await admin.from("organizations").delete().eq("id", organization.id);
-    return NextResponse.json({ error: membershipError.message }, { status: 500 });
+  if (provisionError) {
+    return NextResponse.json({ error: provisionError.message }, { status: 500 });
   }
 
-  const { data: activePlan } = await admin
-    .from("plans")
-    .select("*")
-    .eq("is_active", true)
-    .order("monthly_review_limit", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+  const result = Array.isArray(provisionResult) ? provisionResult[0] : provisionResult;
+  if (!result) {
+    return NextResponse.json({ error: "Failed to provision organization" }, { status: 500 });
+  }
 
-  let subscriptionPeriod = null;
-  if (activePlan) {
-    const { data, error } = await admin
-      .from("organization_subscription_periods")
-      .insert({
-        organization_id: organization.id,
-        plan_id: activePlan.id,
-        period_start: now.toISOString(),
-        period_end: nextMonth.toISOString(),
-        base_review_limit_snapshot: activePlan.monthly_review_limit,
-        effective_review_limit: activePlan.monthly_review_limit,
-        reviews_used: 0,
-        status: "active",
-      })
-      .select()
-      .single();
+  const [{ data: organization, error: organizationError }, { data: membership, error: membershipError }, { data: subscriptionPeriod, error: subscriptionPeriodError }] = await Promise.all([
+    admin.from("organizations").select("*").eq("id", result.organization_id).single(),
+    admin.from("organization_memberships").select("*").eq("id", result.membership_id).single(),
+    admin.from("organization_subscription_periods").select("*").eq("id", result.subscription_period_id).maybeSingle(),
+  ]);
 
-    if (error || !data) {
-      await Promise.all([
-        admin.from("organization_memberships").delete().eq("organization_id", organization.id),
-        admin.from("organizations").delete().eq("id", organization.id),
-      ]);
-      return NextResponse.json({ error: error?.message ?? "Failed to create subscription period" }, { status: 500 });
-    }
-
-    subscriptionPeriod = data;
-
-    const { error: updateError } = await admin
-      .from("organizations")
-      .update({ current_subscription_period_id: data.id })
-      .eq("id", organization.id);
-
-    if (updateError) {
-      await Promise.all([
-        admin.from("organization_subscription_periods").delete().eq("id", data.id),
-        admin.from("organization_memberships").delete().eq("organization_id", organization.id),
-        admin.from("organizations").delete().eq("id", organization.id),
-      ]);
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
-    }
+  if (organizationError || membershipError || subscriptionPeriodError) {
+    return NextResponse.json(
+      {
+        error:
+          organizationError?.message ??
+          membershipError?.message ??
+          subscriptionPeriodError?.message ??
+          "Failed to load provisioned organization",
+      },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json(
     {
       organization,
-      membership: {
-        organization_id: organization.id,
-        clerk_user_id: user.id,
-        role: "owner",
-      },
+      membership,
       subscriptionPeriod,
     },
     { status: 201 },

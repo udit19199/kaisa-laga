@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireOrgContext } from "@/lib/clerk-org";
 import { subDays, format } from "date-fns";
-import { getMembershipForUser } from "@/lib/org-access";
 
 export async function GET(request: NextRequest) {
   const ctx = await requireOrgContext();
   if (!ctx.ok) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
-
 
   const { searchParams } = request.nextUrl;
   const locationId = searchParams.get("locationId");
@@ -18,7 +16,7 @@ export async function GET(request: NextRequest) {
   const { data: orgLocations } = await ctx.admin
     .from("locations")
     .select("id")
-    .eq("org_id", ctx.organization.id);
+    .eq("organization_id", ctx.organization.id);
 
   const locationIds = (orgLocations ?? []).map((l) => l.id);
   if (locationIds.length === 0) {

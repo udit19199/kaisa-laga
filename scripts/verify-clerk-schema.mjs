@@ -20,7 +20,9 @@ const { error } = await admin.from("organizations").select("clerk_user_id").limi
 
 if (error) {
   console.error("Migration 003 NOT applied:", error.message);
-  console.error("Run supabase/migrations/003_clerk_auth.sql in the Supabase SQL Editor.");
+  console.error(
+    "Run `bun run db:migrate` on a fresh database, or `bun run db:baseline` if this database already matches the Drizzle baseline.",
+  );
   process.exit(1);
 }
 

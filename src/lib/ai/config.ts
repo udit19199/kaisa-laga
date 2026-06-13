@@ -1,6 +1,6 @@
 import type { AIConfig, AIProviderName } from "./types";
 
-const PROVIDER_NAMES: AIProviderName[] = ["openai", "gemini"];
+const PROVIDER_NAMES: AIProviderName[] = ["openai", "gemini", "sarvam"];
 
 function parseProvider(value: string | undefined): AIProviderName | null | undefined {
   if (value === undefined || value === "") return undefined;
@@ -13,12 +13,13 @@ function parseProvider(value: string | undefined): AIProviderName | null | undef
 
 function hasProviderKey(provider: AIProviderName): boolean {
   if (provider === "openai") return Boolean(process.env.OPENAI_API_KEY);
-  return Boolean(process.env.GEMINI_API_KEY);
+  if (provider === "gemini") return Boolean(process.env.GEMINI_API_KEY);
+  return Boolean(process.env.SARVAM_API_KEY);
 }
 
 function defaultFallback(primary: AIProviderName): AIProviderName | null {
-  const alternate: AIProviderName = primary === "openai" ? "gemini" : "openai";
-  return hasProviderKey(alternate) ? alternate : null;
+  const alternate = PROVIDER_NAMES.find((provider) => provider !== primary && hasProviderKey(provider));
+  return alternate ?? null;
 }
 
 export function getAIConfig(): AIConfig {

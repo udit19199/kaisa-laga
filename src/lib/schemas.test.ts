@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { normalizeCategorization } from "@/lib/schemas";
+import { createSubmissionSchema, normalizeCategorization } from "@/lib/schemas";
 
 describe("normalizeCategorization", () => {
   it("accepts valid categorization", () => {
@@ -50,5 +50,15 @@ describe("normalizeCategorization", () => {
     });
 
     expect(result.tags).toHaveLength(3);
+  });
+});
+
+describe("createSubmissionSchema", () => {
+  it("defaults retention consent to false", () => {
+    const result = createSubmissionSchema.parse({
+      locationId: "00000000-0000-4000-8000-000000000001",
+    });
+
+    expect(result.retentionConsent).toBe(false);
   });
 });

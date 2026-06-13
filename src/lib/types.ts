@@ -15,8 +15,7 @@ export interface Organization {
 
 export interface Location {
   id: string;
-  org_id: string;
-  organization_id?: string;
+  organization_id: string;
   name: string;
   public_capture_token?: string;
   alert_email_override?: string | null;
@@ -28,12 +27,14 @@ export interface Location {
 export interface Submission {
   id: string;
   location_id: string;
-  organization_id?: string;
+  organization_id: string;
   status: SubmissionStatus;
   audio_storage_path: string;
+  audio_retention_consent: boolean;
   original_transcript?: string | null;
   transcript: string | null;
   translated_transcript: string | null;
+  english_transcript?: string | null;
   summary: string | null;
   sentiment: Sentiment | null;
   tags: Tag[];

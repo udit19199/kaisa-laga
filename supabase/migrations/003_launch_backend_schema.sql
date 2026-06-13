@@ -21,36 +21,6 @@ RETURNS TEXT AS $$
   SELECT nullif(current_setting('request.jwt.claim.sub', true), '');
 $$ LANGUAGE sql STABLE;
 
-CREATE OR REPLACE FUNCTION organization_member_role(p_organization_id UUID)
-RETURNS TEXT AS $$
-  SELECT membership.role::text
-  FROM organization_memberships membership
-  WHERE membership.organization_id = p_organization_id
-    AND membership.clerk_user_id = current_actor_id()
-  LIMIT 1;
-$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
-
-CREATE OR REPLACE FUNCTION organization_has_role(p_organization_id UUID, p_roles TEXT[])
-RETURNS BOOLEAN AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM organization_memberships membership
-    WHERE membership.organization_id = p_organization_id
-      AND membership.clerk_user_id = current_actor_id()
-      AND membership.role::text = ANY (p_roles)
-  );
-$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
-
-CREATE OR REPLACE FUNCTION organization_is_member(p_organization_id UUID)
-RETURNS BOOLEAN AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM organization_memberships membership
-    WHERE membership.organization_id = p_organization_id
-      AND membership.clerk_user_id = current_actor_id()
-  );
-$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
-
 -- ---------------------------------------------------------------------------
 -- Core tenant / billing tables
 -- ---------------------------------------------------------------------------
@@ -63,7 +33,10 @@ ALTER TABLE organizations
   ADD COLUMN IF NOT EXISTS deletion_scheduled_at TIMESTAMPTZ;
 
 ALTER TABLE locations
-  ADD COLUMN IF NOT EXISTS organization_id UUID;
+  ADD COLUMN IF NOT EXISTS organization_id UUID,
+  ADD COLUMN IF NOT EXISTS public_capture_token TEXT,
+  ADD COLUMN IF NOT EXISTS alert_email_override TEXT,
+  ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
 
 ALTER TABLE submissions
   ADD COLUMN IF NOT EXISTS organization_id UUID,
@@ -86,7 +59,7 @@ UPDATE submissions
 SET organization_id = COALESCE(submissions.organization_id, locations.organization_id),
     original_transcript = COALESCE(original_transcript, transcript),
     latest_error = COALESCE(latest_error, error_message),
-    accepted_at = COALESCE(accepted_at, created_at)
+    accepted_at = COALESCE(accepted_at, submissions.created_at)
 FROM locations
 WHERE submissions.location_id = locations.id
   AND submissions.organization_id IS NULL;
@@ -149,10 +122,6 @@ BEGIN
   END IF;
 END $$;
 
-ALTER TYPE submission_status ADD VALUE IF NOT EXISTS 'accepted';
-ALTER TYPE submission_status ADD VALUE IF NOT EXISTS 'processing';
-ALTER TYPE submission_status ADD VALUE IF NOT EXISTS 'terminal_failed';
-
 CREATE TABLE IF NOT EXISTS plans (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code TEXT NOT NULL UNIQUE,
@@ -178,6 +147,36 @@ CREATE UNIQUE INDEX IF NOT EXISTS organization_memberships_organization_id_clerk
 
 CREATE UNIQUE INDEX IF NOT EXISTS organization_memberships_clerk_user_id_key
   ON organization_memberships (clerk_user_id);
+
+CREATE OR REPLACE FUNCTION organization_member_role(p_organization_id UUID)
+RETURNS TEXT AS $$
+  SELECT membership.role::text
+  FROM organization_memberships membership
+  WHERE membership.organization_id = p_organization_id
+    AND membership.clerk_user_id = current_actor_id()
+  LIMIT 1;
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION organization_has_role(p_organization_id UUID, p_roles TEXT[])
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM organization_memberships membership
+    WHERE membership.organization_id = p_organization_id
+      AND membership.clerk_user_id = current_actor_id()
+      AND membership.role::text = ANY (p_roles)
+  );
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
+
+CREATE OR REPLACE FUNCTION organization_is_member(p_organization_id UUID)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM organization_memberships membership
+    WHERE membership.organization_id = p_organization_id
+      AND membership.clerk_user_id = current_actor_id()
+  );
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
 
 CREATE TABLE IF NOT EXISTS organization_invitations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -560,7 +559,7 @@ CREATE POLICY audio_select_member ON storage.objects
       SELECT 1
       FROM locations location
       JOIN organizations organization ON organization.id = location.organization_id
-      WHERE storage.foldername(name)[1] = location.id::text
+      WHERE (storage.foldername(storage.objects.name))[1] = location.id::text
         AND organization_is_member(organization.id)
     )
   );

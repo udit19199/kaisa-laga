@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1781344380872,
+      "tag": "0000_panoramic_zuras",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781344458351,
+      "tag": "0001_fix_accept_public_submission_ambiguity",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781344640819,
+      "tag": "0002_fix_enqueue_submission_dispatch_ambiguity",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781344717209,
+      "tag": "0003_redefine_enqueue_submission_dispatch_return_type",
+      "breakpoints": true
+    }
+  ]
+}

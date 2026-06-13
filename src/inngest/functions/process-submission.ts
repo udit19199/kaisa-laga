@@ -5,6 +5,16 @@ import { FIXABLE_KEYWORDS } from "@/lib/constants";
 import { createResendClient, sendAlertEmail } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+function isEnglishLanguage(language: string | null | undefined): boolean {
+  return language?.toLowerCase().startsWith("en") ?? false;
+}
+
+function sameLanguage(left: string | null | undefined, right: string | null | undefined): boolean {
+  const leftBase = left?.toLowerCase().split("-")[0];
+  const rightBase = right?.toLowerCase().split("-")[0];
+  return Boolean(leftBase && rightBase && leftBase === rightBase);
+}
+
 export const processSubmission = inngest.createFunction(
   {
     id: "process-submission",
@@ -45,7 +55,7 @@ export const processSubmission = inngest.createFunction(
             submission_id: submissionId,
             attempt_number: nextAttemptNumber,
             stage: "download",
-            provider: "auto",
+            provider: ai.name,
             model: null,
             status: "processing",
             started_at: new Date().toISOString(),
@@ -107,11 +117,21 @@ export const processSubmission = inngest.createFunction(
     const orgLanguage = location.organizations.primary_language ?? "en";
     const alertEmail =
       location.organizations.default_alert_email ?? location.organizations.alert_email;
-    let translatedTranscript = transcription.text;
+    const englishTranscript =
+      transcription.englishText ??
+      (isEnglishLanguage(transcription.language)
+        ? transcription.text
+        : await step.run("translate-to-english", async () => ai.translateText(transcription.text, "en")));
+    let translatedTranscript = englishTranscript;
 
-    if (transcription.language !== orgLanguage) {
+    if (sameLanguage(transcription.language, orgLanguage)) {
+      translatedTranscript = transcription.text;
+    } else if (!isEnglishLanguage(orgLanguage)) {
       translatedTranscript = await step.run("translate", async () => {
-        return ai.translateText(transcription.text, orgLanguage);
+        return ai.translateText(
+          sameLanguage(transcription.language, "en") ? transcription.text : englishTranscript,
+          orgLanguage,
+        );
       });
     }
 
@@ -127,9 +147,9 @@ export const processSubmission = inngest.createFunction(
           original_transcript: transcription.text,
           transcript: transcription.text,
           translated_transcript: translatedTranscript,
+          english_transcript: englishTranscript,
           summary: categorization.summary,
           sentiment: categorization.sentiment,
-          tags: categorization.tags,
           detected_language: transcription.language,
           processed_at: new Date().toISOString(),
           latest_error: null,
@@ -188,6 +208,10 @@ export const processSubmission = inngest.createFunction(
     }
 
     await step.run("delete-audio-after-success", async () => {
+      if (submission.audio_retention_consent) {
+        return;
+      }
+
       const { error } = await supabase.storage
         .from("submissions-audio")
         .remove([submission.audio_storage_path]);
@@ -241,11 +265,11 @@ export const markSubmissionFailed = inngest.createFunction(
 
     const { data: submission } = await supabase
       .from("submissions")
-      .select("audio_storage_path")
+      .select("audio_storage_path, audio_retention_consent")
       .eq("id", submissionId)
       .maybeSingle();
 
-    if (submission?.audio_storage_path) {
+    if (submission?.audio_storage_path && !submission.audio_retention_consent) {
       await supabase.storage.from("submissions-audio").remove([submission.audio_storage_path]);
       await supabase
         .from("submissions")
@@ -258,7 +282,7 @@ export const markSubmissionFailed = inngest.createFunction(
     await supabase
       .from("submissions")
       .update({
-        status: "terminal_failed",
+        status: "failed",
         latest_error: "Processing failed after retries",
         error_message: "Processing failed after retries",
       })
@@ -276,8 +300,8 @@ export const markSubmissionFailed = inngest.createFunction(
       await supabase
         .from("submission_processing_attempts")
         .update({
-          stage: "terminal_failed",
-          status: "terminal_failed",
+          stage: "failed",
+          status: "failed",
           error_message: "Processing failed after retries",
           finished_at: new Date().toISOString(),
         })
@@ -286,4 +310,96 @@ export const markSubmissionFailed = inngest.createFunction(
   },
 );
 
-export const functions = [processSubmission, markSubmissionFailed];
+type SubmissionDispatchOutboxRow = {
+  id: string;
+  submission_id: string;
+  event_type: string;
+};
+
+export const processSubmissionOutbox = inngest.createFunction(
+  {
+    id: "process-submission-outbox",
+    triggers: [{ event: "submission/outbox.reconcile" }],
+  },
+  async ({ step }) => {
+    const supabase = createAdminClient();
+
+    const claimedRows = await step.run("claim-submission-outbox", async () => {
+      const { data, error } = await supabase.rpc("claim_submission_dispatch_outbox", {
+        p_limit: 20,
+      });
+
+      if (error) {
+        throw new Error(`Failed to claim submission outbox items: ${error.message}`);
+      }
+
+      return (data ?? []) as SubmissionDispatchOutboxRow[];
+    });
+
+    for (const row of claimedRows) {
+      await step.run(`dispatch-submission-outbox-${row.id}`, async () => {
+        if (row.event_type !== "submission/process") {
+          const { error: unsupportedError } = await supabase
+            .from("submission_dispatch_outbox")
+            .update({
+              status: "failed",
+              last_error: `Unsupported outbox event type: ${row.event_type}`,
+            })
+            .eq("id", row.id);
+
+          if (unsupportedError) {
+            throw new Error(`Failed to update outbox row: ${unsupportedError.message}`);
+          }
+
+          return;
+        }
+
+        try {
+          await inngest.send({
+            name: "submission/process",
+            data: { submissionId: row.submission_id },
+          });
+
+          const { error: dispatchedError } = await supabase
+            .from("submission_dispatch_outbox")
+            .update({
+              status: "dispatched",
+              dispatched_at: new Date().toISOString(),
+              last_error: null,
+            })
+            .eq("id", row.id);
+
+          if (dispatchedError) {
+            console.warn(`Failed to mark outbox row dispatched: ${dispatchedError.message}`);
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Failed to dispatch submission";
+          const { error: failedError } = await supabase
+            .from("submission_dispatch_outbox")
+            .update({
+              status: "failed",
+              last_error: message,
+            })
+            .eq("id", row.id);
+
+          if (failedError) {
+            throw new Error(`Failed to mark outbox row failed: ${failedError.message}`);
+          }
+        }
+      });
+    }
+
+    if (claimedRows.length === 20) {
+      await step.run("schedule-next-outbox-drain", async () => {
+        await inngest.send({
+          name: "submission/outbox.reconcile",
+          data: {},
+        });
+      });
+    }
+
+    return { claimed: claimedRows.length };
+  },
+);
+
+export const functions = [processSubmission, markSubmissionFailed, processSubmissionOutbox];

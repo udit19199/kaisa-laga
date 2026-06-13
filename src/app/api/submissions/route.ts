@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const captureTokenField = formData.get("captureToken") as string | null;
     const locationIdField = formData.get("locationId") as string | null;
+    const retentionConsentField = formData.get("retentionConsent");
     const audio = formData.get("audio") as File | null;
     const idempotencyKey =
       request.headers.get("Idempotency-Key") ??
@@ -66,6 +67,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Idempotency-Key is required" }, { status: 400 });
     }
 
+    if (retentionConsentField === null) {
+      return NextResponse.json({ error: "retentionConsent is required" }, { status: 400 });
+    }
+
     if (audio.size > MAX_AUDIO_SIZE_BYTES) {
       return NextResponse.json({ error: "Audio file too large" }, { status: 413 });
     }
@@ -73,6 +78,8 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
     let captureToken = captureTokenField;
     let locationId = locationIdField;
+    const retentionConsent =
+      retentionConsentField === "true" || retentionConsentField === "1";
 
     if (!captureToken) {
       if (!locationId) {
@@ -135,6 +142,7 @@ export async function POST(request: NextRequest) {
       p_idempotency_key: idempotencyKey,
       p_audio_storage_path: storagePath,
       p_audio_mime_type: contentType,
+      p_retention_consent: retentionConsent,
     });
 
     if (rpcError) {
@@ -155,8 +163,7 @@ export async function POST(request: NextRequest) {
 
     try {
       await inngest.send({
-        id: result.submission_id ?? submissionId,
-        name: "submission/process",
+        name: "submission/outbox.reconcile",
         data: { submissionId: result.submission_id ?? submissionId },
       });
     } catch (inngestError) {
@@ -167,6 +174,7 @@ export async function POST(request: NextRequest) {
       {
         id: result.submission_id ?? submissionId,
         status: result.status ?? "accepted",
+        dispatch_status: result.dispatch_status ?? "pending",
         created_new: result.created_new ?? true,
       },
       { status: result.created_new === false ? 200 : 201 },

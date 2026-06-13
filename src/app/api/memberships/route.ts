@@ -1,26 +1,16 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { getMembershipForUser } from "@/lib/org-access";
+import { requireOrgContext } from "@/lib/clerk-org";
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const ctx = await requireOrgContext();
+  if (!ctx.ok) {
+    return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
-  const membership = await getMembershipForUser(supabase, user);
-  if (!membership) {
-    return NextResponse.json({ error: "Organization not found" }, { status: 404 });
-  }
-
-  const { data, error } = await supabase
+  const { data, error } = await ctx.admin
     .from("organization_memberships")
     .select("*")
-    .eq("organization_id", membership.organization_id)
+    .eq("organization_id", ctx.organization.id)
     .order("created_at", { ascending: true });
 
   if (error) {

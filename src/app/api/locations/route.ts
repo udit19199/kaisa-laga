@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { requireOrgContext } from "@/lib/clerk-org";
-import { canManageOrganization } from "@/lib/org-access";
 import { createLocationSchema } from "@/lib/schemas";
 
 export async function GET() {
@@ -29,15 +28,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
-  // Fetch membership role
-  const { data: membership, error: memError } = await ctx.admin
-    .from("organization_memberships")
-    .select("role")
-    .eq("clerk_user_id", ctx.clerkUserId)
-    .eq("organization_id", ctx.organization.id)
-    .maybeSingle();
-
-  if (memError || !membership || !canManageOrganization(membership.role)) {
+  if (!ctx.permissions.canManageOrganization) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -72,15 +63,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
-  // Fetch membership role
-  const { data: membership, error: memError } = await ctx.admin
-    .from("organization_memberships")
-    .select("role")
-    .eq("clerk_user_id", ctx.clerkUserId)
-    .eq("organization_id", ctx.organization.id)
-    .maybeSingle();
-
-  if (memError || !membership || !canManageOrganization(membership.role)) {
+  if (!ctx.permissions.canManageOrganization) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -119,15 +102,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status });
   }
 
-  // Fetch membership role
-  const { data: membership, error: memError } = await ctx.admin
-    .from("organization_memberships")
-    .select("role")
-    .eq("clerk_user_id", ctx.clerkUserId)
-    .eq("organization_id", ctx.organization.id)
-    .maybeSingle();
-
-  if (memError || !membership || !canManageOrganization(membership.role)) {
+  if (!ctx.permissions.canManageOrganization) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

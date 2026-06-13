@@ -41,6 +41,7 @@ export function normalizeCategorization(raw: unknown): {
 
 export const createSubmissionSchema = z.object({
   locationId: z.uuid(),
+  retentionConsent: z.boolean().default(false),
 });
 
 export const createLocationSchema = z.object({
