@@ -29,8 +29,8 @@ export function AuthControls({ trialClassName }: AuthControlsProps) {
               "h-9 rounded-full bg-[var(--brand-ink)] px-4 text-sm text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90",
               trialClassName,
             )}
-          >
-            7-day free trial
+        >
+            Sign up
           </button>
         </SignUpButton>
       </Show>

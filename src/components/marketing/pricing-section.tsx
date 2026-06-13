@@ -7,7 +7,7 @@ export function PricingSection() {
     <section className="bg-[var(--brand-paper)] px-4 py-24 sm:px-6 sm:py-32" id="pricing">
       <div className="mx-auto max-w-5xl text-center">
         <h2 className="mx-auto max-w-[12ch] text-3xl font-bold tracking-tight text-[var(--brand-ink)] sm:text-4xl">
-          Private pilot, shaped with early operators.
+          Built with early operators.
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-[var(--brand-muted)]">
           We&apos;re onboarding a limited number of local businesses while we refine the
@@ -18,10 +18,10 @@ export function PricingSection() {
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
             <div>
               <div className="inline-flex items-center rounded-full bg-[var(--brand-accent)]/10 px-3 py-1 text-sm font-medium text-[var(--brand-accent)]">
-                Early access
+                Get started
               </div>
               <h3 className="mt-5 max-w-[16ch] text-3xl font-semibold text-[var(--brand-ink)]">
-                Join the pilot if you want to shape the product with us.
+                Sign up if you want to shape the product with us.
               </h3>
               <p className="mt-4 text-lg leading-8 text-[var(--brand-muted)]">
                 We&apos;re currently working with a small group of local businesses that
@@ -56,7 +56,7 @@ export function PricingSection() {
                   "mt-8 w-full rounded-full bg-[var(--brand-ink)] text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90 border-none",
                 )}
               >
-                Request early access
+                Sign up
               </Link>
             </div>
           </div>

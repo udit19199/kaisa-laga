@@ -11,8 +11,8 @@ export function FinalCta() {
             Want to hear what customers won&apos;t type?
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-[var(--brand-muted)]">
-            Join the private pilot and help shape a simpler way for local businesses
-            to collect real feedback.
+            Sign up and help shape a simpler way for local businesses to collect
+            real feedback.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link
@@ -22,7 +22,7 @@ export function FinalCta() {
                 "rounded-full bg-[var(--brand-ink)] px-8 text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90 hover:text-[var(--brand-paper)]",
               )}
             >
-              Request early access
+              Sign up
             </Link>
           </div>
         </div>

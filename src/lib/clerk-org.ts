@@ -1,4 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Organization } from "@/lib/types";
 import type { OrganizationMembership } from "@/lib/org-access";
@@ -21,9 +22,10 @@ type ResolvedOrgContext = {
   clerkUserId: string;
   membership: OrganizationMembership;
   organization: Organization;
+  admin: ReturnType<typeof createAdminClient>;
 };
 
-async function resolveOrgContext(
+const resolveOrgContext = cache(async function resolveOrgContext(
   clerkUserId: string,
 ): Promise<ResolvedOrgContext | null> {
   const admin = createAdminClient();
@@ -56,6 +58,7 @@ async function resolveOrgContext(
       clerkUserId,
       membership: membership as OrganizationMembership,
       organization,
+      admin,
     };
   }
 
@@ -94,8 +97,9 @@ async function resolveOrgContext(
     clerkUserId,
     membership: repairedMembership as OrganizationMembership,
     organization,
+    admin,
   };
-}
+});
 
 export async function requireOrgContext(): Promise<
   | {
@@ -131,7 +135,7 @@ export async function requireOrgContext(): Promise<
         canManageOrganization: canManageOrganization(context.membership.role),
         canOwnOrganization: canOwnOrganization(context.membership.role),
       },
-      admin: createAdminClient(),
+      admin: context.admin,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to load organization";

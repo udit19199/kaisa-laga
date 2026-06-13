@@ -29,7 +29,7 @@ export function LandingHero() {
             "h-12 rounded-full bg-[var(--brand-ink)] px-8 text-[var(--brand-paper)] hover:bg-[var(--brand-ink)]/90",
           )}
         >
-          Join the private pilot
+          Sign up
         </Link>
       </div>
     </section>
