@@ -5,7 +5,6 @@ import { useOrganization } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import {
   Calendar,
-  Inbox,
   TrendingUp,
   AlertCircle,
   QrCode,
@@ -111,6 +110,61 @@ function Sparkline({
   );
 }
 
+const overviewCardClass =
+  "overflow-hidden rounded-none border-2 border-[var(--border-card)] bg-[var(--bg-card)] shadow-[3px_3px_0px_var(--border-card)] transition-transform duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_var(--text-main)]";
+
+const overviewSectionClass =
+  "rounded-none border-2 border-[var(--border-card)] bg-[var(--bg-card)] shadow-[3px_3px_0px_var(--border-card)]";
+
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-light)] font-mono">
+      {children}
+    </p>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  trendLabel,
+  sparkline,
+  sparklineColor,
+  loading,
+  valueClassName = "",
+}: {
+  label: string;
+  value: string | number;
+  trendLabel: string;
+  sparkline: number[];
+  sparklineColor: string;
+  loading: boolean;
+  valueClassName?: string;
+}) {
+  return (
+    <Card className={overviewCardClass}>
+      <CardHeader className="pb-2">
+        <SectionLabel>{label}</SectionLabel>
+        <h2 className={`mt-2 text-3xl font-semibold tracking-tight text-[var(--text-main)] ${valueClassName}`}>
+          {loading ? <Skeleton className="h-8 w-24" /> : value}
+        </h2>
+      </CardHeader>
+      <CardContent className="pt-0 pb-4">
+        <div className="flex flex-col gap-2">
+          <div className="flex h-9 items-end">
+            {loading ? (
+              <Skeleton className="h-4 w-full" />
+            ) : (
+              <Sparkline data={sparkline} color={sparklineColor} width={170} />
+            )}
+          </div>
+          {!loading && <p className="text-[11px] font-medium text-[var(--text-light)]">{trendLabel}</p>}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function OverviewPage() {
   const { organization } = useOrganization();
   const orgName = organization?.name ?? "your business";
@@ -131,6 +185,7 @@ export default function OverviewPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
+    setLoading(true);
     const locParam = selectedLocation === "all" ? "" : `&locationId=${selectedLocation}`;
 
     const [locRes, sentRes, catRes] = await Promise.all([
@@ -156,10 +211,14 @@ export default function OverviewPage() {
   }, [selectedLocation, days]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchData();
+    const timeout = window.setTimeout(() => {
+      void fetchData();
+    }, 0);
     const interval = setInterval(fetchData, DASHBOARD_POLL_INTERVAL_MS);
-    return () => clearInterval(interval);
+    return () => {
+      window.clearTimeout(timeout);
+      clearInterval(interval);
+    };
   }, [fetchData]);
 
   // Calculations for KPI Cards
@@ -168,7 +227,6 @@ export default function OverviewPage() {
     0
   );
   const totalPositive = sentimentData.reduce((acc, curr) => acc + curr.Positive, 0);
-  const totalNeutral = sentimentData.reduce((acc, curr) => acc + curr.Neutral, 0);
   const totalNegative = sentimentData.reduce((acc, curr) => acc + curr.Negative, 0);
 
   const positiveRate =
@@ -187,7 +245,6 @@ export default function OverviewPage() {
     (d) => d.Positive + d.Neutral + d.Negative
   );
   const positiveRateSeries = sentimentData.map((d) => d.Positive);
-  const neutralSeries = sentimentData.map((d) => d.Neutral);
   const negativeSeries = sentimentData.map((d) => d.Negative);
 
   const dailyActiveLocationsSeries = sentimentData.map((d) => {
@@ -200,191 +257,98 @@ export default function OverviewPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-5">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+      <div className={`${overviewSectionClass} p-5 md:p-6`}>
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <SectionLabel>Live overview</SectionLabel>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--text-main)] md:text-[2.6rem]">
             {selectedLocationName
               ? `Overview for ${selectedLocationName}`
               : `All locations for ${orgName}`}
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Dynamic Date Filter Selector */}
-          <Select value={days} onValueChange={(v) => v && setDays(v)}>
-            <SelectTrigger className="w-[150px] shadow-sm font-medium gap-2">
-              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              <SelectValue placeholder="Date range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
+            </h1>
+            <p className="mt-2 max-w-xl text-sm text-[var(--text-light)]">
+              Preview-style surfaces, structured cards, and live sentiment data in one place.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Select value={days} onValueChange={(v) => v && setDays(v)}>
+              <SelectTrigger className="w-[150px] gap-2 rounded-none border-2 border-[var(--border-card)] bg-[var(--bg-card)] shadow-[2px_2px_0px_var(--border-card)] font-medium text-[var(--text-main)]">
+                <Calendar className="h-3.5 w-3.5 text-[var(--text-light)]" />
+                <SelectValue placeholder="Date range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7">Last 7 days</SelectItem>
+                <SelectItem value="30">Last 30 days</SelectItem>
+                <SelectItem value="90">Last 90 days</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Select
-            value={selectedLocation}
-            onValueChange={(v) => setSelectedLocation(v ?? "all")}
-          >
-            <SelectTrigger className="w-48 shadow-sm">
-              <SelectValue placeholder="All locations" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All locations</SelectItem>
-              {locations.map((loc) => (
-                <SelectItem key={loc.id} value={loc.id}>
-                  {loc.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              value={selectedLocation}
+              onValueChange={(v) => setSelectedLocation(v ?? "all")}
+            >
+              <SelectTrigger className="w-48 rounded-none border-2 border-[var(--border-card)] bg-[var(--bg-card)] shadow-[2px_2px_0px_var(--border-card)] font-medium text-[var(--text-main)]">
+                <SelectValue placeholder="All locations" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All locations</SelectItem>
+                {locations.map((loc) => (
+                  <SelectItem key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       {/* KPI Cards Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Card 1: Total Feedback */}
-        <Card className="flex flex-col justify-between overflow-hidden shadow-sm">
-          <CardHeader className="pb-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Total Feedback
-            </p>
-            <h2 className="text-3xl font-bold mt-1 tracking-tight">
-              {loading ? <Skeleton className="h-8 w-16" /> : totalFeedback}
-            </h2>
-          </CardHeader>
-          <CardContent className="pt-0 pb-3">
-            <div className="flex flex-col gap-1 w-full">
-              <div className="h-8 flex items-end">
-                {loading ? (
-                  <Skeleton className="h-4 w-full" />
-                ) : (
-                  <Sparkline
-                    data={totalFeedbackSeries}
-                    color="var(--brand-muted)"
-                    width={160}
-                    ariaLabel={`${days}d feedback volume trend`}
-                  />
-                )}
-              </div>
-              {!loading && (
-                <span className="text-[10px] text-muted-foreground font-medium">
-                  {days}d feedback volume trend
-                </span>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 2: Positive Rate */}
-        <Card className="flex flex-col justify-between overflow-hidden shadow-sm">
-          <CardHeader className="pb-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Positive Rate
-            </p>
-            <h2 className="text-3xl font-bold mt-1 tracking-tight text-primary">
-              {loading ? <Skeleton className="h-8 w-24" /> : `${positiveRate}%`}
-            </h2>
-          </CardHeader>
-          <CardContent className="pt-0 pb-3">
-            <div className="flex flex-col gap-1 w-full">
-              <div className="h-8 flex items-end">
-                {loading ? (
-                  <Skeleton className="h-4 w-full" />
-                ) : (
-                  <Sparkline
-                    data={positiveRateSeries}
-                    color="var(--brand-live)"
-                    width={160}
-                    ariaLabel={`${days}d positive rate trend`}
-                  />
-                )}
-              </div>
-              {!loading && (
-                <span className="text-[10px] text-muted-foreground font-medium">
-                  {days}d positive rate trend
-                </span>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 3: Active Locations */}
-        <Card className="flex flex-col justify-between overflow-hidden shadow-sm">
-          <CardHeader className="pb-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Active Locations
-            </p>
-            <h2 className="text-3xl font-bold mt-1 tracking-tight">
-              {loading ? <Skeleton className="h-8 w-28" /> : activeLocationsStr}
-            </h2>
-          </CardHeader>
-          <CardContent className="pt-0 pb-3">
-            <div className="flex flex-col gap-1 w-full">
-              <div className="h-8 flex items-end">
-                {loading ? (
-                  <Skeleton className="h-4 w-full" />
-                ) : (
-                  <Sparkline
-                    data={dailyActiveLocationsSeries}
-                    color="var(--brand-accent)"
-                    width={160}
-                    ariaLabel={`${days}d active locations trend`}
-                  />
-                )}
-              </div>
-              {!loading && (
-                <span className="text-[10px] text-muted-foreground font-medium">
-                  {days}d active locations trend
-                </span>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Card 4: Negative Feedback */}
-        <Card className="flex flex-col justify-between overflow-hidden shadow-sm">
-          <CardHeader className="pb-2">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Negative Feedback
-            </p>
-            <h2 className="text-3xl font-bold mt-1 tracking-tight">
-              {loading ? <Skeleton className="h-8 w-12" /> : totalNegative}
-            </h2>
-          </CardHeader>
-          <CardContent className="pt-0 pb-3">
-            <div className="flex flex-col gap-1 w-full">
-              <div className="h-8 flex items-end">
-                {loading ? (
-                  <Skeleton className="h-4 w-full" />
-                ) : (
-                  <Sparkline
-                    data={negativeSeries}
-                    color="var(--destructive)"
-                    width={160}
-                    ariaLabel={`${days}d negative volume trend`}
-                  />
-                )}
-              </div>
-              {!loading && (
-                <span className="text-[10px] text-muted-foreground font-medium">
-                  {days}d negative volume trend
-                </span>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard
+          label="Total feedback"
+          value={totalFeedback}
+          trendLabel={`${days}d feedback volume trend`}
+          sparkline={totalFeedbackSeries}
+          sparklineColor="var(--brand-muted)"
+          loading={loading}
+        />
+        <MetricCard
+          label="Positive rate"
+          value={`${positiveRate}%`}
+          trendLabel={`${days}d positive rate trend`}
+          sparkline={positiveRateSeries}
+          sparklineColor="var(--brand-live)"
+          loading={loading}
+          valueClassName="text-primary"
+        />
+        <MetricCard
+          label="Active locations"
+          value={activeLocationsStr}
+          trendLabel={`${days}d active locations trend`}
+          sparkline={dailyActiveLocationsSeries}
+          sparklineColor="var(--brand-accent)"
+          loading={loading}
+        />
+        <MetricCard
+          label="Negative feedback"
+          value={totalNegative}
+          trendLabel={`${days}d negative volume trend`}
+          sparkline={negativeSeries}
+          sparklineColor="var(--destructive)"
+          loading={loading}
+        />
       </div>
 
       {/* Main Visual Section (Daily Trend on Left, Locations Breakdown on Right) */}
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Daily Sentiment Line Chart */}
-        <Card className="lg:col-span-7 xl:col-span-8 shadow-sm">
+        <Card className={`${overviewSectionClass} lg:col-span-7 xl:col-span-8`}>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
-              Daily Sentiment Trend
+            <SectionLabel>Trend</SectionLabel>
+            <CardTitle className="mt-2 flex items-center gap-2 text-xl font-semibold text-[var(--text-main)]">
+              <TrendingUp className="h-5 w-5 text-[var(--text-light)]" />
+              Daily sentiment trend
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -393,15 +357,17 @@ export default function OverviewPage() {
             ) : sentimentData.every(
                 (d) => d.Positive === 0 && d.Neutral === 0 && d.Negative === 0
               ) ? (
-              <div className="flex h-64 flex-col items-center justify-center gap-4 text-center border border-dashed border-muted-foreground/10 rounded-2xl bg-card/10 p-6 animate-fade-in">
-                <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-card to-muted/20 border border-muted-foreground/10 shadow-md">
+              <div className="flex h-64 flex-col items-center justify-center gap-4 border-2 border-dashed border-[var(--border-card)] bg-[var(--bg-surface)] p-6 text-center animate-fade-in">
+                <div className="relative flex h-14 w-14 items-center justify-center rounded-none border-2 border-[var(--border-card)] bg-[var(--bg-card)] shadow-[3px_3px_0px_var(--border-card)]">
                   <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-transparent opacity-60" />
-                  <AudioLines className="h-6 w-6 text-primary animate-pulse" />
+                  <AudioLines className="h-6 w-6 animate-pulse text-primary" />
                 </div>
                 <div className="max-w-xs">
-                  <p className="text-sm font-semibold text-foreground">Waiting to hear from your customers...</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    No voice notes recorded in this period. Share your location's QR code to start listening!
+                  <p className="text-sm font-semibold text-[var(--text-main)]">
+                    Waiting to hear from your customers...
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--text-light)]">
+                    No voice notes recorded in this period. Share your location&apos;s QR code to start listening!
                   </p>
                 </div>
               </div>
@@ -458,11 +424,12 @@ export default function OverviewPage() {
         </Card>
 
         {/* Locations Breakdown Table */}
-        <Card className="lg:col-span-5 xl:col-span-4 shadow-sm">
+        <Card className={`${overviewSectionClass} lg:col-span-5 xl:col-span-4`}>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <QrCode className="h-5 w-5 text-muted-foreground" />
-              Locations Breakdown
+            <SectionLabel>Locations</SectionLabel>
+            <CardTitle className="mt-2 flex items-center gap-2 text-xl font-semibold text-[var(--text-main)]">
+              <QrCode className="h-5 w-5 text-[var(--text-light)]" />
+              Locations breakdown
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -473,7 +440,7 @@ export default function OverviewPage() {
                 ))}
               </div>
             ) : locationsBreakdown.length === 0 ? (
-              <div className="p-8 text-center text-sm text-muted-foreground">
+              <div className="p-8 text-center text-sm text-[var(--text-light)]">
                 No locations configured.
               </div>
             ) : (
@@ -481,10 +448,18 @@ export default function OverviewPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="pl-4">Location</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                      <TableHead className="text-right">Positive</TableHead>
-                      <TableHead className="w-[100px] text-center pr-4">Trend</TableHead>
+                      <TableHead className="pl-4 font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--text-light)]">
+                        Location
+                      </TableHead>
+                      <TableHead className="text-right font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--text-light)]">
+                        Total
+                      </TableHead>
+                      <TableHead className="text-right font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--text-light)]">
+                        Positive
+                      </TableHead>
+                      <TableHead className="w-[100px] pr-4 text-center font-mono text-[10px] uppercase tracking-[0.08em] text-[var(--text-light)]">
+                        Trend
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -501,15 +476,15 @@ export default function OverviewPage() {
                       return (
                         <TableRow
                           key={item.locationId}
-                          className="group cursor-pointer hover:bg-muted/30 transition-colors"
+                          className="group cursor-pointer transition-colors hover:bg-[var(--bg-surface)]"
                           onClick={() =>
                             router.push(`/dashboard/inbox?locationId=${item.locationId}`)
                           }
                         >
-                          <TableCell className="font-semibold text-sm pl-4 truncate max-w-[120px] group-hover:text-primary transition-colors">
+                          <TableCell className="max-w-[120px] truncate pl-4 text-sm font-semibold text-[var(--text-main)] transition-colors group-hover:text-primary">
                             {locationName}
                           </TableCell>
-                          <TableCell className="text-right font-medium text-sm">
+                          <TableCell className="text-right text-sm font-medium text-[var(--text-main)]">
                             {item.total}
                           </TableCell>
                           <TableCell className="text-right">
@@ -548,25 +523,28 @@ export default function OverviewPage() {
       </div>
 
       {/* Categories / Tags Section */}
-      <Card className="shadow-sm">
+      <Card className={overviewSectionClass}>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-muted-foreground" />
-            Top Categories & Tags ({days} days)
+          <SectionLabel>Insights</SectionLabel>
+          <CardTitle className="mt-2 flex items-center gap-2 text-xl font-semibold text-[var(--text-main)]">
+            <AlertCircle className="h-5 w-5 text-[var(--text-light)]" />
+            Top categories and tags ({days} days)
           </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <Skeleton className="h-64 w-full" />
           ) : categoryData.length === 0 ? (
-            <div className="flex h-40 flex-col items-center justify-center gap-4 text-center border border-dashed border-muted-foreground/10 rounded-2xl bg-card/10 p-6 animate-fade-in">
-              <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-card to-muted/20 border border-muted-foreground/10 shadow-md">
+            <div className="flex h-40 flex-col items-center justify-center gap-4 border-2 border-dashed border-[var(--border-card)] bg-[var(--bg-surface)] p-6 text-center animate-fade-in">
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-none border-2 border-[var(--border-card)] bg-[var(--bg-card)] shadow-[3px_3px_0px_var(--border-card)]">
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-transparent opacity-60" />
-                <AudioLines className="h-5 w-5 text-primary animate-pulse" />
+                <AudioLines className="h-5 w-5 animate-pulse text-primary" />
               </div>
               <div className="max-w-xs">
-                <p className="text-sm font-semibold text-foreground">Quiet on categories</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-sm font-semibold text-[var(--text-main)]">
+                  Quiet on categories
+                </p>
+                <p className="mt-0.5 text-xs text-[var(--text-light)]">
                   Once customers speak, AI-extracted tags and categories will automatically appear here.
                 </p>
               </div>

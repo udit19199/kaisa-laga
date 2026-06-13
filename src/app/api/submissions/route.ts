@@ -5,6 +5,7 @@ import { inngest } from "@/inngest/client";
 import { extensionForAudioMimeType, normalizeStorageContentType } from "@/lib/audio";
 import { MAX_AUDIO_SIZE_BYTES } from "@/lib/constants";
 import { requireOrgContext } from "@/lib/clerk-org";
+import { buildSubmissionInsights } from "@/lib/submission-insights";
 
 export async function GET(request: NextRequest) {
   const ctx = await requireOrgContext();
@@ -35,8 +36,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  const items = (data ?? []).map((submission) => ({
+    ...submission,
+    insights: buildSubmissionInsights(submission),
+  }));
+
   return NextResponse.json({
-    items: data ?? [],
+    items,
     page,
     pageSize,
     total: count ?? 0,

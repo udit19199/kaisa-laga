@@ -1,19 +1,10 @@
 import { inngest } from "@/inngest/client";
-import { createAIProvider } from "@/lib/ai";
+import { createGeminiProvider } from "@/lib/ai/providers/gemini";
+import { createSarvamProvider } from "@/lib/ai/providers/sarvam";
 import { evaluateAlert, buildAlertPayload } from "@/lib/alert-engine";
 import { FIXABLE_KEYWORDS } from "@/lib/constants";
 import { createResendClient, sendAlertEmail } from "@/lib/email";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-function isEnglishLanguage(language: string | null | undefined): boolean {
-  return language?.toLowerCase().startsWith("en") ?? false;
-}
-
-function sameLanguage(left: string | null | undefined, right: string | null | undefined): boolean {
-  const leftBase = left?.toLowerCase().split("-")[0];
-  const rightBase = right?.toLowerCase().split("-")[0];
-  return Boolean(leftBase && rightBase && leftBase === rightBase);
-}
 
 export const processSubmission = inngest.createFunction(
   {
@@ -24,14 +15,15 @@ export const processSubmission = inngest.createFunction(
   async ({ event, step }) => {
     const { submissionId } = event.data;
     const supabase = createAdminClient();
-    const ai = createAIProvider();
+    const sttProvider = createSarvamProvider();
+    const extractionProvider = createGeminiProvider();
 
     const [submission, attemptNumber] = await Promise.all([
       step.run("fetch-submission", async () => {
         const { data, error } = await supabase
           .from("submissions")
           .select(
-            "*, locations(id, name, organization_id, organizations(primary_language, default_alert_email, alert_email, name))",
+            "*, locations(id, name, organization_id, organizations(default_alert_email, alert_email, name))",
           )
           .eq("id", submissionId)
           .single();
@@ -55,7 +47,7 @@ export const processSubmission = inngest.createFunction(
             submission_id: submissionId,
             attempt_number: nextAttemptNumber,
             stage: "download",
-            provider: ai.name,
+            provider: "sarvam+gemini",
             model: null,
             status: "processing",
             started_at: new Date().toISOString(),
@@ -99,7 +91,7 @@ export const processSubmission = inngest.createFunction(
 
     const transcription = await step.run("transcribe-audio", async () => {
       const buffer = Buffer.from(audioBase64, "base64");
-      return ai.transcribeAudio(buffer, `${submissionId}.webm`);
+      return sttProvider.transcribeAudio(buffer, `${submissionId}.webm`);
     });
 
     const location = submission.locations as {
@@ -107,36 +99,19 @@ export const processSubmission = inngest.createFunction(
       name: string;
       organization_id: string;
       organizations: {
-        primary_language: string;
         default_alert_email: string | null;
         alert_email: string | null;
         name: string;
       };
     };
 
-    const orgLanguage = location.organizations.primary_language ?? "en";
     const alertEmail =
       location.organizations.default_alert_email ?? location.organizations.alert_email;
-    const englishTranscript =
-      transcription.englishText ??
-      (isEnglishLanguage(transcription.language)
-        ? transcription.text
-        : await step.run("translate-to-english", async () => ai.translateText(transcription.text, "en")));
-    let translatedTranscript = englishTranscript;
-
-    if (sameLanguage(transcription.language, orgLanguage)) {
-      translatedTranscript = transcription.text;
-    } else if (!isEnglishLanguage(orgLanguage)) {
-      translatedTranscript = await step.run("translate", async () => {
-        return ai.translateText(
-          sameLanguage(transcription.language, "en") ? transcription.text : englishTranscript,
-          orgLanguage,
-        );
-      });
-    }
+    const englishTranscript = transcription.englishText?.trim() ?? transcription.text.trim();
+    const translatedTranscript = englishTranscript;
 
     const categorization = await step.run("categorize", async () => {
-      return ai.categorizeFeedback(translatedTranscript);
+      return extractionProvider.categorizeFeedback(translatedTranscript);
     });
 
     await step.run("update-submission", async () => {
@@ -186,7 +161,7 @@ export const processSubmission = inngest.createFunction(
 
     const alertEval = evaluateAlert(
       categorization.sentiment,
-      translatedTranscript,
+      englishTranscript,
       FIXABLE_KEYWORDS,
     );
 
@@ -196,7 +171,7 @@ export const processSubmission = inngest.createFunction(
         const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
         const payload = buildAlertPayload({
           locationName: location.name,
-          transcript: translatedTranscript,
+          transcript: englishTranscript,
           tags: categorization.tags,
           timestamp: new Date().toISOString(),
           submissionId,
@@ -265,11 +240,58 @@ export const markSubmissionFailed = inngest.createFunction(
 
     const { data: submission } = await supabase
       .from("submissions")
-      .select("audio_storage_path, audio_retention_consent")
+      .select("audio_storage_path, audio_retention_consent, audio_deleted_at")
       .eq("id", submissionId)
       .maybeSingle();
 
-    if (submission?.audio_storage_path && !submission.audio_retention_consent) {
+    const { data: latestAttempts } = await supabase
+      .from("submission_processing_attempts")
+      .select("id, attempt_number")
+      .eq("submission_id", submissionId)
+      .order("attempt_number", { ascending: false })
+      .limit(1);
+
+    const latestAttempt = latestAttempts?.[0];
+    const latestAttemptNumber = ((latestAttempt?.attempt_number as number | undefined) ?? 0);
+
+    if (latestAttempt?.id) {
+      await supabase
+        .from("submission_processing_attempts")
+        .update({
+          stage: "failed",
+          status: "failed",
+          error_message: "Processing failed after retries",
+          finished_at: new Date().toISOString(),
+        })
+        .eq("id", latestAttempt.id);
+    }
+
+    const canAutoRetry =
+      latestAttemptNumber < 2 &&
+      Boolean(submission?.audio_storage_path) &&
+      Boolean(submission?.audio_retention_consent) &&
+      !submission?.audio_deleted_at;
+
+    if (canAutoRetry) {
+      const { error: retryError } = await supabase.rpc("retry_submission_dispatch", {
+        p_submission_id: submissionId,
+      });
+
+      if (!retryError) {
+        try {
+          await inngest.send({
+            name: "submission/outbox.reconcile",
+            data: { submissionId },
+          });
+        } catch {
+          // The durable outbox will be picked up on the next pass.
+        }
+
+        return;
+      }
+    }
+
+    if (submission?.audio_storage_path && !submission?.audio_retention_consent) {
       await supabase.storage.from("submissions-audio").remove([submission.audio_storage_path]);
       await supabase
         .from("submissions")
@@ -288,25 +310,6 @@ export const markSubmissionFailed = inngest.createFunction(
       })
       .eq("id", submissionId);
 
-    const { data: attempts } = await supabase
-      .from("submission_processing_attempts")
-      .select("id")
-      .eq("submission_id", submissionId)
-      .order("attempt_number", { ascending: false })
-      .limit(1);
-
-    const latestAttemptId = attempts?.[0]?.id as string | undefined;
-    if (latestAttemptId) {
-      await supabase
-        .from("submission_processing_attempts")
-        .update({
-          stage: "failed",
-          status: "failed",
-          error_message: "Processing failed after retries",
-          finished_at: new Date().toISOString(),
-        })
-        .eq("id", latestAttemptId);
-    }
   },
 );
 

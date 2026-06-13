@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import type { ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Inbox, QrCode } from "lucide-react";
@@ -18,6 +19,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { DASHBOARD_POLL_INTERVAL_MS } from "@/lib/constants";
 import type { Sentiment } from "@/lib/constants";
+import type { SubmissionInsights } from "@/lib/submission-insights";
 import { formatDistanceToNow } from "date-fns";
 
 interface Location {
@@ -28,13 +30,14 @@ interface Location {
 interface SubmissionItem {
   id: string;
   status: string;
-  transcript: string | null;
-  translated_transcript: string | null;
-  summary: string | null;
-  sentiment: Sentiment | null;
-  tags: string[];
+  transcript?: string | null;
+  translated_transcript?: string | null;
+  summary?: string | null;
+  sentiment?: Sentiment | null;
+  tags?: string[];
   created_at: string;
   locations: { id: string; name: string };
+  insights: SubmissionInsights;
 }
 
 const sentimentVariant: Record<Sentiment, "default" | "secondary" | "destructive"> = {
@@ -43,16 +46,34 @@ const sentimentVariant: Record<Sentiment, "default" | "secondary" | "destructive
   Negative: "destructive",
 };
 
+const statusVariant: Record<SubmissionInsights["status"]["tone"], "default" | "secondary" | "destructive" | "outline"> = {
+  default: "default",
+  secondary: "secondary",
+  destructive: "destructive",
+  outline: "outline",
+};
+
+function InsightSection({
+  label,
+  title,
+  children,
+}: {
+  label: string;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border bg-background/80 p-4 shadow-sm">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{label}</p>
+      <h4 className="mt-1 text-sm font-semibold text-foreground">{title}</h4>
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
 function SubmissionAudio({ submissionId }: { submissionId: string }) {
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const prevIdRef = useRef<string | null>(null);
-
-  if (submissionId !== prevIdRef.current) {
-    prevIdRef.current = submissionId;
-    setUrl(null);
-    setLoading(true);
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -89,22 +110,18 @@ export function DashboardInbox() {
   const highlightRef = useRef<HTMLDivElement>(null);
 
   const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<string>(
-    queryLocationId ?? "all"
-  );
+  const [manualLocation, setManualLocation] = useState<string>("all");
   const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
+  const [pageByLocation, setPageByLocation] = useState<Record<string, number>>({
+    all: 1,
+  });
   const [totalPages, setTotalPages] = useState(1);
-
-  useEffect(() => {
-    if (queryLocationId) {
-      setSelectedLocation(queryLocationId);
-      setPage(1);
-    }
-  }, [queryLocationId]);
+  const selectedLocation = queryLocationId ?? manualLocation;
+  const page = pageByLocation[selectedLocation] ?? 1;
 
   const fetchData = useCallback(async () => {
+    setLoading(true);
     const locParam = selectedLocation === "all" ? "" : `&locationId=${selectedLocation}`;
     const [locRes, subRes] = await Promise.all([
       fetch("/api/locations"),
@@ -126,10 +143,16 @@ export function DashboardInbox() {
   }, [selectedLocation, page]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchData();
-    const interval = setInterval(fetchData, DASHBOARD_POLL_INTERVAL_MS);
-    return () => clearInterval(interval);
+    const runFetch = () => {
+      void fetchData();
+    };
+
+    const initialFetch = setTimeout(runFetch, 0);
+    const interval = setInterval(runFetch, DASHBOARD_POLL_INTERVAL_MS);
+    return () => {
+      clearTimeout(initialFetch);
+      clearInterval(interval);
+    };
   }, [fetchData]);
 
   useEffect(() => {
@@ -145,8 +168,9 @@ export function DashboardInbox() {
         <Select
           value={selectedLocation}
           onValueChange={(v) => {
-            setSelectedLocation(v ?? "all");
-            setPage(1);
+            const nextLocation = v ?? "all";
+            setManualLocation(nextLocation);
+            setPageByLocation((prev) => ({ ...prev, [nextLocation]: 1 }));
           }}
         >
           <SelectTrigger className="w-48">
@@ -210,31 +234,90 @@ export function DashboardInbox() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  {sub.sentiment && (
-                    <Badge variant={sentimentVariant[sub.sentiment]}>
-                      {sub.sentiment}
+                  <Badge variant={statusVariant[sub.insights.status.tone]}>
+                    {sub.insights.status.label}
+                  </Badge>
+                  {sub.insights.analysis.sentiment && (
+                    <Badge variant={sentimentVariant[sub.insights.analysis.sentiment]}>
+                      {sub.insights.analysis.sentiment}
                     </Badge>
                   )}
-                  <Badge variant="outline">{sub.status}</Badge>
                 </div>
               </CardHeader>
-              <CardContent className="flex flex-col gap-3">
-                <SubmissionAudio submissionId={sub.id} />
-                {sub.summary && (
-                  <p className="text-sm font-medium">{sub.summary}</p>
-                )}
-                {(sub.translated_transcript || sub.transcript) && (
-                  <p className="text-sm text-muted-foreground">
-                    {sub.translated_transcript ?? sub.transcript}
-                  </p>
-                )}
-                {sub.tags?.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {sub.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
+              <CardContent className="flex flex-col gap-4">
+                <SubmissionAudio key={sub.id} submissionId={sub.id} />
+                <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
+                  <InsightSection label="Insight summary" title="What the AI extracted">
+                    {sub.insights.status.isComplete ? (
+                      <>
+                        <p className="text-sm font-medium text-foreground">
+                          {sub.insights.analysis.summary ?? "Feedback received"}
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {sub.insights.analysis.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {sub.insights.status.code === "failed" ||
+                        sub.insights.status.code === "terminal_failed"
+                          ? sub.insights.processing.errorMessage ??
+                            sub.insights.processing.latestError ??
+                            "Processing failed."
+                          : "Waiting for transcription and structured insight extraction."}
+                      </p>
+                    )}
+                  </InsightSection>
+
+                  <InsightSection label="Transcript" title="Speech converted to text">
+                    {sub.insights.status.isComplete && sub.insights.transcript.display ? (
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">
+                            {sub.insights.transcript.language?.toUpperCase() ?? "Unknown language"}
+                          </Badge>
+                          <Badge variant="outline">English normalized</Badge>
+                        </div>
+                        <div className="space-y-3">
+                          {sub.insights.transcript.original &&
+                            sub.insights.transcript.original !== sub.insights.transcript.display && (
+                              <div className="rounded-xl bg-muted/40 p-3">
+                                <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                                  Original
+                                </p>
+                                <p className="mt-2 text-sm leading-6 text-foreground">
+                                  {sub.insights.transcript.original}
+                                </p>
+                              </div>
+                            )}
+                          <div className="rounded-xl border border-primary/10 bg-primary/5 p-3">
+                            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                              English
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-foreground">
+                              {sub.insights.transcript.display}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {sub.insights.status.code === "failed" ||
+                        sub.insights.status.code === "terminal_failed"
+                          ? "No structured transcript was produced."
+                          : "Transcript will appear after processing completes."}
+                      </p>
+                    )}
+                  </InsightSection>
+                </div>
+
+                {sub.insights.processing.errorMessage && (
+                  <div className="rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                    {sub.insights.processing.errorMessage}
                   </div>
                 )}
               </CardContent>
@@ -247,7 +330,12 @@ export function DashboardInbox() {
                 variant="outline"
                 size="sm"
                 disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
+                onClick={() =>
+                  setPageByLocation((prev) => ({
+                    ...prev,
+                    [selectedLocation]: Math.max(1, (prev[selectedLocation] ?? 1) - 1),
+                  }))
+                }
               >
                 Previous
               </Button>
@@ -258,7 +346,12 @@ export function DashboardInbox() {
                 variant="outline"
                 size="sm"
                 disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() =>
+                  setPageByLocation((prev) => ({
+                    ...prev,
+                    [selectedLocation]: (prev[selectedLocation] ?? 1) + 1,
+                  }))
+                }
               >
                 Next
               </Button>
