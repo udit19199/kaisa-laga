@@ -7,6 +7,7 @@ export default function SignInPage() {
       path="/sign-in"
       signUpUrl="/sign-up"
       forceRedirectUrl="/dashboard"
+      appearance={{ theme: "simple" }}
     />
   );
 }

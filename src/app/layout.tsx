@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={{ theme: "simple" }}>
       <html lang="en" className={cn("h-full antialiased", "font-sans")} suppressHydrationWarning>
         <body className="min-h-full flex flex-col">
           <ThemeProvider
