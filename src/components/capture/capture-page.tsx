@@ -178,7 +178,14 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
       idempotencyKeyRef.current = crypto.randomUUID();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      startWaveform(stream);
+
+      // The waveform is purely decorative. If the browser refuses AudioContext
+      // or analyser setup, we still want to capture the actual audio.
+      try {
+        startWaveform(stream);
+      } catch (waveformError) {
+        console.warn("Waveform initialization failed; continuing without visualization.", waveformError);
+      }
 
       if (typeof navigator.vibrate === "function") {
         navigator.vibrate(12);
@@ -186,7 +193,12 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
 
       const mimeType = getSupportedRecordingMimeType();
 
-      const recorder = new MediaRecorder(stream, { mimeType });
+      let recorder: MediaRecorder;
+      try {
+        recorder = new MediaRecorder(stream, { mimeType });
+      } catch {
+        recorder = new MediaRecorder(stream);
+      }
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
 
@@ -197,10 +209,10 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
       recorder.onstop = async () => {
         stream.getTracks().forEach((track) => track.stop());
         stopWaveform();
-        const blob = new Blob(chunksRef.current, { type: mimeType });
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || mimeType });
         if (blob.size > 0) {
           try {
-            await uploadAudio(blob, mimeType);
+            await uploadAudio(blob, recorder.mimeType || mimeType);
           } catch {
             setState("error");
             setErrorMessage(t(locale, "uploadError"));
