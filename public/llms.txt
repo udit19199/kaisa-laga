@@ -21,6 +21,6 @@ Traditional surveys have a 2% completion rate because they feel like homework. V
 100% Private to Management. Kaisa Laga is not a public megaphone. Give angry customers a private channel to vent directly to you, so they don't take their frustration to Yelp.
 
 ## Resources
-- [Main Website](https://pulsedrop.app)
-- [Start Free Trial](https://pulsedrop.app/dashboard/signup)
-- [Login](https://pulsedrop.app/dashboard/login)
+- [Main Website](https://kaisa-laga.app)
+- [Start Free Trial](https://kaisa-laga.app/dashboard/signup)
+- [Login](https://kaisa-laga.app/dashboard/login)

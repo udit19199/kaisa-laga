@@ -1,4 +1,4 @@
--- PulseDrop initial schema
+-- Kaisa Laga initial schema
 
 -- Organizations
 CREATE TABLE organizations (

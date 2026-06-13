@@ -1,4 +1,4 @@
--- PulseDrop backend integrity cleanup
+-- Kaisa Laga backend integrity cleanup
 -- Canonical tenant provisioning, durable submission outbox, and retention-aware submission dispatch.
 
 ALTER TABLE submissions

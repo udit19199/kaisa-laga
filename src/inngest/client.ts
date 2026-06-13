@@ -1,7 +1,7 @@
 import { Inngest } from "inngest";
 
 export const inngest = new Inngest({
-  id: "pulsedrop",
+  id: "kaisa-laga",
   isDev: process.env.NODE_ENV === "development",
 });
 

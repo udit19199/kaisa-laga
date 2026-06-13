@@ -6,7 +6,7 @@ export function DashboardShowcase() {
           Wake up to actionable feedback.
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-[var(--brand-muted)]">
-          You don&apos;t have time to listen to 50 voice notes a day. Auris automatically transcribes, analyzes sentiment, and surfaces the trends that matter. No complex dashboards required.
+          You don&apos;t have time to listen to 50 voice notes a day. Kaisa Laga automatically transcribes, analyzes sentiment, and surfaces the trends that matter. No complex dashboards required.
         </p>
 
         <div className="mt-16 mx-auto max-w-4xl rounded-2xl border border-[var(--brand-ink)]/10 bg-gray-50/50 p-4 sm:p-8 shadow-2xl shadow-[var(--brand-accent)]/10 backdrop-blur-sm">

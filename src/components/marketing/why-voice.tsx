@@ -30,7 +30,7 @@ export function WhyVoice() {
           {/* Voice Review Side */}
           <div className="rounded-2xl border border-[var(--brand-accent)]/20 bg-[var(--brand-paper)] p-8 text-left shadow-sm ring-1 ring-[var(--brand-accent)]/10">
             <div className="mb-4 inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-[var(--brand-accent)]">
-              With Auris
+              With Kaisa Laga
             </div>
             <div className="mt-6 rounded-xl bg-white p-6 shadow-sm border border-[var(--brand-ink)]/5">
               <div className="flex items-center gap-3">

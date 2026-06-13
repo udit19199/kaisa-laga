@@ -2,7 +2,7 @@
 
 Frictionless voice feedback capture for physical businesses. Customers scan a QR code, tap play to record, pause to send, and get an instant thank-you. Operators get transcripts, sentiment, tags, charts, and email alerts for fixable negative feedback.
 
-**Agents & issue tracking:** See [`AGENTS.md`](AGENTS.md) for Linear workflow (milestones, sub-issues, sync rules). Work is tracked in the [Kaisa Laga Linear project](https://linear.app/udit19199/project/pulsedrop-7bc2b6a39345).
+**Agents & issue tracking:** See [`AGENTS.md`](AGENTS.md) for Linear workflow (milestones, sub-issues, sync rules). Work is tracked in the [Kaisa Laga Linear project](https://linear.app/udit19199/project/kaisa-laga-7bc2b6a39345).
 
 ## Stack
 
@@ -125,7 +125,7 @@ See `docs/adr/` for architecture decision records and `docs/REVISIT.md` for pre-
 git add -A && git commit -m "your change" && git push origin main
 ```
 
-Push to `main` → Vercel builds and deploys automatically to [pulsedrop-six.vercel.app](https://pulsedrop-six.vercel.app).
+Push to `main` → Vercel builds and deploys automatically to [kaisa-laga-six.vercel.app](https://kaisa-laga-six.vercel.app).
 
 See [`docs/DEPLOY.md`](docs/DEPLOY.md) for the full workflow, preview deploys, and CI.
 

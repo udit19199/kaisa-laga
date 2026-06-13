@@ -6,7 +6,7 @@ export function LandingHero() {
   return (
     <section
       className="relative flex flex-col items-center px-4 pt-32 pb-16 text-center sm:px-6 sm:pt-40 sm:pb-20"
-      aria-label="Auris introduction"
+      aria-label="Kaisa Laga introduction"
     >
       <p className="text-xs font-semibold tracking-[0.22em] text-[var(--brand-muted)] uppercase">
         Built for local service businesses

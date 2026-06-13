@@ -4,12 +4,12 @@ import postgres from "postgres";
 import { getDatabaseUrl } from "@/db/credentials";
 import * as schema from "@/db/schema";
 
-type PulseDropDatabase = PostgresJsDatabase<typeof schema>;
+type KaisaLagaDatabase = PostgresJsDatabase<typeof schema>;
 type PostgresClient = ReturnType<typeof postgres>;
 
 const globalForDatabase = globalThis as typeof globalThis & {
-  pulsedropDrizzleClient?: PostgresClient;
-  pulsedropDrizzleDb?: PulseDropDatabase;
+  kaisaLagaDrizzleClient?: PostgresClient;
+  kaisaLagaDrizzleDb?: KaisaLagaDatabase;
 };
 
 function createClient() {
@@ -33,17 +33,17 @@ function getClient(): PostgresClient {
     return createClient();
   }
 
-  globalForDatabase.pulsedropDrizzleClient ??= createClient();
-  return globalForDatabase.pulsedropDrizzleClient;
+  globalForDatabase.kaisaLagaDrizzleClient ??= createClient();
+  return globalForDatabase.kaisaLagaDrizzleClient;
 }
 
-function createDb(): PulseDropDatabase {
+function createDb(): KaisaLagaDatabase {
   return drizzle(getClient(), { schema });
 }
 
 export const db =
   process.env.NODE_ENV === "production"
     ? createDb()
-    : (globalForDatabase.pulsedropDrizzleDb ??= createDb());
+    : (globalForDatabase.kaisaLagaDrizzleDb ??= createDb());
 
 export { schema };

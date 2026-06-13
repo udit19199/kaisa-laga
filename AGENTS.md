@@ -4,11 +4,11 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# PulseDrop — Agent & Linear Workflow
+# Kaisa Laga — Agent & Linear Workflow
 
-Guide for AI agents and humans to keep [Linear](https://linear.app/udit19199/team/UDI/all) current as PulseDrop work progresses. The goal is **balanced tracking**: neither one mega-issue nor dozens of micro-issues.
+Guide for AI agents and humans to keep [Linear](https://linear.app/udit19199/team/UDI/all) current as Kaisa Laga work progresses. The goal is **balanced tracking**: neither one mega-issue nor dozens of micro-issues.
 
-**Linear project:** [PulseDrop](https://linear.app/udit19199/project/pulsedrop-7bc2b6a39345)  
+**Linear project:** [Kaisa Laga](https://linear.app/udit19199/project/kaisa-laga-7bc2b6a39345)  
 **Team:** Udit19199 (prefix `UDI-`)  
 **Repo docs:** `docs/adr/` · `docs/REVISIT.md` · `README.md`
 
@@ -16,9 +16,9 @@ Guide for AI agents and humans to keep [Linear](https://linear.app/udit19199/tea
 
 ## Linear hierarchy (balanced)
 
-### Project (PulseDrop) — durable context only
+### Project (Kaisa Laga) — durable context only
 
-The [PulseDrop project](https://linear.app/udit19199/project/pulsedrop-7bc2b6a39345) holds **stable product and architecture context**:
+The [Kaisa Laga project](https://linear.app/udit19199/project/kaisa-laga-7bc2b6a39345) holds **stable product and architecture context**:
 
 - Problem statement, solution overview, MVP stack
 - ADR summary table (link to `docs/adr/`, do not paste full ADRs)
@@ -30,7 +30,7 @@ The [PulseDrop project](https://linear.app/udit19199/project/pulsedrop-7bc2b6a39
 
 ### Parent issues (~5–8 per MVP phase) — milestones / epics
 
-One parent issue per major milestone. PulseDrop MVP uses six:
+One parent issue per major milestone. Kaisa Laga MVP uses six:
 
 | Milestone | Focus |
 |-----------|-------|
@@ -90,7 +90,7 @@ Agents **must** keep Linear in sync with repo state. Treat stale issues as a bug
 
 ### Before starting work
 
-1. Read the [PulseDrop project](https://linear.app/udit19199/project/pulsedrop-7bc2b6a39345) for context.
+1. Read the [Kaisa Laga project](https://linear.app/udit19199/project/kaisa-laga-7bc2b6a39345) for context.
 2. Find the relevant **parent milestone** and **sub-issue** (or create a sub-issue if the deliverable is new).
 3. Move the sub-issue to **In Progress** when you begin implementation.
 4. Prefer sub-issues labeled **`ready-for-agent`** for autonomous work.
@@ -105,7 +105,7 @@ Agents **must** keep Linear in sync with repo state. Treat stale issues as a bug
 
 ### UDI-10 and milestone structure
 
-[UDI-10](https://linear.app/udit19199/issue/UDI-10/pulsedrop-mvp-voice-cx-capture-platform) is the **MVP umbrella** — it tracks overall MVP acceptance criteria and links to M1–M6 sub-issues. **Do not** use UDI-10 as a catch-all for new work; add sub-issues under the appropriate milestone instead.
+[UDI-10](https://linear.app/udit19199/issue/UDI-10/kaisa-laga-mvp-voice-cx-capture-platform) is the **MVP umbrella** — it tracks overall MVP acceptance criteria and links to M1–M6 sub-issues. **Do not** use UDI-10 as a catch-all for new work; add sub-issues under the appropriate milestone instead.
 
 Remaining MVP work lives under **M6 — Quality** as sub-issues, not as unchecked boxes on UDI-10 alone.
 
@@ -182,8 +182,8 @@ Label **`ready-for-agent`** when the issue has clear scope, acceptance criteria,
 
 When using the Linear MCP tools:
 
-- **`list_issues`** — filter by `project: "PulseDrop"`, `parentId`, `label: "ready-for-agent"`
+- **`list_issues`** — filter by `project: "Kaisa Laga"`, `parentId`, `label: "ready-for-agent"`
 - **`get_issue`** — read full description, relations, branch name before starting
-- **`save_issue`** — create with `team: "Udit19199"`, `project: "PulseDrop"`, `parentId` for sub-issues; update with `id: "UDI-XX"` to change status, description, labels
+- **`save_issue`** — create with `team: "Udit19199"`, `project: "Kaisa Laga"`, `parentId` for sub-issues; update with `id: "UDI-XX"` to change status, description, labels
 
 Status flow: **Backlog** → **Todo** → **In Progress** → **In Review** → **Done**

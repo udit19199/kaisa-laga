@@ -242,6 +242,54 @@
     linear-gradient(180deg, transparent 0%, transparent 58%, oklch(0.97 0.008 245 / 0.84) 74%, oklch(0.97 0.008 245 / 0.98) 100%);
 }
 
+/* Discovery surface — dark food market palette for public reviews */
+.discovery-surface {
+  --discovery-ink: oklch(0.15 0.02 58);
+  --discovery-muted: oklch(0.69 0.03 58);
+  --discovery-paper: oklch(0.974 0.008 92);
+  --discovery-panel: oklch(0.23 0.03 55);
+  --discovery-panel-strong: oklch(0.18 0.03 52);
+  --discovery-accent: oklch(0.82 0.16 86);
+  --discovery-accent-strong: oklch(0.67 0.17 38);
+  --discovery-success: oklch(0.76 0.16 156);
+  --discovery-border: oklch(0.97 0.008 92 / 0.16);
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background:
+    radial-gradient(ellipse 34% 20% at 18% 10%, oklch(0.82 0.16 86 / 0.28), transparent 72%),
+    radial-gradient(ellipse 28% 18% at 80% 14%, oklch(0.67 0.17 38 / 0.22), transparent 74%),
+    radial-gradient(ellipse 26% 16% at 52% 0%, oklch(0.76 0.16 156 / 0.18), transparent 72%),
+    linear-gradient(
+      180deg,
+      oklch(0.22 0.03 55) 0%,
+      oklch(0.18 0.03 52) 56%,
+      oklch(0.13 0.02 50) 100%
+    );
+  color: var(--discovery-paper);
+}
+
+.discovery-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 22% 10% at 18% 14%, oklch(0.98 0.01 92 / 0.22), transparent 72%),
+    radial-gradient(ellipse 18% 9% at 78% 18%, oklch(0.98 0.01 92 / 0.14), transparent 76%);
+  filter: blur(32px);
+  opacity: 0.82;
+}
+
+.discovery-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 0%, transparent 70%, oklch(0.13 0.02 50 / 0.82) 100%);
+}
+
 /* liquidGL — WebGL glass with CSS fallback (see LiquidGlassProvider) */
 :root {
   --liquid-glass-z: 50;

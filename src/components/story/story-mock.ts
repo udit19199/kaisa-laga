@@ -1,5 +1,5 @@
 export const STORY_MOCK = {
-  captureUrl: "https://pulsedrop.app/f/demo",
+  captureUrl: "https://kaisa-laga.app/f/demo",
   displayUrl: "url.com",
   locationName: "Harbor Café",
   rawTranscript: "The service was good, but I had to wait longer than expected and the staff seemed rushed today.",

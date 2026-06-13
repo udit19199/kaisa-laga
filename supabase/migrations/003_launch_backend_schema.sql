@@ -1,4 +1,4 @@
--- PulseDrop launch backend schema
+-- Kaisa Laga launch backend schema
 -- Additive migration that keeps legacy columns available while introducing the
 -- normalized org, membership, subscription, and quota ledger model.
 

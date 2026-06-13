@@ -6,7 +6,7 @@ Accepted (MVP defaults)
 
 ## Context
 
-Eight decisions remained open after the initial grill-me session (see plan "Open Decisions" section). The PRD ([UDI-10](https://linear.app/udit19199/issue/UDI-10/pulsedrop-mvp-voice-cx-capture-platform)) resolved each with pragmatic MVP defaults to unblock implementation. These are not final production choices — revisit before scaling beyond early pilots.
+Eight decisions remained open after the initial grill-me session (see plan "Open Decisions" section). The PRD ([UDI-10](https://linear.app/udit19199/issue/UDI-10/kaisa-laga-mvp-voice-cx-capture-platform)) resolved each with pragmatic MVP defaults to unblock implementation. These are not final production choices — revisit before scaling beyond early pilots.
 
 ## Decision
 
@@ -102,7 +102,7 @@ Single Next.js deploy on Vercel. Secrets in Vercel project settings (Production 
 | `INNGEST_EVENT_KEY` | Server only | Yes | Send events to Inngest |
 | `INNGEST_SIGNING_KEY` | Server only | Yes | Verify Inngest webhook signatures |
 | `RESEND_API_KEY` | Server only | Yes | Send alert emails |
-| `RESEND_FROM_EMAIL` | Server only | Yes | Verified sender address (e.g. `alerts@pulsedrop.app`) |
+| `RESEND_FROM_EMAIL` | Server only | Yes | Verified sender address (e.g. `alerts@kaisa-laga.app`) |
 | `NEXT_PUBLIC_APP_URL` | Client + Server | Yes | Canonical app URL for email links and QR generation |
 
 **Optional / derived**

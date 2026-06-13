@@ -36,10 +36,10 @@ describe("buildAlertPayload", () => {
       tags: ["Food Quality"],
       timestamp: "2026-06-11T12:00:00Z",
       submissionId: "abc-123",
-      appUrl: "https://app.pulsedrop.com",
+      appUrl: "https://app.kaisa-laga.app",
     });
 
     expect(payload.locationName).toBe("Downtown");
-    expect(payload.dashboardUrl).toBe("https://app.pulsedrop.com/dashboard?submission=abc-123");
+    expect(payload.dashboardUrl).toBe("https://app.kaisa-laga.app/dashboard?submission=abc-123");
   });
 });

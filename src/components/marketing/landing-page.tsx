@@ -14,15 +14,15 @@ function LandingNav() {
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-5 sm:px-6">
       <nav className="glass-nav pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-4 rounded-full px-4 py-2.5 sm:px-5">
-        <Link
-          href="/"
-          className="flex shrink-0 items-center gap-3"
-        >
-          <BrandMark className="size-9" imageClassName="h-6 w-6" priority />
-          <span className="text-sm font-bold tracking-[0.18em] text-[var(--brand-ink)] uppercase">
-            Auris
-          </span>
-        </Link>
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-3"
+          >
+            <BrandMark className="size-9" imageClassName="h-6 w-6" priority />
+            <span className="text-sm font-bold tracking-[0.18em] text-[var(--brand-ink)] uppercase">
+            Kaisa Laga
+            </span>
+          </Link>
 
         <div className="hidden items-center gap-5 sm:flex">
           <a

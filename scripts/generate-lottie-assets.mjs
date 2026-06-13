@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Minimal valid Lottie JSON for PulseDrop product narrative.
+ * Minimal valid Lottie JSON for Kaisa Laga product narrative.
  * Fallback when LottieFiles CDN downloads are unavailable.
  */
 import { writeFileSync, mkdirSync } from "node:fs";

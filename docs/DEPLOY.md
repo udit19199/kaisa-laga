@@ -2,7 +2,7 @@
 
 Kaisa Laga uses **Vercel Git integration**: every push to `main` builds and deploys to production automatically.
 
-**Production URL:** https://pulsedrop-six.vercel.app
+**Production URL:** https://kaisa-laga-six.vercel.app
 
 ## Day-to-day flow
 
@@ -22,7 +22,7 @@ git push origin main
 
 Within ~1–2 minutes, Vercel picks up the push, runs `bun install` + `bun run build`, and promotes the deployment to production.
 
-Track progress: [Vercel → pulsedrop → Deployments](https://vercel.com/udit19199/pulsedrop)
+Track progress: [Vercel → kaisa-laga → Deployments](https://vercel.com/udit19199/kaisa-laga)
 
 ## What runs automatically
 
@@ -36,7 +36,7 @@ Track progress: [Vercel → pulsedrop → Deployments](https://vercel.com/udit19
 
 | Item | Where it lives |
 |------|----------------|
-| Environment variables | [Vercel project settings](https://vercel.com/udit19199/pulsedrop/settings/environment-variables) — change once, all future deploys pick them up |
+| Environment variables | [Vercel project settings](https://vercel.com/udit19199/kaisa-laga/settings/environment-variables) — change once, all future deploys pick them up |
 | Database migrations | Use Drizzle for the primary schema baseline and forward migrations (`bun run db:generate` then `bun run db:migrate`); use `bun run db:baseline` only when an existing database already matches the baseline and just needs Drizzle history recorded |
 | Clerk / Inngest dashboard config | Clerk + Inngest consoles |
 
@@ -51,7 +51,7 @@ vercel link          # once per machine
 vercel deploy --prod # emergency manual production deploy
 ```
 
-Git is already connected: `vercel git connect` reports `udit19199/pulsedrop` is linked.
+Git is already connected: `vercel git connect` reports `udit19199/kaisa-laga` is linked.
 
 ## Optional: require CI before merge
 

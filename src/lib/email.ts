@@ -10,7 +10,7 @@ export async function sendAlertEmail(
   to: string,
   payload: AlertPayload,
 ): Promise<{ id: string }> {
-  const from = process.env.RESEND_FROM_EMAIL ?? "alerts@pulsedrop.app";
+  const from = process.env.RESEND_FROM_EMAIL ?? "alerts@kaisa-laga.app";
 
   const { data, error } = await resend.emails.send({
     from,

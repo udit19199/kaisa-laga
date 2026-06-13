@@ -9,7 +9,7 @@ const FAQS = [
     questions: [
       {
         q: "How is this different from Google Reviews?",
-        a: "Google Reviews are public and usually show up after the damage is done. Auris gives customers an easier, private way to tell you what happened while you still have a chance to fix it."
+        a: "Google Reviews are public and usually show up after the damage is done. Kaisa Laga gives customers an easier, private way to tell you what happened while you still have a chance to fix it."
       },
       {
         q: "Will customers actually use this?",
@@ -17,7 +17,7 @@ const FAQS = [
       },
       {
         q: "What does my business actually get?",
-        a: "Auris turns those voice notes into clear themes, transcripts, and issues your team can act on instead of leaving you with vague ratings."
+        a: "Kaisa Laga turns those voice notes into clear themes, transcripts, and issues your team can act on instead of leaving you with vague ratings."
       }
     ]
   },
@@ -30,7 +30,7 @@ const FAQS = [
       },
       {
         q: "Is the feedback public?",
-        a: "No. Auris is a private channel for the business. Nothing is automatically posted to Google or anywhere else."
+        a: "No. Kaisa Laga is a private channel for the business. Nothing is automatically posted to Google or anywhere else."
       }
     ]
   },
@@ -39,7 +39,7 @@ const FAQS = [
     questions: [
       {
         q: "Do I need to train staff or change my workflow?",
-        a: "No major workflow change. Customers use their own phones, and your team only needs to review the feedback Auris organizes for them."
+        a: "No major workflow change. Customers use their own phones, and your team only needs to review the feedback Kaisa Laga organizes for them."
       },
       {
         q: "Can I still hear the original voice note?",

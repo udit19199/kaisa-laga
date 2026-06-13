@@ -13,7 +13,7 @@ export function PrivateFeedback() {
               Hear the problem before it turns into a public review.
             </h2>
             <p className="mt-6 max-w-[34rem] text-lg leading-8 text-white/72">
-              Google Reviews tell you what already went wrong. Auris gives customers a
+              Google Reviews tell you what already went wrong. Kaisa Laga gives customers a
               private, easier channel to say it first, while you still have a chance
               to respond and improve.
             </p>

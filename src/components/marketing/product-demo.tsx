@@ -56,7 +56,7 @@ function InsightGlyph() {
 
 export function ProductDemo() {
   return (
-    <section id="product" className="relative px-6 pb-24 sm:px-8 sm:pb-32" aria-label="How Auris works">
+    <section id="product" className="relative px-6 pb-24 sm:px-8 sm:pb-32" aria-label="How Kaisa Laga works">
       <div className="mx-auto max-w-5xl">
         <div className="demo-stage relative overflow-hidden rounded-[2.5rem] px-6 py-14 sm:px-10 sm:py-[4.5rem] lg:px-14 lg:py-20">
           <div className="demo-stage-glow" aria-hidden />

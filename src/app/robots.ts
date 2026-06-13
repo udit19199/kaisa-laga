@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/dashboard/', '/api/', '/f/', '/demo/'],
     },
-    sitemap: 'https://pulsedrop.app/sitemap.xml',
+    sitemap: 'https://kaisa-laga.app/sitemap.xml',
   };
 }
