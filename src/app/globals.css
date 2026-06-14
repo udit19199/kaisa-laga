@@ -686,3 +686,439 @@ body[data-liquid-glass="ready"] .liquidGL.glass-card {
     animation: none;
   }
 }
+
+/* Variant landing system — shared skin, separate concepts */
+.landing-shell {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+.landing-nav {
+  background: color-mix(in oklch, var(--lp-panel) 92%, transparent);
+  border: 1px solid var(--lp-line);
+  box-shadow: 0 6px 8px color-mix(in oklch, var(--lp-line) 18%, transparent);
+}
+
+.landing-panel {
+  background: color-mix(in oklch, var(--lp-panel) 95%, transparent);
+  border: 1px solid var(--lp-line);
+  box-shadow: 0 8px 8px color-mix(in oklch, var(--lp-line) 18%, transparent);
+}
+
+.landing-enter {
+  animation: landing-enter 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-wave {
+  animation: landing-wave 1.8s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+@keyframes landing-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landing-wave {
+  0%,
+  100% {
+    transform: scaleY(0.82);
+    opacity: 0.72;
+  }
+  50% {
+    transform: scaleY(1.08);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-enter,
+  .landing-wave {
+    animation: none;
+  }
+}
+
+/* Julienne reference recreation */
+.julienne-page {
+  --julienne-ink: #080808;
+  --julienne-muted: #898989;
+  --julienne-line: #e5e5e5;
+  --julienne-card: #f7f7f7;
+  --julienne-orange: #e56b3c;
+  min-height: 1325px;
+  overflow-x: hidden;
+  background: #fff;
+  color: var(--julienne-ink);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.julienne-header {
+  display: flex;
+  height: 101px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--julienne-line);
+  padding: 0 31px;
+}
+
+.julienne-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  color: var(--julienne-ink);
+  text-decoration: none;
+  font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.julienne-mark {
+  position: relative;
+  display: inline-block;
+  width: 33px;
+  height: 42px;
+  flex: none;
+}
+
+.julienne-mark-half {
+  position: absolute;
+  top: 0;
+  width: 15px;
+  height: 42px;
+  overflow: hidden;
+  border-radius: 6px 6px 7px 7px;
+  background: currentColor;
+}
+
+.julienne-mark-left {
+  left: 0;
+}
+
+.julienne-mark-right {
+  right: 0;
+}
+
+.julienne-mark-left::after,
+.julienne-mark-right::after {
+  position: absolute;
+  width: 12px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--julienne-mark-cutout, #fff);
+  content: "";
+}
+
+.julienne-mark-left::after {
+  top: -1px;
+  right: -6px;
+}
+
+.julienne-mark-right::after {
+  bottom: -1px;
+  left: -6px;
+}
+
+.julienne-nav {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  font-size: 18px;
+}
+
+.julienne-nav a {
+  color: var(--julienne-ink);
+  text-decoration: none;
+}
+
+.julienne-nav a:hover,
+.julienne-account a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.julienne-theme-button {
+  display: grid;
+  width: 69px;
+  height: 59px;
+  margin-left: 1px;
+  place-items: center;
+  border: 1px solid #dedede;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--julienne-ink);
+}
+
+.julienne-theme-button svg {
+  width: 23px;
+  height: 23px;
+  stroke-width: 2;
+}
+
+.julienne-hero {
+  height: 620px;
+  padding-top: 164px;
+  text-align: center;
+}
+
+.julienne-hero h1 {
+  margin: 0;
+  font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+  font-size: 55px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.julienne-hero h1 span {
+  display: block;
+}
+
+.julienne-hero h1 span:last-child {
+  color: var(--julienne-muted);
+}
+
+.julienne-hero h1 em {
+  font-weight: 400;
+}
+
+.julienne-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.julienne-qr {
+  display: grid;
+  width: 82px;
+  height: 82px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #dedede;
+  border-radius: 19px;
+  background: #fff;
+}
+
+.julienne-qr img {
+  width: 82px;
+  height: 82px;
+}
+
+.julienne-app-button,
+.julienne-google-button {
+  display: inline-flex;
+  height: 82px;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border-radius: 24px;
+  font-size: 18px;
+  text-decoration: none;
+}
+
+.julienne-app-button {
+  width: 194px;
+  border: 1px solid #e9b49e;
+  color: var(--julienne-ink);
+}
+
+.julienne-google-button {
+  width: 240px;
+  background: var(--julienne-orange);
+  color: #fff;
+}
+
+.julienne-apple {
+  width: 20px;
+  height: 22px;
+}
+
+.julienne-google-g {
+  font-size: 31px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.julienne-account {
+  margin: 34px 0 0;
+  color: var(--julienne-muted);
+  font-size: 15px;
+}
+
+.julienne-account a {
+  color: var(--julienne-ink);
+  text-underline-offset: 2px;
+}
+
+.julienne-recipes {
+  padding: 0 31px 64px;
+}
+
+.julienne-recipe-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.julienne-recipe-row-ghost {
+  margin-top: 12px;
+}
+
+.julienne-recipe-card {
+  position: relative;
+  height: 456px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--julienne-card);
+}
+
+.julienne-card-heading {
+  display: flex;
+  min-height: 93px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 25px 24px 0;
+}
+
+.julienne-card-heading h2 {
+  max-width: 280px;
+  margin: 0;
+  font-family: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.julienne-card-heading button {
+  flex: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #a6a6a6;
+}
+
+.julienne-card-heading svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.8;
+}
+
+.julienne-recipe-image {
+  display: block;
+  width: 268px;
+  height: 268px;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.julienne-byline {
+  position: absolute;
+  right: 24px;
+  bottom: 26px;
+  left: 24px;
+  margin: 0;
+  color: var(--julienne-muted);
+  font-size: 15px;
+}
+
+.julienne-byline a {
+  color: inherit;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .julienne-nav {
+    gap: 24px;
+  }
+
+  .julienne-hero h1 {
+    font-size: clamp(38px, 5.2vw, 58px);
+  }
+
+  .julienne-recipe-row {
+    display: flex;
+    width: max-content;
+  }
+
+  .julienne-recipe-card {
+    width: 350px;
+  }
+
+}
+
+@media (max-width: 760px) {
+  .julienne-page {
+    min-height: 1120px;
+  }
+
+  .julienne-header {
+    height: 84px;
+    padding: 0 18px;
+  }
+
+  .julienne-brand {
+    gap: 12px;
+    font-size: 25px;
+  }
+
+  .julienne-nav > a {
+    display: none;
+  }
+
+  .julienne-nav {
+    gap: 0;
+  }
+
+  .julienne-theme-button {
+    width: 54px;
+    height: 50px;
+  }
+
+  .julienne-hero {
+    height: 610px;
+    padding: 118px 20px 0;
+  }
+
+  .julienne-hero h1 {
+    font-size: 39px;
+    line-height: 1.12;
+  }
+
+  .julienne-hero h1 span:last-child {
+    margin-top: 8px;
+  }
+
+  .julienne-actions {
+    flex-wrap: wrap;
+  }
+
+  .julienne-qr {
+    display: none;
+  }
+
+  .julienne-app-button,
+  .julienne-google-button {
+    height: 68px;
+    border-radius: 20px;
+  }
+
+  .julienne-recipes {
+    overflow-x: auto;
+    padding: 0 18px 48px;
+  }
+
+  .julienne-recipe-card {
+    width: 322px;
+    height: 430px;
+  }
+
+}

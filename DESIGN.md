@@ -345,3 +345,14 @@ All new animations must gate on `prefers-reduced-motion`.
 - **Don't** spread Instrument Serif beyond the marketing hero.
 - **Don't** invent new accent colors in agent-generated screens until tokens are added to `globals.css`.
 - **Don't** rely on color alone for recording state — pair go-green ring with scale, waveform, and label text.
+
+## Variant Landing Gallery
+
+The app now includes a campaign gallery under `/landings` with 15 static route variants at `/landings/[slug]`.
+
+- Shared catalog: `src/components/marketing/landing-variants.ts`
+- Shared renderer: `src/components/marketing/variant-landing-page.tsx`
+- Route entries: `src/app/landings/page.tsx`, `src/app/landings/[slug]/page.tsx`
+- Shared skin: `src/app/globals.css` via the `landing-*` utility classes
+
+Each variant keeps the same CTA system and proof model, but changes the hero, section order, tone, and palette so the page family reads as a set of distinct product bets rather than palette swaps.
