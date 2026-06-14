@@ -27,3 +27,7 @@ Review each item before moving beyond early pilots.
 - [ ] **Data lifecycle**: Audio retention policy (90-day default), GDPR/delete requests
 - [ ] **Capture page performance**: Edge caching, bundle size audit for <1s load target
 - [ ] **Supabase limits**: Connection pooling (PgBouncer), Storage egress, RLS audit
+
+## Future exploration (not MVP)
+
+- [ ] **Semantic discovery** — vector search on homepage for intent-based queries (*"spicy, not Indian, budget, nearby"*). See [docs/explore/semantic-discovery.md](./explore/semantic-discovery.md). Includes optional later phase: user ↔ venue taste matching for signed-up diners.

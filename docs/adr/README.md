@@ -15,6 +15,7 @@ See also: [REVISIT.md](../REVISIT.md) — pre-production checklist.
 | [005](./005-tag-taxonomy.md) | Tag Taxonomy — Predefined categories | Accepted (MVP) |
 | [006](./006-operator-onboarding.md) | Operator Onboarding — Self-serve signup | Accepted (MVP) |
 | [007](./007-open-decisions-defaults.md) | Open Decisions — PRD defaults | Accepted (MVP defaults) |
+| [008](./008-semantic-discovery-taste.md) | Semantic Discovery and Taste Matching | Accepted |
 
 ## MVP Stack Summary
 

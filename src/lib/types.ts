@@ -17,6 +17,10 @@ export interface Location {
   id: string;
   organization_id: string;
   name: string;
+  tagline?: string | null;
+  cover_image_url?: string | null;
+  taste_summary?: string | null;
+  taste_themes?: string[];
   public_capture_token?: string;
   alert_email_override?: string | null;
   is_active?: boolean;

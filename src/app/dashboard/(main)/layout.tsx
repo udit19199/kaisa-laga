@@ -4,7 +4,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Toaster } from "@/components/ui/sonner";
-import { getOrganizationForClerkUser } from "@/lib/clerk-org";
+import { getOrganizationForClerkUser } from "@/server/auth/context";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default async function DashboardMainLayout({

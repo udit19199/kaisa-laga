@@ -1,26 +1,29 @@
-# Kaisa Laga - AI-Powered Voice Reviews for Local Businesses
+# Kaisa Laga — Verified visit-based reviews for restaurants, cafes, and hotels
 
-> Replace ignored surveys with 5-second voice reviews. 
+> Reviews from real visits, not random internet noise.
 
-Kaisa Laga is an internal early-warning system for local service businesses (salons, restaurants, clinics). 
-Customers scan a QR code to leave a quick voice note. Our AI instantly turns it into operational insights for your dashboard. No typing. No apps. Just the truth.
+Kaisa Laga is a verified customer feedback and trust platform for India. Guests scan a QR after a real visit and answer "Kaisa laga?" with quick voice or text feedback. Businesses get AI insights, complaint alerts, and a private recovery window before eligible reviews publish. Future guests discover places through honest feedback from people who were actually there.
 
-## Why Voice?
-Traditional surveys have a 2% completion rate because they feel like homework. Voice is effortless, and it contains the nuance that a simple rating strips away.
+## Who it's for
 
-## How it works:
-1. Place the QR Code: We mail you a premium acrylic display. Place it on your counter or tables.
-2. Customers Speak: They scan and record a 5-second note. No app downloads required.
-3. AI Synthesizes: You get a daily summary of sentiment, flagged issues, and operational alerts.
+- **Diners and guests:** discover and read verified visit-based reviews on the public site.
+- **Restaurants, cafes, hotels:** onboard via the business path to collect feedback, recover unhappy guests privately, and build a trustworthy public profile.
 
-## Pricing:
-- Starter: $49/month (1 Location, 500 voice reviews)
-- Growth: $129/month (Up to 3 Locations, Unlimited reviews, Real-time SMS alerts)
+## How it works
 
-## Privacy:
-100% Private to Management. Kaisa Laga is not a public megaphone. Give angry customers a private channel to vent directly to you, so they don't take their frustration to Yelp.
+1. Guest visits an onboarded venue.
+2. Guest scans the venue QR and leaves short voice or text feedback.
+3. AI transcribes and classifies the feedback for the business.
+4. Business gets alerts, themes, and a ~7-day private preview/recovery window.
+5. After the window, eligible verified reviews can publish for public discovery.
+
+## Trust rules
+
+- Reviews only exist for businesses that have signed up with Kaisa Laga.
+- Feedback must come from a verified visit submission — no scraped or drive-by ratings.
+- Businesses cannot pay to delete negative reviews; responses and resolution status stay visible.
 
 ## Resources
-- [Main Website](https://kaisa-laga.app)
-- [Start Free Trial](https://kaisa-laga.app/dashboard/signup)
-- [Login](https://kaisa-laga.app/dashboard/login)
+
+- [Main site](https://kaisa-laga.vercel.app)
+- [Operator sign-in](https://kaisa-laga.vercel.app/sign-in)

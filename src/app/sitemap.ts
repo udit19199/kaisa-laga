@@ -1,31 +1,28 @@
 import type { MetadataRoute } from "next";
-import { landingConcepts } from "@/components/marketing/landing-variants";
+import { getAppUrl } from "@/lib/app-url";
 
+/** Customer-facing routes only. */
 export default function sitemap(): MetadataRoute.Sitemap {
+  const appUrl = getAppUrl();
+
   return [
     {
-      url: "https://kaisa-laga.app",
+      url: appUrl,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: "https://kaisa-laga.app/reviews",
+      url: `${appUrl}/sign-in`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
+      changeFrequency: "monthly",
+      priority: 0.4,
     },
     {
-      url: "https://kaisa-laga.app/landings",
+      url: `${appUrl}/sign-up`,
       lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
+      changeFrequency: "monthly",
+      priority: 0.4,
     },
-    ...landingConcepts.map((variant) => ({
-      url: `https://kaisa-laga.app/landings/${variant.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.75,
-    })),
   ];
 }

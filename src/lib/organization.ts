@@ -1,6 +1,4 @@
 export {
   canManageOrganization,
   canOwnOrganization,
-  getMembershipForUser,
-  getOrganizationForUser,
-} from "./org-access";
+} from "@/server/auth/permissions";

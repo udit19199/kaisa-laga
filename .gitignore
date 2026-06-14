@@ -41,17 +41,15 @@ bun-debug.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# dashboard preview sandbox
-/src/app/dashboard-preview
+# dashboard preview sandbox (removed)
 
-# Codex / agent artifacts
+# Codex / agent artifacts — safe to delete locally; Cursor reinstalls skills from plugins
 /.agents/
 /.codex/
 /.github/skills/
 /.hermes/
 /.pi/
-/.impeccable/critique/
-/.impeccable/live/
+/.impeccable/
 /skills/
 /skills-lock.json
 

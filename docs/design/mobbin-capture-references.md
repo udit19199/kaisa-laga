@@ -1,6 +1,6 @@
 # Mobbin references — customer capture (`/f/[locationId]`)
 
-Kaisa Laga serves **any physical location** (retail, clinics, hotels, venues, etc.), not restaurants only. Capture UI follows **Clubhouse** for the mic control; other apps are secondary.
+Kaisa Laga serves **restaurants, cafes, and hotels** (hospitality-first). Capture UI follows **Clubhouse** for the mic control; other apps are secondary.
 
 ## Primary: Clubhouse (mic + label)
 

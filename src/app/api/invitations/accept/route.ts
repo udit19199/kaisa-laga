@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
-import { getMembershipForUser } from "@/lib/org-access";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import {
+  acceptInvitation,
+  createMembership,
+  expireInvitation,
+  getPendingInvitationByToken,
+} from "@/server/invitations";
+import { getMembershipByClerkUserId } from "@/server/organizations";
 
 const acceptSchema = z.object({
   token: z.string().min(8),
 });
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const { userId } = await auth();
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -23,61 +24,61 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.message }, { status: 400 });
   }
 
-  const admin = createAdminClient();
-  const { data: invitation, error } = await admin
-    .from("organization_invitations")
-    .select("*")
-    .eq("token", parsed.data.token)
-    .eq("status", "pending")
-    .single();
-
-  if (error || !invitation) {
+  const invitation = await getPendingInvitationByToken(parsed.data.token);
+  if (!invitation) {
     return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
   }
 
   if (new Date(invitation.expires_at) < new Date()) {
-    await admin.from("organization_invitations").update({ status: "expired" }).eq("id", invitation.id);
+    await expireInvitation(invitation.id);
     return NextResponse.json({ error: "Invitation expired" }, { status: 410 });
   }
 
-  if (user.email?.toLowerCase() !== invitation.invited_email.toLowerCase()) {
-    return NextResponse.json({ error: "Invitation email does not match the signed-in account" }, { status: 403 });
+  const user = await currentUser();
+  const email = user?.emailAddresses.find(
+    (entry) => entry.id === user.primaryEmailAddressId,
+  )?.emailAddress;
+
+  if (email?.toLowerCase() !== invitation.invited_email.toLowerCase()) {
+    return NextResponse.json(
+      { error: "Invitation email does not match the signed-in account" },
+      { status: 403 },
+    );
   }
 
-  const currentMembership = await getMembershipForUser(supabase, user);
-  if (currentMembership && currentMembership.organization_id !== invitation.organization_id) {
-    return NextResponse.json({ error: "User already belongs to another organization" }, { status: 409 });
+  const currentMembership = await getMembershipByClerkUserId(userId);
+  if (
+    currentMembership &&
+    currentMembership.organization_id !== invitation.organization_id
+  ) {
+    return NextResponse.json(
+      { error: "User already belongs to another organization" },
+      { status: 409 },
+    );
   }
 
   if (currentMembership?.organization_id === invitation.organization_id) {
-    await admin
-      .from("organization_invitations")
-      .update({ status: "accepted" })
-      .eq("id", invitation.id);
+    const acceptedInvitation = await acceptInvitation(invitation.id);
     return NextResponse.json({
       membership: currentMembership,
-      invitation: { ...invitation, status: "accepted" },
+      invitation: acceptedInvitation ?? { ...invitation, status: "accepted" },
     });
   }
 
-  const { data: membership, error: membershipError } = await admin
-    .from("organization_memberships")
-    .insert({
-      organization_id: invitation.organization_id,
-      clerk_user_id: user.id,
-      role: invitation.role,
-    })
-    .select()
-    .single();
+  const membership = await createMembership({
+    organizationId: invitation.organization_id,
+    clerkUserId: userId,
+    role: invitation.role,
+  });
 
-  if (membershipError || !membership) {
-    return NextResponse.json({ error: membershipError?.message ?? "Failed to accept invitation" }, { status: 500 });
+  if (!membership) {
+    return NextResponse.json({ error: "Failed to accept invitation" }, { status: 500 });
   }
 
-  await admin
-    .from("organization_invitations")
-    .update({ status: "accepted" })
-    .eq("id", invitation.id);
+  const acceptedInvitation = await acceptInvitation(invitation.id);
 
-  return NextResponse.json({ membership, invitation: { ...invitation, status: "accepted" } });
+  return NextResponse.json({
+    membership,
+    invitation: acceptedInvitation ?? { ...invitation, status: "accepted" },
+  });
 }

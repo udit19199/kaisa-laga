@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import QRCode from "react-qr-code";
-import { Plus, MoreHorizontal, Download, Trash2 } from "lucide-react";
+import { Plus, MoreHorizontal, Download, Trash2, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Location } from "@/lib/types";
+import { LocationBrandingDialog } from "./location-branding-dialog";
 
 type LocationsTableClientProps = {
   initialLocations: Location[];
@@ -65,6 +66,7 @@ export function LocationsTableClient({ initialLocations, appUrl }: LocationsTabl
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [brandingLocation, setBrandingLocation] = useState<Location | null>(null);
 
   const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -217,6 +219,10 @@ export function LocationsTableClient({ initialLocations, appUrl }: LocationsTabl
                               <Download className="mr-2 size-4" />
                               Download QR
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setBrandingLocation(loc)}>
+                              <Palette className="mr-2 size-4" />
+                              Branding &amp; taste
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-destructive focus:bg-destructive/10 focus:text-destructive"
@@ -236,6 +242,21 @@ export function LocationsTableClient({ initialLocations, appUrl }: LocationsTabl
           </TableBody>
         </Table>
       </div>
+
+      <LocationBrandingDialog
+        location={brandingLocation}
+        open={Boolean(brandingLocation)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setBrandingLocation(null);
+          }
+        }}
+        onSaved={(updated) => {
+          setLocations((current) =>
+            current.map((item) => (item.id === updated.id ? updated : item)),
+          );
+        }}
+      />
     </div>
   );
 }

@@ -1,134 +1,109 @@
 # Kaisa Laga
 
-Frictionless voice feedback capture for physical businesses. Customers scan a QR code, tap play to record, pause to send, and get an instant thank-you. Operators get transcripts, sentiment, tags, charts, and email alerts for fixable negative feedback.
+Verified customer feedback and trust for restaurants, cafes, and hotels in India. Guests scan a QR after a real visit and answer *"Kaisa laga?"* with quick voice or text feedback. Businesses get AI insights, a private recovery window, and a public profile of visit-based reviews.
 
-**Agents & issue tracking:** See [`AGENTS.md`](AGENTS.md) for Linear workflow (milestones, sub-issues, sync rules). Work is tracked in the [Kaisa Laga Linear project](https://linear.app/udit19199/project/kaisa-laga-7bc2b6a39345).
+**Product & design:** [`PRODUCT.md`](PRODUCT.md) · [`DESIGN.md`](DESIGN.md)  
+**Codebase map:** [`src/ARCHITECTURE.md`](src/ARCHITECTURE.md)  
+**Agents & issues:** [`AGENTS.md`](AGENTS.md) · [Linear](https://linear.app/udit19199/project/kaisa-laga-7bc2b6a39345)
 
 ## Stack
 
 - **Next.js 16** (App Router monolith)
-- **Supabase** (Postgres + Storage + RLS)
+- **Drizzle ORM** + Postgres (Supabase-hosted)
+- **Supabase Storage** (audio files only)
 - **Clerk** (operator auth)
 - **Inngest** (async AI pipeline)
-- **OpenAI / Gemini** (STT + categorization with automatic provider fallback)
+- **Sarvam + Gemini** (STT + categorization)
 - **Resend** (email alerts)
 - **shadcn/ui** (operator dashboard)
 
-## Quick Start
-
-### 1. Clone and install
+## Quick start
 
 Requires [Bun](https://bun.sh) 1.1+.
 
 ```bash
 bun install
-```
-
-### 2. Configure environment
-
-```bash
-cp .env.example .env.local
-```
-
-Fill in Supabase, Clerk, at least one AI provider (OpenAI and/or Gemini), Inngest, and Resend credentials.
-
-### 3. Set up Supabase
-
-For a fresh Supabase database, apply the Drizzle baseline:
-
-```bash
+cp .env.example .env.local   # fill in credentials
 DATABASE_DIRECT_URL='…' bun run db:migrate
-bun run db:verify-clerk   # should print OK
 ```
 
-If you already have a dev database that matches the current Kaisa Laga schema and only need to adopt Drizzle history, run `bun run db:baseline` once. It records just the initial Drizzle baseline so later forward migrations still apply normally.
-
-### 3.1 Drizzle
-
-Drizzle is the primary schema and forward migration workflow. Keep Supabase JS for Storage and auth-adjacent flows, and use Drizzle for typed Postgres access under [`src/db`](./src/db).
-
-Recommended environment split:
-
-- `DATABASE_URL` for the app runtime. This can be your shared transaction pooler.
-- `DATABASE_DIRECT_URL` for Drizzle migrations, `db:pull`, and smoke tests. This should be the direct Postgres connection.
-
-If `DATABASE_DIRECT_URL` is omitted, Drizzle will derive a direct URL from `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_DB_PASSWORD`.
-
-Example:
-
 ```bash
-DATABASE_URL="postgresql://postgres.wfnvlxtdblyrxgewzauw:[YOUR-PASSWORD]@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
-DATABASE_DIRECT_URL="postgresql://postgres:[YOUR-PASSWORD]@db.wfnvlxtdblyrxgewzauw.supabase.co:5432/postgres"
-```
-
-The Drizzle runtime client is already configured with `prepare: false`, which is required for Supabase transaction poolers.
-
-Useful commands:
-
-```bash
-bun run db:generate
-bun run db:migrate
-bun run db:pull
-bun run db:studio
-bun run db:smoke:backend
-```
-
-See [`docs/DRIZZLE.md`](./docs/DRIZZLE.md) for the full workflow and the legacy-to-Drizzle handoff.
-
-### 4. Run locally
-
-```bash
-# Terminal 1 — Next.js dev server
+# Terminal 1
 bun dev
 
-# Terminal 2 — Inngest dev server
+# Terminal 2
 bun run inngest:dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### 5. Operator onboarding
+## Database
 
-1. Sign up at `/sign-up` (Clerk) → name your business at `/dashboard/onboarding`
-2. Add locations at `/dashboard/locations`
-3. Download QR codes and deploy at tables/counters
-4. Configure alert email and primary language in Settings
+Drizzle is the single source of truth for schema and migrations.
+
+| Path | Purpose |
+|------|---------|
+| `src/db/schema.ts` | Application schema |
+| `drizzle/migrations/` | Forward SQL migrations |
+| `src/db/rpc.ts` | Postgres function wrappers |
+| `src/server/` | Typed query and mutation layer |
+
+```bash
+bun run db:generate   # after schema changes
+bun run db:migrate    # apply migrations
+bun run db:studio     # browse data
+bun run db:smoke:backend
+```
+
+**Connection URLs:**
+
+- `DATABASE_URL` — runtime (transaction pooler is fine)
+- `DATABASE_DIRECT_URL` — migrations and smoke tests (direct Postgres)
+
+See [`docs/DRIZZLE.md`](docs/DRIZZLE.md) for the full workflow.
 
 ## Routes
 
 | Route | Description |
-|---|---|
-| `/f/[locationId]` | Customer capture (no auth) |
+|-------|-------------|
+| `/` | Consumer homepage — verified reviews discovery |
+| `/f/[locationId]` | Guest capture — voice/text feedback (no auth) |
 | `/sign-in`, `/sign-up` | Clerk operator auth |
 | `/dashboard/onboarding` | Create organization after signup |
-| `/dashboard` | Operator inbox |
-| `/dashboard/analytics` | Sentiment + category charts |
+| `/dashboard` | Operator overview |
+| `/dashboard/inbox` | Submission inbox |
 | `/dashboard/locations` | Location CRUD + QR download |
 | `/dashboard/settings` | Org settings |
-| `POST /api/submissions` | Audio upload (public) |
-| `GET /api/submissions` | Inbox (authenticated) |
+| `POST /api/submissions` | Public audio upload |
+| `GET /api/submissions` | Authenticated inbox |
+| `GET /api/analytics/sentiment` | Sentiment time series (API) |
+| `GET /api/analytics/categories` | Category breakdown (API) |
 
-## Testing
+## Operator onboarding
+
+1. Sign up at `/sign-up` → name your business at `/dashboard/onboarding`
+2. Add locations at `/dashboard/locations`
+3. Download QR codes and deploy at tables/counters
+4. Configure alert email in Settings
+
+## Development
 
 ```bash
-bun test        # Vitest unit tests
-bun run build   # Production build
+bun test          # unit tests (lib seams only for now)
+bun run lint
+bun run build
 ```
+
+Broader E2E coverage is deferred while features are still iterating rapidly.
 
 ## Architecture
 
-See `docs/adr/` for architecture decision records and `docs/REVISIT.md` for pre-production checklist.
+- Code map: [`src/ARCHITECTURE.md`](src/ARCHITECTURE.md)
+- ADRs: [`docs/adr/`](docs/adr/)
+- Pre-production checklist: [`docs/REVISIT.md`](docs/REVISIT.md)
 
-## Ship to production
+## Deploy
 
-```bash
-git add -A && git commit -m "your change" && git push origin main
-```
+Push to `main` → Vercel builds and deploys to [kaisa-laga.vercel.app](https://kaisa-laga.vercel.app).
 
-Push to `main` → Vercel builds and deploys automatically to [kaisa-laga-six.vercel.app](https://kaisa-laga-six.vercel.app).
-
-See [`docs/DEPLOY.md`](docs/DEPLOY.md) for the full workflow, preview deploys, and CI.
-
-**One-time setup** (already done): GitHub repo connected to Vercel, env vars in project settings, migration 003 applied.
-
-**Manual deploy only if needed:** `vercel deploy --prod`
+See [`docs/DEPLOY.md`](docs/DEPLOY.md) for preview deploys and CI.

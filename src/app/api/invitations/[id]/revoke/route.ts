@@ -1,40 +1,27 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { canOwnOrganization, getMembershipForUser } from "@/lib/org-access";
+import { requireOrgContext } from "@/server/auth/context";
+import { canOwnOrganization } from "@/server/auth/permissions";
+import { revokeInvitation } from "@/server/invitations";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
 }
 
 export async function POST(_: Request, { params }: RouteContext) {
-  const [{ id }, supabase] = await Promise.all([
-    params,
-    createClient(),
-  ]);
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [{ id }, auth] = await Promise.all([params, requireOrgContext()]);
 
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const membership = await getMembershipForUser(supabase, user);
-  if (!membership || !canOwnOrganization(membership.role)) {
+  if (!canOwnOrganization(auth.ctx.membership.role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { data, error } = await supabase
-    .from("organization_invitations")
-    .update({ status: "revoked" })
-    .eq("id", id)
-    .eq("organization_id", membership.organization_id)
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  const invitation = await revokeInvitation(auth.ctx.organization.id, id);
+  if (!invitation) {
+    return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ invitation: data });
+  return NextResponse.json({ invitation });
 }

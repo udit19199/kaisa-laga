@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserButton, useUser } from "@clerk/nextjs"
+import { clerkDashboardAppearance } from "@/lib/clerk-appearance"
 import {
   LayoutDashboard,
   Inbox,
@@ -89,7 +90,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <UserButton />
+              <UserButton appearance={clerkDashboardAppearance} />
               <div className="grid flex-1 text-left text-sm leading-tight ml-2">
                 <span className="truncate font-semibold">{user?.fullName ?? "User"}</span>
                 <span className="truncate text-xs">{user?.primaryEmailAddress?.emailAddress ?? ""}</span>

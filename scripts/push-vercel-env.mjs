@@ -22,6 +22,7 @@ const env = Object.fromEntries(
 );
 
 const KEYS = [
+  "NEXT_PUBLIC_APP_URL",
   "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
   "CLERK_SECRET_KEY",
   "NEXT_PUBLIC_CLERK_SIGN_IN_URL",

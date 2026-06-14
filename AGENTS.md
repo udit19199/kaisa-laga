@@ -10,7 +10,30 @@ Guide for AI agents and humans to keep [Linear](https://linear.app/udit19199/tea
 
 **Linear project:** [Kaisa Laga](https://linear.app/udit19199/project/kaisa-laga-7bc2b6a39345)  
 **Team:** Udit19199 (prefix `UDI-`)  
-**Repo docs:** `docs/adr/` · `docs/REVISIT.md` · `README.md`
+**Repo docs:** [`PRODUCT.md`](PRODUCT.md) · [`DESIGN.md`](DESIGN.md) · [`src/ARCHITECTURE.md`](src/ARCHITECTURE.md) · `docs/adr/` · `docs/REVISIT.md` · `README.md`
+
+---
+
+## Product & design context (canonical)
+
+**Product name:** **Kaisa Laga** only. Retired names (Pulse Drop, Julienne, Oris) must not appear in user-facing copy or new documentation.
+
+**Read before UI work:** [`PRODUCT.md`](PRODUCT.md) for audiences, review rules, and homepage strategy; [`DESIGN.md`](DESIGN.md) for visual direction and anti-patterns.
+
+| Surface | Primary audience | Notes |
+|---------|------------------|-------|
+| `/` | Diners discovering verified reviews | Hero = *Kaisa laga?* / visit-based trust; conversational, Indian register |
+| `/for-business` | Operators (planned) | Business signup/contact; not the consumer hero |
+| `/f/[locationId]` | In-venue guests | Voice + text capture; active design pass with landing |
+| `/dashboard/*` | Operators | Workflow; shell redesign after landing + capture |
+
+**Review model:** Reviews exist only for onboarded businesses and only from verified guest submissions. No listings for unsigned venues.
+
+**Design north star:** Food lover to food lover. **Relevance rule:** if it does not help the person on this screen, remove it — no pattern tourism from other apps.
+
+**Current design priority:** Marketing landing + capture flow first; dashboard shell second.
+
+When product positioning or homepage strategy changes, update `PRODUCT.md` and `DESIGN.md` in the same session as the implementation.
 
 ---
 
@@ -116,6 +139,8 @@ Remaining MVP work lives under **M6 — Quality** as sub-issues, not as unchecke
 | **Project description** | Product context, ADR summary, out of scope, testing strategy |
 | **Parent issues** | Milestone scope, acceptance criteria, rollup checklist |
 | **Sub-issues** | Actionable deliverables, PR links, implementation checklists |
+| **`PRODUCT.md`** | Audiences, homepage strategy, review rules, brand personality |
+| **`DESIGN.md`** | Visual system, marketing/capture direction, anti-patterns |
 | **`docs/adr/`** | Full architecture decisions |
 | **`docs/REVISIT.md`** | Pre-production checklist (post-MVP) |
 

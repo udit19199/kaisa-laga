@@ -4,6 +4,7 @@ import {
   check,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -12,6 +13,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import { embeddingVector } from "@/db/vector";
 
 const timestampWithTimezone = {
   withTimezone: true,
@@ -120,6 +122,12 @@ export const locations = pgTable(
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    tagline: text("tagline"),
+    coverImageUrl: text("cover_image_url"),
+    searchDocument: text("search_document"),
+    tasteSummary: text("taste_summary"),
+    tasteThemes: text("taste_themes").array().default(sql`'{}'::text[]`),
+    searchEmbedding: embeddingVector("search_embedding"),
     publicCaptureToken: text("public_capture_token").notNull(),
     alertEmailOverride: text("alert_email_override"),
     isActive: boolean("is_active").notNull().default(true),
@@ -258,6 +266,9 @@ export const submissions = pgTable(
       .notNull()
       .defaultNow(),
     processedAt: timestamp("processed_at", timestampWithTimezone),
+    isPublic: boolean("is_public").notNull().default(false),
+    publishedAt: timestamp("published_at", timestampWithTimezone),
+    previewEndsAt: timestamp("preview_ends_at", timestampWithTimezone),
     idempotencyKey: text("idempotency_key"),
     audioDeletedAt: timestamp("audio_deleted_at", timestampWithTimezone),
   },
@@ -265,6 +276,7 @@ export const submissions = pgTable(
     index("idx_submissions_location_id").on(table.locationId),
     index("idx_submissions_status").on(table.status),
     index("idx_submissions_created_at").on(table.createdAt),
+    index("idx_submissions_is_public").on(table.isPublic),
     uniqueIndex("submissions_org_idempotency_key_key")
       .on(table.organizationId, table.idempotencyKey)
       .where(sql`${table.idempotencyKey} is not null`),
@@ -272,6 +284,54 @@ export const submissions = pgTable(
       "submissions_idempotency_key_not_blank",
       sql`${table.idempotencyKey} is null or length(btrim(${table.idempotencyKey})) > 0`,
     ),
+  ],
+);
+
+export const diners = pgTable(
+  "diners",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    clerkUserId: text("clerk_user_id").notNull(),
+    displayName: text("display_name"),
+    onboarding: jsonb("onboarding").notNull().default(sql`'{}'::jsonb`),
+    tasteDocument: text("taste_document"),
+    tasteEmbedding: embeddingVector("taste_embedding"),
+    onboardingEmbedding: embeddingVector("onboarding_embedding"),
+    linkedReviewCount: integer("linked_review_count").notNull().default(0),
+    onboardingCompletedAt: timestamp(
+      "onboarding_completed_at",
+      timestampWithTimezone,
+    ),
+    createdAt: timestamp("created_at", timestampWithTimezone)
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", timestampWithTimezone)
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("diners_clerk_user_id_key").on(table.clerkUserId),
+    index("idx_diners_clerk_user_id").on(table.clerkUserId),
+  ],
+);
+
+export const dinerSubmissions = pgTable(
+  "diner_submissions",
+  {
+    dinerId: uuid("diner_id")
+      .notNull()
+      .references(() => diners.id, { onDelete: "cascade" }),
+    submissionId: uuid("submission_id")
+      .notNull()
+      .references(() => submissions.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", timestampWithTimezone)
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.dinerId, table.submissionId] }),
+    uniqueIndex("diner_submissions_submission_id_key").on(table.submissionId),
+    index("idx_diner_submissions_diner_id").on(table.dinerId),
   ],
 );
 

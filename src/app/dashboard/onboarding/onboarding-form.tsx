@@ -39,6 +39,7 @@ export function OnboardingForm() {
         return;
       }
 
+      router.refresh();
       router.replace("/dashboard/locations");
     } catch {
       setError("Could not create organization");

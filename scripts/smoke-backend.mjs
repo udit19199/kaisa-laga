@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Transactional backend smoke test for the Clerk -> Supabase provisioning path.
+ * Transactional backend smoke test for provisioning and submission RPCs.
  * All created rows are rolled back at the end.
  */
 import postgres from "postgres";

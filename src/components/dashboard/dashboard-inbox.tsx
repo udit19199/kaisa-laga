@@ -7,8 +7,7 @@ import Link from "next/link";
 import { Inbox, QrCode } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { GlassCard } from "@/components/liquid-glass";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -215,7 +214,7 @@ export function DashboardInbox() {
       ) : (
         <div className="flex flex-col gap-4">
           {submissions.map((sub) => (
-            <GlassCard
+            <Card
               key={sub.id}
               ref={sub.id === highlightId ? highlightRef : undefined}
               className={
@@ -321,7 +320,7 @@ export function DashboardInbox() {
                   </div>
                 )}
               </CardContent>
-            </GlassCard>
+            </Card>
           ))}
 
           {totalPages > 1 && (

@@ -387,7 +387,7 @@ export default function OverviewPage() {
               <ChartContainer
                 config={{
                   Positive: { label: "Positive", color: "var(--brand-live)" },
-                  Neutral: { label: "Neutral", color: "var(--brand-sky)" },
+                  Neutral: { label: "Neutral", color: "var(--brand-muted)" },
                   Negative: { label: "Negative", color: "var(--destructive)" },
                 }}
                 className="h-64 w-full"

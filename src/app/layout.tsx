@@ -2,13 +2,14 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
+import { clerkProviderAppearance } from "@/lib/clerk-appearance";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Kaisa Laga — Customer Feedback for Local Service Businesses",
+  title: "Kaisa Laga — Verified reviews from real visits",
   description:
-    "Kaisa Laga helps local service businesses collect customer feedback with quick voice notes instead of ignored surveys.",
+    "Discover restaurants, cafes, and hotels through visit-based reviews. Guests answer Kaisa laga? after a real visit; businesses recover privately before reviews go public.",
 };
 
 export default function RootLayout({
@@ -17,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider appearance={{ theme: "simple" }}>
+    <ClerkProvider appearance={clerkProviderAppearance}>
       <html lang="en" className={cn("h-full antialiased", "font-sans")} suppressHydrationWarning>
         <body className="min-h-full flex flex-col">
           <ThemeProvider

@@ -2,7 +2,7 @@
 
 Kaisa Laga uses **Vercel Git integration**: every push to `main` builds and deploys to production automatically.
 
-**Production URL:** https://kaisa-laga-six.vercel.app
+**Production URL:** https://kaisa-laga.vercel.app
 
 ## Day-to-day flow
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Check, Loader2, Pause, Play } from "lucide-react";
 import { extensionForAudioMimeType, getSupportedRecordingMimeType } from "@/lib/audio";
@@ -10,8 +11,8 @@ import {
   RecordProgressRing,
   RecordingWaveform,
 } from "@/components/capture/record-primitives";
-import { LiquidGlass, LiquidGlassProvider } from "@/components/liquid-glass";
 import { cn } from "@/lib/utils";
+import { DINER_SIGN_IN_PATH } from "@/lib/auth-routes";
 
 type CaptureState = "idle" | "recording" | "uploading" | "done" | "error";
 
@@ -32,12 +33,9 @@ function RoomChrome({ locationName }: { locationName: string }) {
           Kaisa Laga
         </div>
         {locationName ? (
-          <LiquidGlass
-            variant="panel"
-            className="mt-2 inline-block max-w-full truncate rounded-full px-3 py-1 text-sm font-medium text-[var(--capture-muted)]"
-          >
+          <span className="mt-2 inline-block max-w-full truncate rounded-full border border-black/10 bg-white/80 px-3 py-1 text-sm font-medium text-[var(--capture-muted)] shadow-sm">
             {locationName}
-          </LiquidGlass>
+          </span>
         ) : null}
       </div>
     </header>
@@ -47,6 +45,7 @@ function RoomChrome({ locationName }: { locationName: string }) {
 export function CapturePage({ captureToken, locationName, locale }: CapturePageProps) {
   const [state, setState] = useState<CaptureState>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [retainAudio, setRetainAudio] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [waveLevels, setWaveLevels] = useState<number[]>([0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]);
@@ -132,6 +131,8 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
       throw new Error(t(locale, "uploadError"));
     }
 
+    const data = (await response.json()) as { id?: string };
+    setSubmissionId(data.id ?? null);
     setState("done");
   };
 
@@ -233,7 +234,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
 
   if (state === "done") {
     return (
-      <LiquidGlassProvider className="capture-surface flex min-h-dvh flex-col">
+      <div className="capture-surface flex min-h-dvh flex-col">
         <RoomChrome locationName={locationName} />
         <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
           <div className="capture-done-enter max-w-[18rem]">
@@ -249,14 +250,22 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
             <p className="mt-2 max-w-[28ch] text-pretty text-base leading-relaxed text-[var(--capture-muted)]">
               {t(locale, "thankYouMessage")}
             </p>
+            {submissionId ? (
+              <Link
+                href={`${DINER_SIGN_IN_PATH}?link=${encodeURIComponent(submissionId)}`}
+                className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-[var(--capture-ink)] px-5 text-sm font-medium text-white no-underline"
+              >
+                Build your taste profile
+              </Link>
+            ) : null}
           </div>
         </div>
-      </LiquidGlassProvider>
+      </div>
     );
   }
 
   return (
-    <LiquidGlassProvider className="capture-surface flex min-h-dvh flex-col">
+    <div className="capture-surface flex min-h-dvh flex-col">
       <RoomChrome locationName={locationName} />
 
       <div className="relative z-10 flex flex-1 flex-col px-5 pt-10">
@@ -286,11 +295,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
         </div>
       </div>
 
-      <LiquidGlass
-        variant="panel"
-        className="capture-dock relative rounded-t-2xl px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-7"
-        data-liquid-dynamic
-      >
+      <div className="capture-dock relative rounded-t-2xl border-t border-[var(--capture-sand)] bg-[var(--capture-card)] px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-7 shadow-[0_-12px_40px_-24px_oklch(0_0_0/0.2)]">
         <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5">
           <div
             className="relative flex items-center justify-center"
@@ -397,7 +402,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
             </label>
           </div>
         </div>
-      </LiquidGlass>
-    </LiquidGlassProvider>
+      </div>
+    </div>
   );
 }

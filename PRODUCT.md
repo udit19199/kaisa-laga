@@ -4,55 +4,148 @@
 
 brand
 
+## Canonical name
+
+**Kaisa Laga** is the only product name. Do not use legacy names (Pulse Drop, Julienne, Oris) in user-facing copy, docs, or new code.
+
+## One-line description
+
+Kaisa Laga is a verified customer feedback and trust platform for restaurants, cafes, and hotels in India.
+
 ## Users
 
-- **Customers** anywhere they have a link or QR: in-store, after a visit, or later when something comes to mind. Often on mobile, one-handed, little patience for forms. Job: leave quick spoken feedback without friction or account creation.
-- **Operators** (owners and managers at any business or startup that needs richer customer input than forms): checking feedback between shifts, often on desktop or tablet. Job: see how each outlet is performing, spot themes and sentiment fast, drill into transcripts only when needed.
+- **Diners and guests** (primary homepage audience): people discovering where to eat or stay, or reading what others felt after a real visit. Job: find trustworthy, visit-based reviews that sound like a friend recommending a place, not a rating widget.
+- **Operators** (owners and managers): restaurants, cafes, and hotels that onboard via a separate business path. Job: collect honest feedback from real visits, catch complaints early, recover privately, and build a verified public profile.
+- **Capturing guests** (in-venue, `/f/[locationId]`): after a visit, often mobile, one-handed, little patience for forms. Job: answer *"Kaisa laga?"* with a quick voice or text note without creating an account. May optionally link the review to a **personal taste profile** after thank-you.
+- **Signed-in diners** (optional): build a taste profile from onboarding + linked visit reviews; get **For you** venue matches on mobile before their next outing.
 
 ## Product Purpose
 
-Pulse Drop gives customers a voice-first channel for feedback and turns it into structured operator insight (sentiment overview, themes, tags, alerts; transcripts on drill-down). Success: customers complete a recording in seconds; operators see the big picture per location and act before issues become patterns.
+Kaisa Laga helps hospitality businesses collect honest feedback from verified visits, resolve issues in a private window, and publish trustworthy reviews for future guests.
 
-## Homepage (marketing `/`)
+**Business pain solved first:** understand what customers actually felt before it becomes public reputation damage.
 
-**Audience:** Any business or startup where generic forms and comment cards are not enough.
+**Long-term opportunity:** a public discovery layer powered by real visit-based reviews, not random internet noise.
 
-**Page structure (illustration-led, minimal copy):**
+**Review supply rule:** reviews exist only for businesses that have signed up and only from guests who visited and left feedback through Kaisa Laga. No scraped listings, no drive-by ratings.
 
-1. **Hero** — "Your channel for feedback, insights, and action" only. No duplicate signup CTAs on the page.
-2. **Nav** — Log in + 7-day free trial (single conversion path for users who want to skip ahead).
-3. **Narrative (3 floating illustrated steps)** — Scan → hold and speak → overview first. CSS scroll reveals; no phone chrome, no Remotion for now.
+## Homepage (`/`) — Discover tab
 
-**Operator onboarding (implied in product, not a long landing section):** Sign up → add location(s) → QR generated per outlet for performance monitoring.
+**Audience:** Customers discovering verified reviews (public-facing discovery). Signed-in diners also reach **For you** (`/for-you`) for taste-matched venues.
 
-**Trial:** 7 days free so owners can see how it feels before committing.
+**Hero promise:** Reviews from real visits, told like one food lover asking another *"Kaisa laga?"* — how was it?
 
-## Operator experience (direction)
+**Taste matching:** Optional personal accounts. Reviews linked after capture deepen the profile; short onboarding bootstraps cold start. No match scores or star ratings — warm copy only (*"Feels like your kind of place"*).
 
-MVP inbox may list individual transcripts; **target experience** is overview-first: overall sentiment and recurring themes per outlet, with drill-down to specific voices when the operator chooses.
+**Tone:** Conversational, properly Indian (Hinglish-friendly where natural), warm, editorial. Not corporate survey language, not civic/government trust theatre, not luxury-hotel stiffness.
+
+**Layout:** Mobile-first. Most diners and in-venue guests arrive on a phone; design narrow viewports first, then enhance for tablet/desktop. Operator dashboard (`/dashboard/*`) is the exception — desktop/web workflow.
+
+**Page structure (direction):**
+
+1. **Hero** — one clear promise (*Kaisa laga?* / reviews from real visits). No feature grids.
+2. **Nav** — brand, search when we have scale, one quiet link to `/for-business`. No category chips, filters, or operator sign-up in the hero.
+3. **Reviews** — place + what someone said + photo. Nothing else unless it helps a diner decide.
+4. **Trust** — earned through visit-linked reviews and honest copy, not badge walls or metric blocks.
+
+**Business conversion:** operators reach Kaisa Laga through `/for-business` only. Consumer discovery does not carry operator CTAs, dashboards metrics, or onboarding funnels.
+
+## Show only what earns its place
+
+Default rule: **if it does not help the person on this screen right now, remove it.** Do not copy app patterns (category rails, sentiment pills, visit counts, filter chips) because competitors have them.
+
+### Diners (discovery `/`)
+
+| Show | Hide |
+|------|------|
+| Place name (outlet the guest visited) | Star ratings (not in product) |
+| What someone said (transcript / summary) | Sentiment labels (they can read the words) |
+| Photo of the place or mood | Operator tags (`Food Quality`, `Wait Time`, …) |
+| Search when enough venues exist | Visit / submission counts |
+| | Category filters (cafe / hotel / cuisine) until we have real metadata |
+| | "Verified" badge clutter if visit-linked is already the model |
+| | Business sign-up CTAs, pricing, feature lists |
+
+### Operators (`/for-business`, `/dashboard/*`)
+
+| Show | Hide |
+|------|------|
+| Feedback inbox, alerts, themes, recovery actions | Consumer discovery chrome |
+| Sentiment, tags, trends per outlet | Public-review marketing copy |
+| QR setup, location management | Fake social proof, hero metrics |
+
+### Capture (`/f/[locationId]`)
+
+| Show | Hide |
+|------|------|
+| *Kaisa laga?* prompt, record control, thank-you | Policy essays, star widgets, account creation |
+| Location name | Marketing nav, unrelated links |
+
+## Business path (planned `/for-business`)
+
+**Audience:** Restaurant, cafe, and hotel operators evaluating Kaisa Laga.
+
+**Job:** explain verified feedback collection, private recovery window, AI insights, and public trust profile; offer signup or contact for onboarding.
+
+**Not:** a second homepage competing with consumer discovery; a clear side door for operators.
+
+## Customer capture (`/f/[locationId]`)
+
+**Scope:** in active design pass alongside marketing landing.
+
+**Promise:** *"Kaisa laga?"* as a human invitation — speak or type what you felt after this visit.
+
+**Success:** guest completes feedback in seconds; optional contact if they want follow-up.
+
+## Operator experience (dashboard — later shell pass)
+
+MVP inbox may list individual transcripts; **target experience** is overview-first: sentiment, recurring themes, and complaint alerts per outlet, with drill-down to specific voices when needed.
 
 ## Brand Personality
 
-Friendly, playful, light. Encouraging and human, like a helpful nudge rather than a corporate survey. Warmth in copy and micro-interactions; clarity in data views. Duolingo/Headspace energy: rounded, approachable, confidence-building.
+Human, conversational, Indian-rooted. Feels like the moment after a meal when someone asks *"Kaisa laga?"* — curious, direct, warm. Editorial restraint over SaaS scaffolding. Craft and intention over template polish.
+
+**Lean into the name:** *Kaisa laga* means "how is it?" / "how was it?" in Hindi. The product is the question and the honest answer.
 
 ## Anti-references
 
-- Generic SaaS landing templates: cream/sand body backgrounds, gradient text, eyebrow kickers on every section, hero-metric blocks (big number + small label), identical icon-card grids.
-- Enterprise-heavy density: navy/gold fintech clichés, stock-photo corporate tone.
-- Cold brutalist or terminal-native aesthetics that fight the friendly voice.
-
-Note: default register is brand, but the app (dashboard + capture) must inherit the same warmth. Marketing and product are one identity, not two skins.
+- Generic SaaS landing templates: cream/sand body backgrounds, gradient text, eyebrow kickers on every section, hero-metric blocks, identical icon-card grids.
+- Dark ops-room dashboards on marketing surfaces.
+- Government/civic trust or classified-ad institutional aesthetics.
+- Luxury-hotel stiffness and cold corporate hospitality tone.
+- Review platforms that read customer-to-customer instead of person-to-person (food lover to food lover).
+- Placeholder or copied brand names from design references (e.g. Mobbin templates).
+- **Pattern tourism** — category chips, cuisine filters, sentiment badges, visit counts, or trust badge walls on consumer discovery because other apps do it.
 
 ## Design Principles
 
-1. **Encourage, don't interrogate** — Capture and onboarding copy should feel like an invitation, not a form. Reduce anxiety around recording and signing up.
-2. **Frictionless at the edge** — The customer capture flow is the product promise; every extra tap or visual noise is a failure.
-3. **Warmth in the details** — Personality lives in micro-interactions, empty states, and tone; not in decorative SaaS scaffolding.
-4. **Clarity when it counts** — Dashboard views stay scannable: sentiment, tags, and alerts must be legible at a glance between shifts.
-5. **One brand, two surfaces** — `/` and `/f/*` lead with friendly brand; `/dashboard/*` serves workflow without becoming a different product aesthetic.
+1. **Show only what earns its place** — Every element must help the diner, guest, or operator on that screen. No borrowed UI patterns (categories, filters, sentiment chips, counts) without a user job.
+2. **Sound like a conversation** — Copy and layout should feel like recommending a place to a friend, not filing a complaint ticket.
+3. **Verified before viral** — Trust comes from visit-linked feedback, not volume or stars alone.
+4. **Frictionless at the edge** — Capture flow is the product promise; every extra tap is a failure.
+5. **Indian, not generic global** — Language, rhythm, and cultural texture should feel at home in India without becoming caricature.
+6. **Craft over template** — Put-together surfaces: photography, typography, spacing. Never cheap filler or "app store" density on consumer pages.
+7. **One brand, multiple surfaces** — `/` and `/f/*` share conversational warmth; `/dashboard/*` serves workflow without becoming a different product aesthetic (dashboard shell pass comes after landing + capture).
+
+## Visual anchor (recommendation)
+
+Lead with **premium cafes and neighbourhood restaurants** for photography and copy rhythm: familiar QR behaviour, repeat visits, young mixed audience, strong fit for conversational reviews. Boutique hotels remain a high-value pilot segment but should not pull the consumer landing into luxury stiffness.
+
+## Publication policy (product trust)
+
+- ~7-day business preview/recovery window, then auto-publish after moderation checks.
+- Businesses cannot delete negative reviews for payment or preference.
+- Valid removal: spam, abuse, hate, threats, doxxing, fake visit signals, duplicates, irrelevant content.
+- Resolved issues stay visible with business response / resolved status — more trustworthy than deletion.
 
 ## Accessibility & Inclusion
 
 - Target **WCAG 2.1 AA** for text contrast, focus indicators, and form labels.
 - Respect `prefers-reduced-motion` on all animations and transitions.
-- Capture flow: large touch targets, clear recording state (not color-only), screen-reader labels on hold-to-record control.
+- Capture flow: large touch targets, clear recording state (not color-only), screen-reader labels on record control.
+
+## Related docs
+
+- **Design system & visual direction:** [`DESIGN.md`](DESIGN.md)
+- **Architecture:** [`docs/adr/`](docs/adr/)
+- **Agent workflow:** [`AGENTS.md`](AGENTS.md)
