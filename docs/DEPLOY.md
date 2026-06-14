@@ -36,7 +36,7 @@ Track progress: [Vercel → kaisa-laga → Deployments](https://vercel.com/udit1
 
 | Item | Where it lives |
 |------|----------------|
-| Environment variables | [Vercel project settings](https://vercel.com/udit19199/kaisa-laga/settings/environment-variables) — change once, all future deploys pick them up |
+| Environment variables | [Vercel project settings](https://vercel.com/udit19199/kaisa-laga/settings/environment-variables) — change once, all future deploys pick them up. Sync from `.env.local` with `bun run vercel:env`. **Preview** vars on this project must be set in the dashboard (all Preview branches) if CLI sync skips them. |
 | Database migrations | Use Drizzle for the primary schema baseline and forward migrations (`bun run db:generate` then `bun run db:migrate`); use `bun run db:baseline` only when an existing database already matches the baseline and just needs Drizzle history recorded |
 | Clerk / Inngest dashboard config | Clerk + Inngest consoles |
 

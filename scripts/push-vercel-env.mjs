@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Push Clerk env vars from .env.local to Vercel (non-interactive).
+ * Push app env vars from .env.local to Vercel (non-interactive).
  * Usage: bun scripts/push-vercel-env.mjs
  */
 import { readFileSync } from "node:fs";
@@ -22,6 +22,8 @@ const env = Object.fromEntries(
 );
 
 const KEYS = [
+  "DATABASE_URL",
+  "DATABASE_DIRECT_URL",
   "NEXT_PUBLIC_APP_URL",
   "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
   "CLERK_SECRET_KEY",
@@ -33,40 +35,60 @@ const KEYS = [
 
 const TARGET_ENVS = ["production", "preview", "development"];
 
-function vercelEnvAdd(name, value, target) {
-  const result = spawnSync(
-    "vercel",
-    ["env", "add", name, target, "--force"],
-    {
-      cwd: root,
-      input: value,
-      encoding: "utf8",
-    },
-  );
+function stripQuotes(value) {
+  const trimmed = value.trim();
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
+function vercelEnvAdd(name, value, target, gitBranch) {
+  const args = ["env", "add", name, target];
+  if (gitBranch) {
+    args.push(gitBranch);
+  }
+  args.push("--force", "-y", "--value", value);
+
+  const result = spawnSync("vercel", args, {
+    cwd: root,
+    encoding: "utf8",
+  });
   if (result.status !== 0) {
-    const retry = spawnSync("vercel", ["env", "add", name, target], {
-      cwd: root,
-      input: value,
-      encoding: "utf8",
-    });
-    if (retry.status !== 0) {
-      console.error(`Failed ${name}@${target}:`, retry.stderr || result.stderr);
-      return false;
-    }
+    console.error(`Failed ${name}@${target}:`, result.stderr?.trim() || result.stdout?.trim());
+    return false;
   }
   return true;
 }
 
+let skipPreview = false;
+
 for (const key of KEYS) {
-  const value = env[key];
-  if (!value) {
+  const rawValue = env[key];
+  if (!rawValue) {
     console.warn(`Skip ${key} (missing in .env.local)`);
     continue;
   }
+  const value = stripQuotes(rawValue);
   for (const target of TARGET_ENVS) {
-    if (vercelEnvAdd(key, value, target)) {
-      console.log(`✓ ${key} → ${target}`);
+    if (target === "preview" && skipPreview) {
+      continue;
     }
+
+    if (!vercelEnvAdd(key, value, target)) {
+      if (target === "preview") {
+        skipPreview = true;
+        console.warn(
+          "⚠ Preview env sync skipped for remaining keys — Vercel requires branch-scoped Preview vars on this project. Add them under Project → Settings → Environment Variables → Preview (all branches).",
+        );
+      }
+      continue;
+    }
+
+    console.log(`✓ ${key} → ${target}`);
   }
 }
 

@@ -23,7 +23,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:smoke:backend": "bun --env-file=.env.local scripts/smoke-backend.mjs",
-    "vercel:env-clerk": "bun scripts/push-vercel-env.mjs",
+    "vercel:env": "bun scripts/push-vercel-env.mjs",
     "vercel:sync-urls": "bun scripts/sync-vercel-production-urls.mjs",
     "doctor": "npx react-doctor@latest"
   },
