@@ -1,19 +1,15 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignInForm } from "@/components/auth/sign-in-form";
 import {
   SIGN_IN_PATH,
   SIGN_UP_PATH,
   clerkSignInRedirectUrl,
 } from "@/lib/auth-routes";
-import { clerkLightAppearance } from "@/lib/clerk-appearance";
 
 export default function SignInPage() {
   return (
-    <SignIn
-      routing="path"
-      path={SIGN_IN_PATH}
+    <SignInForm
+      redirectUrl={clerkSignInRedirectUrl()}
       signUpUrl={SIGN_UP_PATH}
-      forceRedirectUrl={clerkSignInRedirectUrl()}
-      appearance={clerkLightAppearance}
     />
   );
 }

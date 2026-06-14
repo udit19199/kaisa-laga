@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth, UserButton } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
+import { AccountMenu } from "@/components/auth/account-menu";
 import { ConsumerHeader } from "@/components/consumer/consumer-chrome";
 import { ConsumerMain } from "@/components/consumer/consumer-main";
 import {
   DINER_SIGN_IN_PATH,
   TASTE_ONBOARDING_PATH,
 } from "@/lib/auth-routes";
-import { clerkLightAppearance } from "@/lib/clerk-appearance";
 
 export function ProfilePage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -56,7 +56,7 @@ export function ProfilePage() {
               <p className="mt-4 text-sm text-marketing-muted">Loading…</p>
             ) : isSignedIn ? (
               <div className="mt-5 flex items-center gap-4">
-                <UserButton appearance={clerkLightAppearance} />
+                <AccountMenu />
                 <p className="m-0 text-sm leading-relaxed text-marketing-muted lg:text-base">
                   Signed in to your taste profile
                 </p>

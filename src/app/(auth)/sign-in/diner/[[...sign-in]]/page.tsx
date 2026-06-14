@@ -1,13 +1,13 @@
-import { SignIn } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { SignInForm } from "@/components/auth/sign-in-form";
 import { KaisaLagaMark } from "@/components/consumer/consumer-chrome";
 import {
   CONSUMER_PROFILE_PATH,
-  DINER_SIGN_IN_PATH,
   DASHBOARD_PATH,
+  DINER_SIGN_IN_PATH,
+  SIGN_UP_PATH,
 } from "@/lib/auth-routes";
-import { clerkLightAppearance } from "@/lib/clerk-appearance";
 import { userHasOrgMembership } from "@/server/auth/diner-context";
 
 type PageProps = {
@@ -31,9 +31,9 @@ export default async function DinerSignInPage({ searchParams }: PageProps) {
     redirect(params.redirect_url ?? CONSUMER_PROFILE_PATH);
   }
 
-  const fallback = params.link
+  const redirectUrl = params.link
     ? `${DINER_SIGN_IN_PATH}?link=${encodeURIComponent(params.link)}`
-    : CONSUMER_PROFILE_PATH;
+    : (params.redirect_url ?? CONSUMER_PROFILE_PATH);
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-white px-4 py-10 font-marketing-ui text-marketing-ink">
@@ -47,13 +47,7 @@ export default async function DinerSignInPage({ searchParams }: PageProps) {
         </div>
       </div>
       <div className="w-full max-w-md">
-        <SignIn
-          routing="path"
-          path={DINER_SIGN_IN_PATH}
-          signUpUrl={DINER_SIGN_IN_PATH}
-          forceRedirectUrl={fallback}
-          appearance={clerkLightAppearance}
-        />
+        <SignInForm redirectUrl={redirectUrl} signUpUrl={SIGN_UP_PATH} />
       </div>
     </div>
   );
