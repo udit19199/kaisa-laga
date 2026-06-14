@@ -23,4 +23,7 @@ jobs:
         run: bun test
 
       - name: Production build
+        env:
+          # Build imports DB modules during page-data collection; no live connection needed.
+          DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
         run: bun run build
