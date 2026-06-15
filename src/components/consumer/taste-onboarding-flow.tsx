@@ -104,7 +104,7 @@ export function TasteOnboardingFlow() {
         throw new Error("Failed to save taste profile");
       }
 
-      router.push("/for-you");
+      router.push("/#for-you");
     } finally {
       setSaving(false);
     }

@@ -10,12 +10,12 @@ brand
 
 ## One-line description
 
-Kaisa Laga is a verified customer feedback and trust platform for restaurants, cafes, and hotels in India.
+Kaisa Laga is a verified customer feedback and trust platform for restaurants and cafes in India.
 
 ## Users
 
-- **Diners and guests** (primary homepage audience): people discovering where to eat or stay, or reading what others felt after a real visit. Job: find trustworthy, visit-based reviews that sound like a friend recommending a place, not a rating widget.
-- **Operators** (owners and managers): restaurants, cafes, and hotels that onboard via a separate business path. Job: collect honest feedback from real visits, catch complaints early, recover privately, and build a verified public profile.
+- **Diners and guests** (primary homepage audience): people discovering where to eat, or reading what others felt after a real visit. Job: find trustworthy, visit-based reviews that sound like a friend recommending a place, not a rating widget.
+- **Operators** (owners and managers): restaurants and cafes that onboard via a separate business path. Job: collect honest feedback from real visits, catch complaints early, recover privately, and build a verified public profile.
 - **Capturing guests** (in-venue, `/f/[locationId]`): after a visit, often mobile, one-handed, little patience for forms. Job: answer *"Kaisa laga?"* with a quick voice or text note without creating an account. May optionally link the review to a **personal taste profile** after thank-you.
 - **Signed-in diners** (optional): build a taste profile from onboarding + linked visit reviews; get **For you** venue matches on mobile before their next outing.
 
@@ -62,7 +62,7 @@ Default rule: **if it does not help the person on this screen right now, remove 
 | What someone said (transcript / summary) | Sentiment labels (they can read the words) |
 | Photo of the place or mood | Operator tags (`Food Quality`, `Wait Time`, …) |
 | Search when enough venues exist | Visit / submission counts |
-| | Category filters (cafe / hotel / cuisine) until we have real metadata |
+| | Category filters (cafe / cuisine) until we have real metadata |
 | | "Verified" badge clutter if visit-linked is already the model |
 | | Business sign-up CTAs, pricing, feature lists |
 
@@ -83,7 +83,7 @@ Default rule: **if it does not help the person on this screen right now, remove 
 
 ## Business path (planned `/for-business`)
 
-**Audience:** Restaurant, cafe, and hotel operators evaluating Kaisa Laga.
+**Audience:** Restaurant and cafe operators evaluating Kaisa Laga.
 
 **Job:** explain verified feedback collection, private recovery window, AI insights, and public trust profile; offer signup or contact for onboarding.
 
@@ -129,7 +129,7 @@ Human, conversational, Indian-rooted. Feels like the moment after a meal when so
 
 ## Visual anchor (recommendation)
 
-Lead with **premium cafes and neighbourhood restaurants** for photography and copy rhythm: familiar QR behaviour, repeat visits, young mixed audience, strong fit for conversational reviews. Boutique hotels remain a high-value pilot segment but should not pull the consumer landing into luxury stiffness.
+Lead with **premium cafes and neighbourhood restaurants** for photography and copy rhythm: familiar QR behaviour, repeat visits, young mixed audience, strong fit for conversational reviews. Consumer discovery stays food-first — places to eat, not stays.
 
 ## Publication policy (product trust)
 

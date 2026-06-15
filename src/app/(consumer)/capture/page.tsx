@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { ForYouPage } from "@/components/consumer/for-you-page";
+import { CaptureHubPage } from "@/components/consumer/capture-hub-page";
 
 export const metadata: Metadata = {
-  title: "For you — Kaisa Laga",
-  description: "Places matched to your taste from verified visit reviews.",
+  title: "Capture — Kaisa Laga",
+  description: "Scan a venue QR after your visit and answer Kaisa laga?",
 };
 
 export default function Page() {
-  return <ForYouPage />;
+  return <CaptureHubPage />;
 }

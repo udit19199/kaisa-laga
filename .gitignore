@@ -46,6 +46,7 @@ next-env.d.ts
 # Codex / agent artifacts — safe to delete locally; Cursor reinstalls skills from plugins
 /.agents/
 /.codex/
+/.cursor/
 /.github/skills/
 /.hermes/
 /.pi/

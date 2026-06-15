@@ -5,7 +5,7 @@ export const DINER_SIGN_IN_PATH = "/sign-in/diner";
 export const ONBOARDING_PATH = "/dashboard/onboarding";
 export const DASHBOARD_PATH = "/dashboard";
 export const CONSUMER_PROFILE_PATH = "/profile";
-export const CONSUMER_FOR_YOU_PATH = "/for-you";
+export const CONSUMER_FOR_YOU_PATH = "/#for-you";
 export const TASTE_ONBOARDING_PATH = "/taste/onboarding";
 
 export function clerkSignInRedirectUrl(): string {

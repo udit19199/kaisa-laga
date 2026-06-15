@@ -207,6 +207,22 @@
   animation: capture-done-enter 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.discover-hero-zone {
+  background:
+    radial-gradient(
+      ellipse 90% 70% at 50% -15%,
+      color-mix(in oklch, var(--color-marketing-accent) 9%, white),
+      transparent 68%
+    );
+}
+
+.marketing-content-rule {
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--color-marketing-line);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .capture-done-enter {
     animation: none;
