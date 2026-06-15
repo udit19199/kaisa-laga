@@ -33,7 +33,7 @@ export function LinkSubmissionPage() {
       }
 
       setDone(true);
-      router.replace("/for-you");
+      router.replace("/#for-you");
     })();
   }, [submissionId, router]);
 

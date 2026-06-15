@@ -1,11 +1,14 @@
-import type { Metadata } from "next";
-import { ForYouPage } from "@/components/consumer/for-you-page";
+"use client";
 
-export const metadata: Metadata = {
-  title: "For you — Kaisa Laga",
-  description: "Places matched to your taste from verified visit reviews.",
-};
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Page() {
-  return <ForYouPage />;
+export default function ForYouRedirectPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/#for-you");
+  }, [router]);
+
+  return null;
 }

@@ -38,7 +38,7 @@ export function ProfilePage() {
               </li>
               <li>
                 <Link
-                  href="/for-you"
+                  href="/#for-you"
                   className="flex items-center justify-between py-4 text-base text-marketing-ink no-underline lg:py-5 lg:text-lg"
                 >
                   Places for you

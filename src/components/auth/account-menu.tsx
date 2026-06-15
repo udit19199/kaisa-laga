@@ -5,6 +5,7 @@ import { LogOutIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -78,14 +79,16 @@ export function AccountMenu({
         ) : null}
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className="min-w-56">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium">{name}</span>
-            {email ? (
-              <span className="text-xs text-muted-foreground">{email}</span>
-            ) : null}
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium">{name}</span>
+              {email ? (
+                <span className="text-xs text-muted-foreground">{email}</span>
+              ) : null}
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
