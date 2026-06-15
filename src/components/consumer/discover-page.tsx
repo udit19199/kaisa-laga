@@ -29,14 +29,18 @@ export function DiscoverPage() {
   }
 
   return (
-    <div className="font-marketing-ui text-marketing-ink">
+    <div className="flex min-h-0 flex-1 flex-col font-marketing-ui text-marketing-ink">
       <ConsumerHeader />
 
       <div className="discover-hero-zone">
-        <ConsumerMain>
+        <ConsumerMain className="flex min-h-0 flex-1 flex-col pb-4 lg:block lg:flex-none lg:pb-12">
           <section
             aria-labelledby="discover-search-heading"
-            className="mx-auto flex w-full max-w-xl flex-col items-center pt-5 text-center lg:pt-[clamp(2.5rem,10vh,5.5rem)]"
+            className={cn(
+              "mx-auto flex w-full max-w-xl flex-col items-center text-center",
+              "min-h-0 flex-1 justify-center py-6",
+              "lg:flex-none lg:justify-start lg:py-0 lg:pt-[clamp(2.5rem,10vh,5.5rem)]",
+            )}
           >
             <h1
               id="discover-search-heading"

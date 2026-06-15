@@ -249,6 +249,18 @@
 
 .discover-hero-zone {
   background: var(--marketing-canvas);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+@media (min-width: 1024px) {
+  .discover-hero-zone {
+    display: block;
+    flex: none;
+    min-height: auto;
+  }
 }
 
 .font-marketing-accent {
