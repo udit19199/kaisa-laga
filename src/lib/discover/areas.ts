@@ -62,13 +62,4 @@ export function getAreaOptionById(id: string | null | undefined): DiscoverAreaOp
   return discoverAreaOptions.find((option) => option.id === id) ?? null;
 }
 
-export function reviewMatchesArea(
-  review: { area: string; city: DiscoverCity },
-  selected: DiscoverAreaOption,
-): boolean {
-  if (selected.area) {
-    return review.area === selected.area;
-  }
 
-  return review.city === selected.city;
-}

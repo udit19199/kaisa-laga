@@ -1,7 +1,6 @@
 import { SignUpForm } from "@/components/auth/sign-up-form";
 import {
   SIGN_IN_PATH,
-  SIGN_UP_PATH,
   clerkSignUpRedirectUrl,
 } from "@/lib/auth-routes";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
 import QRCode from "react-qr-code";
 import { Plus, MoreHorizontal, Download, Trash2, Palette } from "lucide-react";
 import { toast } from "sonner";
@@ -62,11 +62,22 @@ const downloadQr = (locationId: string, name: string) => {
 };
 
 export function LocationsTableClient({ initialLocations, appUrl }: LocationsTableClientProps) {
-  const [locations, setLocations] = useState<Location[]>(initialLocations);
-  const [newName, setNewName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [brandingLocation, setBrandingLocation] = useState<Location | null>(null);
+  const [tableState, setTableState] = useState({
+    locations: initialLocations,
+    newName: "",
+    loading: false,
+    isAddOpen: false,
+    brandingLocation: null as Location | null,
+  });
+  const { locations, newName, loading, isAddOpen, brandingLocation } = tableState;
+
+  const setLocations = useCallback((locs: Location[] | ((curr: Location[]) => Location[])) => {
+    setTableState((prev) => ({ ...prev, locations: typeof locs === "function" ? locs(prev.locations) : locs }));
+  }, []);
+  const setNewName = useCallback((n: string) => setTableState((prev) => ({ ...prev, newName: n })), []);
+  const setLoading = useCallback((l: boolean) => setTableState((prev) => ({ ...prev, loading: l })), []);
+  const setIsAddOpen = useCallback((o: boolean) => setTableState((prev) => ({ ...prev, isAddOpen: o })), []);
+  const setBrandingLocation = useCallback((loc: Location | null) => setTableState((prev) => ({ ...prev, brandingLocation: loc })), []);
 
   const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -244,6 +255,7 @@ export function LocationsTableClient({ initialLocations, appUrl }: LocationsTabl
       </div>
 
       <LocationBrandingDialog
+        key={brandingLocation?.id ?? "none"}
         location={brandingLocation}
         open={Boolean(brandingLocation)}
         onOpenChange={(open) => {

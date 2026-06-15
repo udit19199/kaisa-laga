@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Loader2, LocateFixed, MapPin, Search } from "lucide-react";
 import {
   Dialog,
@@ -61,15 +61,12 @@ export function DiscoverAreaPicker({
     } else {
       setInternalOpen(next);
     }
-  }
-
-  useEffect(() => {
-    if (!open) {
+    if (!next) {
       setFilter("");
       setLocError(null);
       setLocating(false);
     }
-  }, [open]);
+  }
 
   function handleSelect(option: DiscoverAreaOption) {
     onSelect(option);
@@ -168,6 +165,7 @@ export function DiscoverAreaPicker({
             />
             <input
               type="search"
+              aria-label="Search neighbourhood or city"
               value={filter}
               onChange={(event) => setFilter(event.target.value)}
               placeholder="Type neighbourhood or city"

@@ -3,7 +3,7 @@ import { SENTIMENTS, TAG_TAXONOMY } from "./constants";
 
 const tagSchema = z.enum(TAG_TAXONOMY);
 
-export const categorizationSchema = z.object({
+const categorizationSchema = z.object({
   sentiment: z.enum(SENTIMENTS),
   tags: z.array(z.string()).min(1).max(3),
   summary: z.string().min(1),

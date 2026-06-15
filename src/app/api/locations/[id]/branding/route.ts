@@ -7,7 +7,7 @@ const bodySchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
   tagline: z.string().trim().max(200).nullable().optional(),
   coverImageUrl: z
-    .union([z.string().url(), z.literal("")])
+    .union([z.url(), z.literal("")])
     .nullable()
     .optional()
     .transform((value) => (value === "" ? null : value)),

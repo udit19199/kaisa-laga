@@ -92,16 +92,14 @@ export async function replaceSubmissionTags(submissionId: string, tags: string[]
     .delete(submissionTags)
     .where(eq(submissionTags.submissionId, submissionId));
 
-  if (tags.length === 0) {
-    return;
+  if (tags.length > 0) {
+    await db.insert(submissionTags).values(
+      tags.map((tag) => ({
+        submissionId,
+        tag,
+      })),
+    );
   }
-
-  await db.insert(submissionTags).values(
-    tags.map((tag) => ({
-      submissionId,
-      tag,
-    })),
-  );
 }
 
 export async function markOutboxDispatched(outboxId: string) {

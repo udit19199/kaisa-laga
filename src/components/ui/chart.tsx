@@ -2,8 +2,22 @@
 
 import * as React from "react"
 import { use } from "react"
-import * as RechartsPrimitive from "recharts"
+import type * as RechartsPrimitive from "recharts"
 import type { TooltipValueType } from "recharts"
+import dynamic from "next/dynamic"
+
+const ResponsiveContainer = dynamic(
+  () => import("recharts").then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+)
+const Tooltip = dynamic(
+  () => import("recharts").then((mod) => mod.Tooltip),
+  { ssr: false }
+)
+const Legend = dynamic(
+  () => import("recharts").then((mod) => mod.Legend),
+  { ssr: false }
+)
 
 import { cn } from "@/lib/utils"
 
@@ -74,11 +88,11 @@ function ChartContainer({
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer
+        <ResponsiveContainer
           initialDimension={initialDimension}
         >
           {children}
-        </RechartsPrimitive.ResponsiveContainer>
+        </ResponsiveContainer>
       </div>
     </ChartContext.Provider>
   )
@@ -115,7 +129,63 @@ ${colorConfig
   )
 }
 
-const ChartTooltip = RechartsPrimitive.Tooltip
+const ChartTooltip = Tooltip
+
+const ChartTooltipLabel = React.memo(({
+  hideLabel,
+  active,
+  payload,
+  labelKey,
+  config,
+  label,
+  labelFormatter,
+  labelClassName,
+}: {
+  hideLabel?: boolean
+  active?: boolean
+  payload?: RechartsPrimitive.DefaultTooltipContentProps<
+    TooltipValueType,
+    TooltipNameType
+  >["payload"]
+  labelKey?: string
+  config: ChartConfig
+  label?: React.ReactNode
+  labelFormatter?: (
+    label: React.ReactNode,
+    payload: NonNullable<RechartsPrimitive.DefaultTooltipContentProps<
+      TooltipValueType,
+      TooltipNameType
+    >["payload"]>
+  ) => React.ReactNode
+  labelClassName?: string
+}) => {
+  if (hideLabel || !active || !payload?.length) {
+    return null
+  }
+
+  const [item] = payload
+  const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`
+  const itemConfig = getPayloadConfigFromPayload(config, item, key)
+  const value =
+    !labelKey && typeof label === "string"
+      ? (config[label]?.label ?? label)
+      : itemConfig?.label
+
+  if (labelFormatter) {
+    return (
+      <div className={cn("font-medium", labelClassName)}>
+        {labelFormatter(value, payload)}
+      </div>
+    )
+  }
+
+  if (!value) {
+    return null
+  }
+
+  return <div className={cn("font-medium", labelClassName)}>{value}</div>
+})
+ChartTooltipLabel.displayName = "ChartTooltipLabel"
 
 function ChartTooltipContent({
   active,
@@ -149,43 +219,6 @@ function ChartTooltipContent({
 
   const nestLabel = payload?.length === 1 && indicator !== "dot"
 
-  const tooltipLabel = React.useMemo(() => {
-    if (hideLabel || !active || !payload?.length) {
-      return null
-    }
-
-    const [item] = payload
-    const key = `${labelKey ?? item?.dataKey ?? item?.name ?? "value"}`
-    const itemConfig = getPayloadConfigFromPayload(config, item, key)
-    const value =
-      !labelKey && typeof label === "string"
-        ? (config[label]?.label ?? label)
-        : itemConfig?.label
-
-    if (labelFormatter) {
-      return (
-        <div className={cn("font-medium", labelClassName)}>
-          {labelFormatter(value, payload)}
-        </div>
-      )
-    }
-
-    if (!value) {
-      return null
-    }
-
-    return <div className={cn("font-medium", labelClassName)}>{value}</div>
-  }, [
-    label,
-    labelFormatter,
-    payload,
-    hideLabel,
-    labelClassName,
-    config,
-    labelKey,
-    active,
-  ])
-
   if (!active || !payload?.length) {
     return null
   }
@@ -197,7 +230,18 @@ function ChartTooltipContent({
         className
       )}
     >
-      {!nestLabel ? tooltipLabel : null}
+      {!nestLabel ? (
+        <ChartTooltipLabel
+          hideLabel={hideLabel}
+          active={active}
+          payload={payload}
+          labelKey={labelKey}
+          config={config}
+          label={label}
+          labelFormatter={labelFormatter}
+          labelClassName={labelClassName}
+        />
+      ) : null}
       <div className="grid gap-1.5">
         {payload.map((item, index) => {
           if (item.type === "none") {
@@ -252,7 +296,18 @@ function ChartTooltipContent({
                       )}
                     >
                       <div className="grid gap-1.5">
-                        {nestLabel ? tooltipLabel : null}
+                        {nestLabel ? (
+                          <ChartTooltipLabel
+                            hideLabel={hideLabel}
+                            active={active}
+                            payload={payload}
+                            labelKey={labelKey}
+                            config={config}
+                            label={label}
+                            labelFormatter={labelFormatter}
+                            labelClassName={labelClassName}
+                          />
+                        ) : null}
                         <span className="text-muted-foreground">
                           {itemConfig?.label ?? item.name}
                         </span>
@@ -275,7 +330,7 @@ function ChartTooltipContent({
   )
 }
 
-const ChartLegend = RechartsPrimitive.Legend
+const ChartLegend = Legend
 
 function ChartLegendContent({
   className,
@@ -301,7 +356,7 @@ function ChartLegendContent({
         className
       )}
     >
-      {payload.map((item, index) => {
+      {payload.map((item) => {
         if (item.type === "none") {
           return null
         }

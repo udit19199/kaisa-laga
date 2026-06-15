@@ -18,26 +18,29 @@ const idleState: ForYouMatchesState = {
 
 export function useForYouMatches() {
   const { isSignedIn, isLoaded } = useAuth();
-  const [state, setState] = useState<ForYouMatchesState>({
+  const [state, setState] = useState<ForYouMatchesState>(() => ({
     ...idleState,
-    loading: true,
-  });
+    loading: isLoaded && isSignedIn,
+  }));
+
+  const [prevAuth, setPrevAuth] = useState({ isLoaded, isSignedIn });
+
+  if (isLoaded !== prevAuth.isLoaded || isSignedIn !== prevAuth.isSignedIn) {
+    setPrevAuth({ isLoaded, isSignedIn });
+    setState({
+      ...idleState,
+      loading: isLoaded && isSignedIn,
+    });
+  }
 
   useEffect(() => {
-    if (!isLoaded) {
-      return;
-    }
-
-    if (!isSignedIn) {
-      setState(idleState);
+    if (!isLoaded || !isSignedIn) {
       return;
     }
 
     let cancelled = false;
 
     void (async () => {
-      setState((current) => ({ ...current, loading: true }));
-
       try {
         const response = await fetch("/api/matches/for-you");
         if (cancelled) {

@@ -2,7 +2,7 @@ export const MAX_RECORDING_SECONDS = 30;
 export const MIN_RECORDING_SECONDS = 3;
 export const MAX_AUDIO_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 export const DASHBOARD_POLL_INTERVAL_MS = 30_000;
-export const AUDIO_RETENTION_DAYS = 90;
+
 export const DEFAULT_RECORD_SIZE = 136;
 
 export const TAG_TAXONOMY = [
@@ -23,14 +23,12 @@ export type Tag = (typeof TAG_TAXONOMY)[number];
 export const SENTIMENTS = ["Positive", "Neutral", "Negative"] as const;
 export type Sentiment = (typeof SENTIMENTS)[number];
 
-export const SUBMISSION_STATUSES = [
-  "accepted",
-  "processing",
-  "processed",
-  "failed",
-  "pending",
-] as const;
-export type SubmissionStatus = (typeof SUBMISSION_STATUSES)[number];
+export type SubmissionStatus =
+  | "accepted"
+  | "processing"
+  | "processed"
+  | "failed"
+  | "pending";
 
 export const FIXABLE_KEYWORDS = [
   "dirty",

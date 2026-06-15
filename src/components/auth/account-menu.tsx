@@ -1,6 +1,7 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
+import Image from "next/image";
 import { LogOutIcon } from "lucide-react";
 import {
   DropdownMenu,
@@ -59,10 +60,11 @@ export function AccountMenu({
           )}
         >
           {user?.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={user.imageUrl}
               alt=""
+              width={40}
+              height={40}
               className="size-full rounded-full object-cover"
             />
           ) : (

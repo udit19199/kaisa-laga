@@ -9,6 +9,28 @@ const plates = [
   { color: palette.muted, angle: 288 },
 ];
 
+const basePlateStyle: React.CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  width: 52,
+  height: 52,
+  borderRadius: "50%",
+};
+
+const centerCircleStyle: React.CSSProperties = {
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  width: 36,
+  height: 36,
+  marginLeft: -18,
+  marginTop: -18,
+  borderRadius: "50%",
+  background: palette.white,
+  border: `2px solid ${palette.line}`,
+};
+
 export const CuisineOrbit = () => {
   const frame = useCurrentFrame();
   const orbit = frame * 0.04;
@@ -33,14 +55,9 @@ export const CuisineOrbit = () => {
             <div
               key={index}
               style={{
-                position: "absolute",
-                left: "50%",
-                top: "50%",
-                width: 52,
-                height: 52,
+                ...basePlateStyle,
                 marginLeft: x - 26,
                 marginTop: y - 26,
-                borderRadius: "50%",
                 background: plate.color,
                 transform: `scale(${scale})`,
                 boxShadow: `inset 0 -4px 0 ${palette.white}55`,
@@ -48,20 +65,7 @@ export const CuisineOrbit = () => {
             />
           );
         })}
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            width: 36,
-            height: 36,
-            marginLeft: -18,
-            marginTop: -18,
-            borderRadius: "50%",
-            background: palette.white,
-            border: `2px solid ${palette.line}`,
-          }}
-        />
+        <div style={centerCircleStyle} />
       </div>
     </AbsoluteFill>
   );

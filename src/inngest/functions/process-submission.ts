@@ -29,7 +29,7 @@ import {
 } from "@/server/submissions";
 import { scheduleSubmissionPublish } from "@/server/taste";
 
-export const processSubmission = inngest.createFunction(
+const processSubmission = inngest.createFunction(
   {
     id: "process-submission",
     retries: 3,
@@ -159,7 +159,7 @@ export const processSubmission = inngest.createFunction(
   },
 );
 
-export const markSubmissionFailedOnRetry = inngest.createFunction(
+const markSubmissionFailedOnRetry = inngest.createFunction(
   {
     id: "mark-submission-failed",
     triggers: [{ event: "inngest/function.failed" }],
@@ -216,7 +216,7 @@ export const markSubmissionFailedOnRetry = inngest.createFunction(
   },
 );
 
-export const processSubmissionOutbox = inngest.createFunction(
+const processSubmissionOutbox = inngest.createFunction(
   {
     id: "process-submission-outbox",
     triggers: [{ event: "submission/outbox.reconcile" }],

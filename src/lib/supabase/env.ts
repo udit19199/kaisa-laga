@@ -13,13 +13,7 @@ export function getSupabaseUrl() {
   );
 }
 
-/** Client-safe publishable key (`sb_publishable_...`). */
-export function getSupabasePublishableKey() {
-  return requireEnv(
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
-  );
-}
+
 
 /** Server-only secret key (`sb_secret_...`). Never expose to the browser. */
 export function getSupabaseSecretKey() {

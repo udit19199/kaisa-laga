@@ -192,7 +192,7 @@ export function detectLocale(acceptLanguage?: string | null): Locale {
   return "en";
 }
 
-export function getMessages(locale: Locale) {
+function getMessages(locale: Locale) {
   return messages[locale] ?? messages.en;
 }
 

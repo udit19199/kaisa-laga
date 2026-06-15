@@ -35,7 +35,7 @@ function getDerivedDirectDatabaseUrl(
   return buildSupabaseDatabaseUrl(supabaseUrl, password);
 }
 
-export function getRuntimeDatabaseUrl(
+function getRuntimeDatabaseUrl(
   env: NodeJS.ProcessEnv = process.env,
 ): string {
   const runtimeUrl = env.DATABASE_URL?.trim();

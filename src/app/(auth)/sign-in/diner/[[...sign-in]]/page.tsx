@@ -15,8 +15,7 @@ type PageProps = {
 };
 
 export default async function DinerSignInPage({ searchParams }: PageProps) {
-  const { userId } = await auth();
-  const params = await searchParams;
+  const [{ userId }, params] = await Promise.all([auth(), searchParams]);
 
   if (userId) {
     const hasOrg = await userHasOrgMembership(userId);

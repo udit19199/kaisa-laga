@@ -15,6 +15,10 @@ import { useDiscoverArea } from "@/hooks/use-discover-area";
 import { useForYouMatches } from "@/hooks/use-for-you-matches";
 import { cn } from "@/lib/utils";
 
+function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+}
+
 export function DiscoverPage() {
   const { area, setArea, inferredFromGeo, options } = useDiscoverArea();
   const forYou = useForYouMatches();
@@ -23,10 +27,6 @@ export function DiscoverPage() {
   const [locationOpen, setLocationOpen] = useState(false);
 
   const areaLabel = area.area ?? area.label;
-
-  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col font-marketing-ui text-marketing-ink">

@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import {
-  defaultMarketingTheme,
   MARKETING_THEME_STORAGE_KEY,
   resolveMarketingTheme,
   type MarketingThemeId,
@@ -23,9 +22,4 @@ export function MarketingThemeProvider({ children }: { children: React.ReactNode
   }, []);
 
   return children;
-}
-
-export function setMarketingTheme(theme: MarketingThemeId) {
-  document.documentElement.dataset.marketingTheme = theme;
-  window.localStorage.setItem(MARKETING_THEME_STORAGE_KEY, theme);
 }

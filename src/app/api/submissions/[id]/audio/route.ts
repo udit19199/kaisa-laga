@@ -21,7 +21,7 @@ export async function GET(
 
   try {
     const url = await createSignedAudioUrl(submission.audio_storage_path, 3600);
-    return NextResponse.json({ url });
+    return NextResponse.redirect(url, { status: 307 });
   } catch {
     return NextResponse.json({ error: "Could not load audio" }, { status: 500 });
   }

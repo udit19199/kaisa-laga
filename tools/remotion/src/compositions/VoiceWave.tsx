@@ -3,6 +3,26 @@ import { palette } from "../theme";
 
 const bars = 7;
 
+const circleStyle: React.CSSProperties = {
+  position: "absolute",
+  bottom: 56,
+  width: 88,
+  height: 88,
+  borderRadius: "50%",
+  border: `3px solid ${palette.line}`,
+  background: palette.white,
+  boxShadow: `0 0 0 6px ${palette.terracottaSoft}`,
+};
+
+const innerSquareStyle: React.CSSProperties = {
+  position: "absolute",
+  bottom: 78,
+  width: 44,
+  height: 44,
+  borderRadius: 12,
+  background: palette.ink,
+};
+
 export const VoiceWave = () => {
   const frame = useCurrentFrame();
 
@@ -40,28 +60,8 @@ export const VoiceWave = () => {
           );
         })}
       </div>
-      <div
-        style={{
-          position: "absolute",
-          bottom: 56,
-          width: 88,
-          height: 88,
-          borderRadius: "50%",
-          border: `3px solid ${palette.line}`,
-          background: palette.white,
-          boxShadow: `0 0 0 6px ${palette.terracottaSoft}`,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: 78,
-          width: 44,
-          height: 44,
-          borderRadius: 12,
-          background: palette.ink,
-        }}
-      />
+      <div style={circleStyle} />
+      <div style={innerSquareStyle} />
     </AbsoluteFill>
   );
 };

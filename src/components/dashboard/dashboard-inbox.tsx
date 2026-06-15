@@ -71,32 +71,14 @@ function InsightSection({
 }
 
 function SubmissionAudio({ submissionId }: { submissionId: string }) {
-  const [url, setUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`/api/submissions/${submissionId}/audio`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (!cancelled && data?.url) setUrl(data.url);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [submissionId]);
-
-  if (loading) {
-    return <p className="text-xs text-muted-foreground">Loading audio…</p>;
-  }
-
-  if (!url) return null;
-
   return (
-    <audio controls preload="none" src={url} className="h-8 w-full max-w-sm">
+    <audio
+      controls
+      preload="none"
+      src={`/api/submissions/${submissionId}/audio`}
+      className="h-8 w-full max-w-sm"
+      aria-label="Submission audio"
+    >
       <track kind="captions" />
     </audio>
   );
@@ -108,37 +90,37 @@ export function DashboardInbox() {
   const queryLocationId = searchParams.get("locationId");
   const highlightRef = useRef<HTMLDivElement>(null);
 
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [manualLocation, setManualLocation] = useState<string>("all");
-  const [submissions, setSubmissions] = useState<SubmissionItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [pageByLocation, setPageByLocation] = useState<Record<string, number>>({
-    all: 1,
+  const [inboxState, setInboxState] = useState({
+    locations: [] as Location[],
+    manualLocation: "all",
+    submissions: [] as SubmissionItem[],
+    loading: true,
+    pageByLocation: { all: 1 } as Record<string, number>,
+    totalPages: 1,
   });
-  const [totalPages, setTotalPages] = useState(1);
+
+  const { locations, manualLocation, submissions, loading, pageByLocation, totalPages } = inboxState;
   const selectedLocation = queryLocationId ?? manualLocation;
   const page = pageByLocation[selectedLocation] ?? 1;
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    setInboxState((prev) => ({ ...prev, loading: true }));
     const locParam = selectedLocation === "all" ? "" : `&locationId=${selectedLocation}`;
     const [locRes, subRes] = await Promise.all([
       fetch("/api/locations"),
       fetch(`/api/submissions?page=${page}${locParam}`),
     ]);
 
-    if (locRes.ok) {
-      const locData = await locRes.json();
-      setLocations(locData.locations ?? []);
-    }
+    const locData = locRes.ok ? await locRes.json() : null;
+    const subData = subRes.ok ? await subRes.json() : null;
 
-    if (subRes.ok) {
-      const subData = await subRes.json();
-      setSubmissions(subData.items ?? []);
-      setTotalPages(subData.totalPages ?? 1);
-    }
-
-    setLoading(false);
+    setInboxState((prev) => ({
+      ...prev,
+      locations: locData ? (locData.locations ?? []) : prev.locations,
+      submissions: subData ? (subData.items ?? []) : prev.submissions,
+      totalPages: subData ? (subData.totalPages ?? 1) : prev.totalPages,
+      loading: false,
+    }));
   }, [selectedLocation, page]);
 
   useEffect(() => {
@@ -168,8 +150,14 @@ export function DashboardInbox() {
           value={selectedLocation}
           onValueChange={(v) => {
             const nextLocation = v ?? "all";
-            setManualLocation(nextLocation);
-            setPageByLocation((prev) => ({ ...prev, [nextLocation]: 1 }));
+            setInboxState((prev) => ({
+              ...prev,
+              manualLocation: nextLocation,
+              pageByLocation: {
+                ...prev.pageByLocation,
+                [nextLocation]: 1,
+              },
+            }));
           }}
         >
           <SelectTrigger className="w-48">
@@ -330,9 +318,12 @@ export function DashboardInbox() {
                 size="sm"
                 disabled={page <= 1}
                 onClick={() =>
-                  setPageByLocation((prev) => ({
+                  setInboxState((prev) => ({
                     ...prev,
-                    [selectedLocation]: Math.max(1, (prev[selectedLocation] ?? 1) - 1),
+                    pageByLocation: {
+                      ...prev.pageByLocation,
+                      [selectedLocation]: Math.max(1, (prev.pageByLocation[selectedLocation] ?? 1) - 1),
+                    },
                   }))
                 }
               >
@@ -346,9 +337,12 @@ export function DashboardInbox() {
                 size="sm"
                 disabled={page >= totalPages}
                 onClick={() =>
-                  setPageByLocation((prev) => ({
+                  setInboxState((prev) => ({
                     ...prev,
-                    [selectedLocation]: (prev[selectedLocation] ?? 1) + 1,
+                    pageByLocation: {
+                      ...prev.pageByLocation,
+                      [selectedLocation]: (prev.pageByLocation[selectedLocation] ?? 1) + 1,
+                    },
                   }))
                 }
               >

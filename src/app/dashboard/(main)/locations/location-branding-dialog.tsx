@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
 import { toast } from "sonner";
 import { VenueMatchCard } from "@/components/consumer/venue-match-card";
 import { Button } from "@/components/ui/button";
@@ -30,48 +30,20 @@ export function LocationBrandingDialog({
   onOpenChange,
   onSaved,
 }: LocationBrandingDialogProps) {
-  const [name, setName] = useState("");
-  const [tagline, setTagline] = useState("");
-  const [coverImageUrl, setCoverImageUrl] = useState("");
-  const [tasteSummary, setTasteSummary] = useState<string | null>(null);
-  const [tasteThemes, setTasteThemes] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [dialogState, setDialogState] = useState({
+    name: location?.name ?? "",
+    tagline: location?.tagline ?? "",
+    coverImageUrl: location?.cover_image_url ?? "",
+    tasteSummary: (location?.taste_summary ?? null) as string | null,
+    tasteThemes: (location?.taste_themes ?? []) as string[],
+    saving: false,
+  });
+  const { name, tagline, coverImageUrl, tasteSummary, tasteThemes, saving } = dialogState;
 
-  useEffect(() => {
-    if (!location || !open) {
-      return;
-    }
-
-    setName(location.name);
-    setTagline(location.tagline ?? "");
-    setCoverImageUrl(location.cover_image_url ?? "");
-    setTasteSummary(location.taste_summary ?? null);
-    setTasteThemes(location.taste_themes ?? []);
-    setLoading(true);
-
-    void (async () => {
-      try {
-        const response = await fetch(`/api/locations/${location.id}/branding`);
-        if (response.ok) {
-          const data = (await response.json()) as {
-            name: string;
-            tagline: string | null;
-            cover_image_url: string | null;
-            taste_summary: string | null;
-            taste_themes: string[];
-          };
-          setName(data.name);
-          setTagline(data.tagline ?? "");
-          setCoverImageUrl(data.cover_image_url ?? "");
-          setTasteSummary(data.taste_summary);
-          setTasteThemes(data.taste_themes ?? []);
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [location, open]);
+  const setName = useCallback((n: string) => setDialogState((prev) => ({ ...prev, name: n })), []);
+  const setTagline = useCallback((t: string) => setDialogState((prev) => ({ ...prev, tagline: t })), []);
+  const setCoverImageUrl = useCallback((c: string) => setDialogState((prev) => ({ ...prev, coverImageUrl: c })), []);
+  const setSaving = useCallback((s: boolean) => setDialogState((prev) => ({ ...prev, saving: s })), []);
 
   const previewMatch: VenueMatch | null = location
     ? {
@@ -136,9 +108,6 @@ export function LocationBrandingDialog({
             </DialogDescription>
           </DialogHeader>
 
-          {loading ? (
-            <p className="py-8 text-sm text-muted-foreground">Loading…</p>
-          ) : (
             <div className="grid gap-6 py-4 lg:grid-cols-2">
               <div className="space-y-4">
                 <div className="grid gap-2">
@@ -197,13 +166,12 @@ export function LocationBrandingDialog({
                 ) : null}
               </div>
             </div>
-          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={saving || loading}>
+            <Button type="submit" disabled={saving}>
               {saving ? "Saving…" : "Save branding"}
             </Button>
           </DialogFooter>

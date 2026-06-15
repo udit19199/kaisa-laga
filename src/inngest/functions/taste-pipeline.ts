@@ -1,7 +1,7 @@
 import { inngest } from "@/inngest/client";
 import { publishSubmission } from "@/server/taste";
 
-export const scheduleSubmissionPublish = inngest.createFunction(
+const scheduleSubmissionPublish = inngest.createFunction(
   {
     id: "schedule-submission-publish",
     triggers: [{ event: "submission/publish.schedule" }],
@@ -24,7 +24,7 @@ export const scheduleSubmissionPublish = inngest.createFunction(
   },
 );
 
-export const refreshDinerTasteOnLink = inngest.createFunction(
+const refreshDinerTasteOnLink = inngest.createFunction(
   {
     id: "refresh-diner-taste",
     triggers: [{ event: "diner/taste.refresh" }],

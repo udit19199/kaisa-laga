@@ -42,13 +42,73 @@ function RoomChrome({ locationName }: { locationName: string }) {
   );
 }
 
+function CaptureDonePage({
+  locale,
+  locationName,
+  submissionId,
+}: {
+  locale: Locale;
+  locationName: string;
+  submissionId: string | null;
+}) {
+  return (
+    <div className="capture-surface flex min-h-dvh flex-col">
+      <RoomChrome locationName={locationName} />
+      <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+        <div className="capture-done-enter max-w-[18rem]">
+          <div
+            className="mb-5 flex size-14 items-center justify-center rounded-full bg-[var(--capture-live-soft)] text-[var(--capture-live)]"
+            aria-hidden
+          >
+            <Check className="size-7 stroke-[2.5]" />
+          </div>
+          <h1 className="text-balance text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-[var(--capture-ink)]">
+            {t(locale, "thankYou")}
+          </h1>
+          <p className="mt-2 max-w-[28ch] text-pretty text-base leading-relaxed text-[var(--capture-muted)]">
+            {t(locale, "thankYouMessage")}
+          </p>
+          {submissionId ? (
+            <Link
+              href={`${DINER_SIGN_IN_PATH}?link=${encodeURIComponent(submissionId)}`}
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-[var(--capture-ink)] px-5 text-sm font-medium text-white no-underline"
+            >
+              Build your taste profile
+            </Link>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CapturePage({ captureToken, locationName, locale }: CapturePageProps) {
-  const [state, setState] = useState<CaptureState>("idle");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [pageState, setPageState] = useState({
+    state: "idle" as CaptureState,
+    errorMessage: null as string | null,
+    submissionId: null as string | null,
+    recordingSeconds: 0,
+    waveLevels: [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2] as number[],
+  });
+  const { state, errorMessage, submissionId, recordingSeconds, waveLevels } = pageState;
   const [retainAudio, setRetainAudio] = useState(false);
-  const [recordingSeconds, setRecordingSeconds] = useState(0);
-  const [waveLevels, setWaveLevels] = useState<number[]>([0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]);
+
+  const setState = useCallback((s: CaptureState | ((curr: CaptureState) => CaptureState)) => {
+    setPageState((prev) => ({ ...prev, state: typeof s === "function" ? s(prev.state) : s }));
+  }, []);
+  const setErrorMessage = useCallback((m: string | null) => {
+    setPageState((prev) => ({ ...prev, errorMessage: m }));
+  }, []);
+  const setSubmissionId = useCallback((id: string | null) => {
+    setPageState((prev) => ({ ...prev, submissionId: id }));
+  }, []);
+  const setRecordingSeconds = useCallback((s: number | ((curr: number) => number)) => {
+    setPageState((prev) => ({ ...prev, recordingSeconds: typeof s === "function" ? s(prev.recordingSeconds) : s }));
+  }, []);
+  const setWaveLevels = useCallback((w: number[] | ((curr: number[]) => number[])) => {
+    setPageState((prev) => ({ ...prev, waveLevels: typeof w === "function" ? w(prev.waveLevels) : w }));
+  }, []);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const retainAudioRef = useRef(retainAudio);
@@ -85,7 +145,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
       animationRef.current = null;
     }
     setWaveLevels([0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]);
-  }, []);
+  }, [setWaveLevels]);
 
   const startWaveform = useCallback((stream: MediaStream) => {
     const audioContext = new AudioContext();
@@ -106,7 +166,7 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
     };
 
     animationRef.current = requestAnimationFrame(tick);
-  }, []);
+  }, [setWaveLevels]);
 
   const uploadAudio = async (blob: Blob, mimeType: string) => {
     setState("uploading");
@@ -223,8 +283,6 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
 
   const recordingProgress = recordingSeconds / MAX_RECORDING_SECONDS;
   const isRecording = state === "recording";
-  const isUploading = state === "uploading";
-  const isIdle = state === "idle" || state === "error";
   const canStopRecording = recordingSeconds >= MIN_RECORDING_SECONDS;
   const recordAriaLabel = isRecording
     ? canStopRecording
@@ -234,33 +292,11 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
 
   if (state === "done") {
     return (
-      <div className="capture-surface flex min-h-dvh flex-col">
-        <RoomChrome locationName={locationName} />
-        <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-[max(2.5rem,env(safe-area-inset-bottom))]">
-          <div className="capture-done-enter max-w-[18rem]">
-            <div
-              className="mb-5 flex size-14 items-center justify-center rounded-full bg-[var(--capture-live-soft)] text-[var(--capture-live)]"
-              aria-hidden
-            >
-              <Check className="size-7 stroke-[2.5]" />
-            </div>
-            <h1 className="text-balance text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-[var(--capture-ink)]">
-              {t(locale, "thankYou")}
-            </h1>
-            <p className="mt-2 max-w-[28ch] text-pretty text-base leading-relaxed text-[var(--capture-muted)]">
-              {t(locale, "thankYouMessage")}
-            </p>
-            {submissionId ? (
-              <Link
-                href={`${DINER_SIGN_IN_PATH}?link=${encodeURIComponent(submissionId)}`}
-                className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-[var(--capture-ink)] px-5 text-sm font-medium text-white no-underline"
-              >
-                Build your taste profile
-              </Link>
-            ) : null}
-          </div>
-        </div>
-      </div>
+      <CaptureDonePage
+        locale={locale}
+        locationName={locationName}
+        submissionId={submissionId}
+      />
     );
   }
 
@@ -295,112 +331,165 @@ export function CapturePage({ captureToken, locationName, locale }: CapturePageP
         </div>
       </div>
 
-      <div className="capture-dock relative rounded-t-2xl border-t border-[var(--capture-sand)] bg-[var(--capture-card)] px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-7 shadow-[0_-12px_40px_-24px_oklch(0_0_0/0.2)]">
-        <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5">
-          <div
-            className="relative flex items-center justify-center"
+      <CaptureControls
+        state={state}
+        recordingProgress={recordingProgress}
+        canStopRecording={canStopRecording}
+        recordingSeconds={recordingSeconds}
+        waveLevels={waveLevels}
+        retainAudio={retainAudio}
+        setRetainAudio={setRetainAudio}
+        errorMessage={errorMessage}
+        statusId={statusId}
+        recordAriaLabel={recordAriaLabel}
+        startRecording={startRecording}
+        stopRecording={stopRecording}
+        locale={locale}
+      />
+    </div>
+  );
+}
+
+interface CaptureControlsProps {
+  state: CaptureState;
+  recordingProgress: number;
+  canStopRecording: boolean;
+  recordingSeconds: number;
+  waveLevels: number[];
+  retainAudio: boolean;
+  setRetainAudio: (val: boolean) => void;
+  errorMessage: string | null;
+  statusId: string;
+  recordAriaLabel: string;
+  startRecording: () => Promise<void>;
+  stopRecording: () => void;
+  locale: Locale;
+}
+
+function CaptureControls({
+  state,
+  recordingProgress,
+  canStopRecording,
+  recordingSeconds,
+  waveLevels,
+  retainAudio,
+  setRetainAudio,
+  errorMessage,
+  statusId,
+  recordAriaLabel,
+  startRecording,
+  stopRecording,
+  locale,
+}: CaptureControlsProps) {
+  const isRecording = state === "recording";
+  const isUploading = state === "uploading";
+  const isIdle = state === "idle";
+  return (
+    <div className="capture-dock relative rounded-t-2xl border-t border-[var(--capture-sand)] bg-[var(--capture-card)] px-5 pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-7 shadow-[0_-12px_40px_-24px_oklch(0_0_0/0.2)]">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-center gap-5">
+        <div
+          className="relative flex items-center justify-center"
+          style={{ width: RECORD_SIZE, height: RECORD_SIZE }}
+        >
+          <RecordProgressRing
+            size={RECORD_SIZE}
+            progress={recordingProgress}
+            showProgress={isRecording}
+            progressClassName="transition-[stroke-dashoffset] duration-300 ease-out"
+          />
+
+          <button
+            type="button"
+            aria-label={recordAriaLabel}
+            aria-describedby={statusId}
+            className={cn(
+              "relative z-10 flex select-none items-center justify-center rounded-full border border-white/20 bg-[linear-gradient(135deg,var(--capture-mic),var(--capture-join))] text-white shadow-[0_24px_60px_-18px_var(--capture-join)] transition-transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--capture-live)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--capture-card)] active:scale-[0.94]",
+              isRecording && "scale-[1.04]",
+              (isUploading || (isRecording && !canStopRecording)) && "pointer-events-none opacity-60",
+            )}
             style={{ width: RECORD_SIZE, height: RECORD_SIZE }}
-          >
-            <RecordProgressRing
-              size={RECORD_SIZE}
-              progress={recordingProgress}
-              showProgress={isRecording}
-              progressClassName="transition-[stroke-dashoffset] duration-300 ease-out"
-            />
-
-            <button
-              type="button"
-              aria-label={recordAriaLabel}
-              aria-describedby={statusId}
-              className={cn(
-                "relative z-10 flex select-none items-center justify-center rounded-full border border-white/20 bg-[linear-gradient(135deg,var(--capture-mic),var(--capture-join))] text-white shadow-[0_24px_60px_-18px_var(--capture-join)] transition-transform duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--capture-live)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--capture-card)] active:scale-[0.94]",
-                isRecording && "scale-[1.04]",
-                (isUploading || (isRecording && !canStopRecording)) && "pointer-events-none opacity-60",
-              )}
-              style={{ width: RECORD_SIZE, height: RECORD_SIZE }}
-              disabled={isUploading || (isRecording && !canStopRecording)}
-              onClick={() => {
-                if (isRecording) {
-                  if (canStopRecording) {
-                    stopRecording();
-                  }
-                } else if (isIdle) {
-                  void startRecording();
+            disabled={isUploading || (isRecording && !canStopRecording)}
+            onClick={() => {
+              if (isRecording) {
+                if (canStopRecording) {
+                  stopRecording();
                 }
-              }}
-            >
-              {isUploading ? (
-                <Loader2 className="size-11 animate-spin" aria-hidden />
-              ) : isRecording ? (
-                <Pause className="size-11 stroke-[1.75]" aria-hidden />
-              ) : (
-                <Play className="size-11 fill-current stroke-[1.75] pl-0.5" aria-hidden />
-              )}
-            </button>
-          </div>
+              } else if (isIdle) {
+                void startRecording();
+              }
+            }}
+          >
+            {isUploading ? (
+              <Loader2 className="size-11 animate-spin" aria-hidden />
+            ) : isRecording ? (
+              <Pause className="size-11 stroke-[1.75]" aria-hidden />
+            ) : (
+              <Play className="size-11 fill-current stroke-[1.75] pl-0.5" aria-hidden />
+            )}
+          </button>
+        </div>
 
-          <div className="flex min-h-[3.25rem] flex-col items-center gap-2">
-            <p
-              id={statusId}
-              role="status"
-              aria-live="polite"
-              className={cn(
-                "capture-status text-center text-sm",
-                isRecording
-                  ? "font-medium tabular-nums text-[var(--capture-live)]"
-                  : "text-[var(--capture-muted)]",
-                isUploading && "font-medium text-[var(--capture-ink)]",
-              )}
-            >
-              {isRecording
-                ? recordingSeconds < MIN_RECORDING_SECONDS
-                  ? `${recordingSeconds}s · ${t(locale, "speakAtLeast")}`
-                  : `${recordingSeconds}s · ${t(locale, "pauseToStop")}`
-                : isUploading
-                  ? t(locale, "uploading")
-                  : t(locale, "tapToRecord")}
+        <div className="flex min-h-[3.25rem] flex-col items-center gap-2">
+          <p
+            id={statusId}
+            role="status"
+            aria-live="polite"
+            className={cn(
+              "capture-status text-center text-sm",
+              isRecording
+                ? "font-medium tabular-nums text-[var(--capture-live)]"
+                : "text-[var(--capture-muted)]",
+              isUploading && "font-medium text-[var(--capture-ink)]",
+            )}
+          >
+            {isRecording
+              ? recordingSeconds < MIN_RECORDING_SECONDS
+                ? `${recordingSeconds}s · ${t(locale, "speakAtLeast")}`
+                : `${recordingSeconds}s · ${t(locale, "pauseToStop")}`
+              : isUploading
+                ? t(locale, "uploading")
+                : t(locale, "tapToRecord")}
+          </p>
+
+          {isRecording ? <RecordingWaveform levels={waveLevels} /> : null}
+
+          {isIdle && !errorMessage ? (
+            <p className="text-center text-xs font-medium text-[var(--capture-muted)]">
+              {t(locale, "durationHint")}
             </p>
+          ) : null}
 
-            {isRecording ? <RecordingWaveform levels={waveLevels} /> : null}
+          {isRecording && recordingSeconds < MIN_RECORDING_SECONDS ? (
+            <p className="text-center text-xs font-medium text-[var(--capture-live)]">
+              {t(locale, "speakAtLeast")} {MIN_RECORDING_SECONDS}s.
+            </p>
+          ) : null}
 
-            {isIdle && !errorMessage ? (
-              <p className="text-center text-xs font-medium text-[var(--capture-muted)]">
-                {t(locale, "durationHint")}
-              </p>
-            ) : null}
+          {errorMessage ? (
+            <p role="alert" className="max-w-xs text-center text-sm text-destructive">
+              {errorMessage}
+            </p>
+          ) : null}
+        </div>
 
-            {isRecording && recordingSeconds < MIN_RECORDING_SECONDS ? (
-              <p className="text-center text-xs font-medium text-[var(--capture-live)]">
-                {t(locale, "speakAtLeast")} {MIN_RECORDING_SECONDS}s.
-              </p>
-            ) : null}
-
-            {errorMessage ? (
-              <p role="alert" className="max-w-xs text-center text-sm text-destructive">
-                {errorMessage}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="w-full border-t border-[var(--capture-sand)] pt-4 text-center text-xs leading-relaxed text-[var(--capture-muted)]">
-            <p>{t(locale, "privacyNote")}</p>
-            <label className="mt-3 flex items-start justify-center gap-2 text-left">
-              <input
-                type="checkbox"
-                checked={retainAudio}
-                onChange={(event) => setRetainAudio(event.target.checked)}
-                className="mt-0.5 size-4 rounded border-[var(--capture-sand)] text-[var(--capture-live)] accent-[var(--capture-live)]"
-              />
-              <span className="max-w-[20rem]">
-                <span className="block font-medium text-[var(--capture-ink)]">
-                  {t(locale, "retentionConsent")}
-                </span>
-                <span className="block text-[var(--capture-muted)]">
-                  {t(locale, "retentionConsentNote")}
-                </span>
+        <div className="w-full border-t border-[var(--capture-sand)] pt-4 text-center text-xs leading-relaxed text-[var(--capture-muted)]">
+          <p>{t(locale, "privacyNote")}</p>
+          <label className="mt-3 flex items-start justify-center gap-2 text-left">
+            <input
+              type="checkbox"
+              checked={retainAudio}
+              onChange={(event) => setRetainAudio(event.target.checked)}
+              className="mt-0.5 size-4 rounded border-[var(--capture-sand)] text-[var(--capture-live)] accent-[var(--capture-live)]"
+            />
+            <span className="max-w-[20rem]">
+              <span className="block font-medium text-[var(--capture-ink)]">
+                {t(locale, "retentionConsent")}
               </span>
-            </label>
-          </div>
+              <span className="block text-[var(--capture-muted)]">
+                {t(locale, "retentionConsentNote")}
+              </span>
+            </span>
+          </label>
         </div>
       </div>
     </div>

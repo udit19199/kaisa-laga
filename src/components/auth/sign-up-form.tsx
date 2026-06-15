@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSignUp } from "@clerk/nextjs";
@@ -31,12 +31,30 @@ export function SignUpForm({
 }: SignUpFormProps) {
   const router = useRouter();
   const { signUp, fetchStatus } = useSignUp();
-  const [step, setStep] = useState<Step>("credentials");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
+
+  const [formState, setFormState] = useState({
+    step: "credentials" as Step,
+    email: "",
+    password: "",
+    code: "",
+    formError: null as string | null,
+  });
+
+  const { step, email, password, code, formError } = formState;
+
+  const setStep = useCallback((s: Step) => setFormState(prev => ({ ...prev, step: s })), []);
+  const setEmail = useCallback((e: string) => setFormState(prev => ({ ...prev, email: e })), []);
+  const setPassword = useCallback((p: string) => setFormState(prev => ({ ...prev, password: p })), []);
+  const setCode = useCallback((c: string) => setFormState(prev => ({ ...prev, code: c })), []);
+  const setFormError = useCallback((fe: string | null) => setFormState(prev => ({ ...prev, formError: fe })), []);
+
   const isLoading = fetchStatus === "fetching";
+
+  const handleBackToCredentials = useCallback(() => {
+    void signUp?.reset();
+    setStep("credentials");
+    setCode("");
+  }, [signUp, setStep, setCode]);
 
   const inputClassName = cn(
     variant === "marketing" &&
@@ -131,11 +149,7 @@ export function SignUpForm({
           type="button"
           variant="ghost"
           disabled={isLoading}
-          onClick={() => {
-            void signUp.reset();
-            setStep("credentials");
-            setCode("");
-          }}
+          onClick={handleBackToCredentials}
         >
           Use a different email
         </Button>

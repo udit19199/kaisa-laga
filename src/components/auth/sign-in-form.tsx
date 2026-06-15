@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSignIn } from "@clerk/nextjs";
@@ -29,6 +29,147 @@ type Step =
   | "reset_code"
   | "new_password";
 
+function EmailCodeStepForm({
+  email,
+  code,
+  formError,
+  isLoading,
+  variant,
+  inputClassName,
+  primaryButtonClassName,
+  setCode,
+  handleEmailCodeSubmit,
+  onBackToSignIn,
+}: {
+  email: string;
+  code: string;
+  formError: string | null;
+  isLoading: boolean;
+  variant: "marketing" | "default";
+  inputClassName?: string;
+  primaryButtonClassName?: string;
+  setCode: (c: string) => void;
+  handleEmailCodeSubmit: (e: React.FormEvent) => void;
+  onBackToSignIn: () => void;
+}) {
+  return (
+    <form onSubmit={handleEmailCodeSubmit} className="flex flex-col gap-6">
+      <p className="m-0 text-sm text-marketing-muted">
+        We sent a verification code to {email}.
+      </p>
+      {formError ? <AuthAlert message={formError} /> : null}
+      <AuthField id="sign-in-code" label="Verification code" variant={variant}>
+        <Input
+          id="sign-in-code"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+          className={inputClassName}
+          required
+        />
+      </AuthField>
+      <Button type="submit" disabled={isLoading} className={primaryButtonClassName}>
+        {isLoading ? "Verifying…" : "Verify and continue"}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        disabled={isLoading}
+        onClick={onBackToSignIn}
+      >
+        Use a different email
+      </Button>
+    </form>
+  );
+}
+
+function ResetCodeStepForm({
+  email,
+  code,
+  formError,
+  isLoading,
+  variant,
+  inputClassName,
+  primaryButtonClassName,
+  setCode,
+  handleResetCodeSubmit,
+}: {
+  email: string;
+  code: string;
+  formError: string | null;
+  isLoading: boolean;
+  variant: "marketing" | "default";
+  inputClassName?: string;
+  primaryButtonClassName?: string;
+  setCode: (c: string) => void;
+  handleResetCodeSubmit: (e: React.FormEvent) => void;
+}) {
+  return (
+    <form onSubmit={handleResetCodeSubmit} className="flex flex-col gap-6">
+      <p className="m-0 text-sm text-marketing-muted">
+        Enter the reset code we sent to {email}.
+      </p>
+      {formError ? <AuthAlert message={formError} /> : null}
+      <AuthField id="reset-code" label="Reset code" variant={variant}>
+        <Input
+          id="reset-code"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+          className={inputClassName}
+          required
+        />
+      </AuthField>
+      <Button type="submit" disabled={isLoading} className={primaryButtonClassName}>
+        {isLoading ? "Verifying…" : "Continue"}
+      </Button>
+    </form>
+  );
+}
+
+function NewPasswordStepForm({
+  newPassword,
+  formError,
+  isLoading,
+  variant,
+  inputClassName,
+  primaryButtonClassName,
+  setNewPassword,
+  handleNewPasswordSubmit,
+}: {
+  newPassword: string;
+  formError: string | null;
+  isLoading: boolean;
+  variant: "marketing" | "default";
+  inputClassName?: string;
+  primaryButtonClassName?: string;
+  setNewPassword: (p: string) => void;
+  handleNewPasswordSubmit: (e: React.FormEvent) => void;
+}) {
+  return (
+    <form onSubmit={handleNewPasswordSubmit} className="flex flex-col gap-6">
+      <p className="m-0 text-sm text-marketing-muted">Choose a new password.</p>
+      {formError ? <AuthAlert message={formError} /> : null}
+      <AuthField id="new-password" label="New password" variant={variant}>
+        <Input
+          id="new-password"
+          type="password"
+          autoComplete="new-password"
+          value={newPassword}
+          onChange={(event) => setNewPassword(event.target.value)}
+          className={inputClassName}
+          required
+        />
+      </AuthField>
+      <Button type="submit" disabled={isLoading} className={primaryButtonClassName}>
+        {isLoading ? "Saving…" : "Set password and sign in"}
+      </Button>
+    </form>
+  );
+}
+
 export function SignInForm({
   redirectUrl,
   signUpUrl,
@@ -36,13 +177,37 @@ export function SignInForm({
 }: SignInFormProps) {
   const router = useRouter();
   const { signIn, fetchStatus } = useSignIn();
-  const [step, setStep] = useState<Step>("credentials");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
+
+  const [formState, setFormState] = useState({
+    step: "credentials" as Step,
+    email: "",
+    password: "",
+    code: "",
+    newPassword: "",
+    formError: null as string | null,
+  });
+
+  const { step, email, password, code, newPassword, formError } = formState;
+
+  const setStep = useCallback((s: Step) => setFormState(prev => ({ ...prev, step: s })), []);
+  const setEmail = useCallback((e: string) => setFormState(prev => ({ ...prev, email: e })), []);
+  const setPassword = useCallback((p: string) => setFormState(prev => ({ ...prev, password: p })), []);
+  const setCode = useCallback((c: string) => setFormState(prev => ({ ...prev, code: c })), []);
+  const setNewPassword = useCallback((np: string) => setFormState(prev => ({ ...prev, newPassword: np })), []);
+  const setFormError = useCallback((fe: string | null) => setFormState(prev => ({ ...prev, formError: fe })), []);
+
   const isLoading = fetchStatus === "fetching";
+
+  const handleBackToSignIn = useCallback(() => {
+    void signIn?.reset();
+    setStep("credentials");
+    setCode("");
+  }, [signIn, setStep, setCode]);
+
+  const handleBackToSignInFromSecondFactor = useCallback(() => {
+    void signIn?.reset();
+    setStep("credentials");
+  }, [signIn, setStep]);
 
   const inputClassName = cn(
     variant === "marketing" &&
@@ -179,86 +344,49 @@ export function SignInForm({
 
   if (step === "email_code") {
     return (
-      <form onSubmit={handleEmailCodeSubmit} className="flex flex-col gap-6">
-        <p className="m-0 text-sm text-marketing-muted">
-          We sent a verification code to {email}.
-        </p>
-        {formError ? <AuthAlert message={formError} /> : null}
-        <AuthField id="sign-in-code" label="Verification code" variant={variant}>
-          <Input
-            id="sign-in-code"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            className={inputClassName}
-            required
-          />
-        </AuthField>
-        <Button type="submit" disabled={isLoading} className={primaryButtonClassName}>
-          {isLoading ? "Verifying…" : "Verify and continue"}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          disabled={isLoading}
-          onClick={() => {
-            void signIn.reset();
-            setStep("credentials");
-            setCode("");
-          }}
-        >
-          Use a different email
-        </Button>
-      </form>
+      <EmailCodeStepForm
+        email={email}
+        code={code}
+        formError={formError}
+        isLoading={isLoading}
+        variant={variant}
+        inputClassName={inputClassName}
+        primaryButtonClassName={primaryButtonClassName}
+        setCode={setCode}
+        handleEmailCodeSubmit={handleEmailCodeSubmit}
+        onBackToSignIn={handleBackToSignIn}
+      />
     );
   }
 
   if (step === "reset_code") {
     return (
-      <form onSubmit={handleResetCodeSubmit} className="flex flex-col gap-6">
-        <p className="m-0 text-sm text-marketing-muted">
-          Enter the reset code we sent to {email}.
-        </p>
-        {formError ? <AuthAlert message={formError} /> : null}
-        <AuthField id="reset-code" label="Reset code" variant={variant}>
-          <Input
-            id="reset-code"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            className={inputClassName}
-            required
-          />
-        </AuthField>
-        <Button type="submit" disabled={isLoading} className={primaryButtonClassName}>
-          {isLoading ? "Verifying…" : "Continue"}
-        </Button>
-      </form>
+      <ResetCodeStepForm
+        email={email}
+        code={code}
+        formError={formError}
+        isLoading={isLoading}
+        variant={variant}
+        inputClassName={inputClassName}
+        primaryButtonClassName={primaryButtonClassName}
+        setCode={setCode}
+        handleResetCodeSubmit={handleResetCodeSubmit}
+      />
     );
   }
 
   if (step === "new_password") {
     return (
-      <form onSubmit={handleNewPasswordSubmit} className="flex flex-col gap-6">
-        <p className="m-0 text-sm text-marketing-muted">Choose a new password.</p>
-        {formError ? <AuthAlert message={formError} /> : null}
-        <AuthField id="new-password" label="New password" variant={variant}>
-          <Input
-            id="new-password"
-            type="password"
-            autoComplete="new-password"
-            value={newPassword}
-            onChange={(event) => setNewPassword(event.target.value)}
-            className={inputClassName}
-            required
-          />
-        </AuthField>
-        <Button type="submit" disabled={isLoading} className={primaryButtonClassName}>
-          {isLoading ? "Saving…" : "Set password and sign in"}
-        </Button>
-      </form>
+      <NewPasswordStepForm
+        newPassword={newPassword}
+        formError={formError}
+        isLoading={isLoading}
+        variant={variant}
+        inputClassName={inputClassName}
+        primaryButtonClassName={primaryButtonClassName}
+        setNewPassword={setNewPassword}
+        handleNewPasswordSubmit={handleNewPasswordSubmit}
+      />
     );
   }
 
@@ -269,10 +397,7 @@ export function SignInForm({
         <Button
           type="button"
           variant="ghost"
-          onClick={() => {
-            void signIn.reset();
-            setStep("credentials");
-          }}
+          onClick={handleBackToSignInFromSecondFactor}
         >
           Back to sign in
         </Button>
@@ -280,6 +405,56 @@ export function SignInForm({
     );
   }
 
+  return (
+    <SignInCredentialsStepForm
+      email={email}
+      password={password}
+      formError={formError}
+      isLoading={isLoading}
+      variant={variant}
+      inputClassName={inputClassName}
+      primaryButtonClassName={primaryButtonClassName}
+      redirectUrl={redirectUrl}
+      signUpUrl={signUpUrl}
+      setEmail={setEmail}
+      setPassword={setPassword}
+      handleForgotPassword={() => void handleForgotPassword()}
+      handleCredentialsSubmit={handleCredentialsSubmit}
+    />
+  );
+}
+
+interface SignInCredentialsStepFormProps {
+  email: string;
+  password: string;
+  formError: string | null;
+  isLoading: boolean;
+  variant: "marketing" | "default";
+  inputClassName: string | undefined;
+  primaryButtonClassName: string | undefined;
+  redirectUrl: string;
+  signUpUrl?: string;
+  setEmail: (val: string) => void;
+  setPassword: (val: string) => void;
+  handleForgotPassword: () => void;
+  handleCredentialsSubmit: (event: React.FormEvent) => void;
+}
+
+function SignInCredentialsStepForm({
+  email,
+  password,
+  formError,
+  isLoading,
+  variant,
+  inputClassName,
+  primaryButtonClassName,
+  redirectUrl,
+  signUpUrl,
+  setEmail,
+  setPassword,
+  handleForgotPassword,
+  handleCredentialsSubmit,
+}: SignInCredentialsStepFormProps) {
   return (
     <div className="flex flex-col gap-6">
       <OAuthButtons
@@ -325,7 +500,7 @@ export function SignInForm({
         <div className="flex justify-end">
           <button
             type="button"
-            onClick={() => void handleForgotPassword()}
+            onClick={handleForgotPassword}
             className="border-0 bg-transparent p-0 text-sm text-marketing-muted underline-offset-4 hover:text-marketing-ink hover:underline"
           >
             Forgot password?

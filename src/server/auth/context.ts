@@ -25,7 +25,7 @@ export type OrgContext = {
   };
 };
 
-export async function getClerkUserId(): Promise<string | null> {
+async function getClerkUserId(): Promise<string | null> {
   const { userId } = await auth();
   return userId ?? null;
 }

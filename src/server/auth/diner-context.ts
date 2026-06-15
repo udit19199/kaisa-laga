@@ -43,7 +43,7 @@ export function serializeDiner(row: typeof diners.$inferSelect): DinerContext {
   };
 }
 
-export const getOrCreateDiner = cache(async function getOrCreateDiner(
+const getOrCreateDiner = cache(async function getOrCreateDiner(
   clerkUserId: string,
 ): Promise<DinerContext> {
   const [existing] = await db

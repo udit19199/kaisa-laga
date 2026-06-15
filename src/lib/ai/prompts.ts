@@ -7,24 +7,7 @@ export function translateSystemPrompt(targetLanguage: string): string {
 
 export const CATEGORIZATION_SYSTEM_PROMPT = `You categorize customer voice feedback for physical businesses. Select 1-3 tags from: ${TAG_TAXONOMY.join(", ")}. Assign sentiment as Positive, Neutral, or Negative. Write a one-line summary for the operator.`;
 
-export const OPENAI_CATEGORIZATION_JSON_SCHEMA = {
-  type: "object" as const,
-  properties: {
-    sentiment: {
-      type: "string" as const,
-      enum: ["Positive", "Neutral", "Negative"],
-    },
-    tags: {
-      type: "array" as const,
-      items: { type: "string" as const, enum: [...TAG_TAXONOMY] },
-      minItems: 1,
-      maxItems: 3,
-    },
-    summary: { type: "string" as const },
-  },
-  required: ["sentiment", "tags", "summary"],
-  additionalProperties: false,
-};
+
 
 export const GEMINI_CATEGORIZATION_SCHEMA = {
   type: Type.OBJECT,
