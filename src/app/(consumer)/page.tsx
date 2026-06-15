@@ -4,7 +4,7 @@ import { DiscoverPage } from "@/components/consumer/discover-page";
 export const metadata: Metadata = {
   title: "Kaisa Laga — Verified reviews from real visits",
   description:
-    "Discover restaurants and cafes through visit-based reviews. Kaisa laga? Honest feedback from people who were actually there.",
+    "Search restaurants and cafes in Jaipur through visit-based reviews. New cuisines, honest notes from people who were actually there.",
 };
 
 export default function Page() {

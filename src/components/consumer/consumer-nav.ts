@@ -1,4 +1,4 @@
-import { Compass, QrCode, UserRound, type LucideIcon } from "lucide-react";
+import { QrCode, Search, UserRound, type LucideIcon } from "lucide-react";
 
 export type ConsumerTab = {
   href: string;
@@ -7,7 +7,7 @@ export type ConsumerTab = {
 };
 
 export const consumerTabs: ConsumerTab[] = [
-  { href: "/", label: "Discover", icon: Compass },
+  { href: "/", label: "Search", icon: Search },
   { href: "/capture", label: "Capture", icon: QrCode },
   { href: "/profile", label: "Profile", icon: UserRound },
 ];

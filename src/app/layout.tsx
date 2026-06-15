@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Kaisa Laga — Verified reviews from real visits",
   description:
-    "Discover restaurants and cafes through visit-based reviews. Guests answer Kaisa laga? after a real visit; businesses recover privately before reviews go public.",
+    "Search restaurants and cafes through visit-based reviews. Guests answer Kaisa laga? after a real visit; businesses recover privately before reviews go public.",
 };
 
 export default function RootLayout({

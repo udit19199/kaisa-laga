@@ -24,7 +24,7 @@ type DiscoverAreaPickerProps = {
   showTrigger?: boolean;
 };
 
-const cityOrder = ["Bengaluru", "Mumbai"] as const;
+const cityOrder = ["Jaipur", "Bengaluru", "Mumbai"] as const;
 
 function locationErrorMessage(code: number): string {
   switch (code) {

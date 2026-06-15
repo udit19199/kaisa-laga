@@ -8,7 +8,9 @@ import { cn } from "@/lib/utils";
 type ForYouMatchesSectionProps = Pick<
   ReturnType<typeof useForYouMatches>,
   "isSignedIn" | "isLoaded" | "loading" | "needsOnboarding" | "matches"
->;
+> & {
+  className?: string;
+};
 
 export function ForYouMatchesSection({
   isSignedIn,
@@ -16,6 +18,7 @@ export function ForYouMatchesSection({
   loading,
   needsOnboarding,
   matches,
+  className,
 }: ForYouMatchesSectionProps) {
 
   useEffect(() => {
@@ -50,7 +53,7 @@ export function ForYouMatchesSection({
     <section
       id="for-you-matches"
       aria-labelledby="for-you-heading"
-      className="mb-8 lg:mb-10"
+      className={cn("mb-8 lg:mb-10", className)}
     >
       <div className="mb-5 lg:mb-6">
         <h2

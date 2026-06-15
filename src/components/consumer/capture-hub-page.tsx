@@ -22,7 +22,7 @@ export function CaptureHubPage() {
               </h2>
               <p className="m-0 max-w-lg text-sm leading-relaxed text-marketing-muted lg:text-base">
                 Optionally save your feedback to a taste profile. That&apos;s how we learn what
-                you like and suggest places on Discover.
+                you like and suggest places when you search.
               </p>
               <Link
                 href="/profile"

@@ -116,7 +116,7 @@ export function ConsumerHeader({
   const isDiscoverHome = showBrand && pathname === "/";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-marketing-line bg-white/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-marketing-line bg-white/90 backdrop-blur-sm">
       <div
         className={cn(
           "mx-auto flex h-[72px] max-w-6xl items-center px-5 lg:h-[76px] lg:px-8",

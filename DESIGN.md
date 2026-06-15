@@ -23,7 +23,7 @@ typography:
     fontFamily: "Geist Mono, ui-monospace, monospace"
 surfaces:
   marketing: "Tailwind marketing-* tokens on consumer shell"
-  consumer: "Bottom nav shell — Discover / For you / Capture / Profile"
+  consumer: "Bottom nav shell — Search / Capture / Profile"
   capture: ".capture-surface"
   dashboard: "shadcn dashboard shell"
 ---
@@ -42,7 +42,7 @@ Kaisa Laga should feel like one food lover asking another *"Kaisa laga?"* — no
 
 | Surface | Route | Direction | Layout | Character |
 |---------|-------|-----------|--------|-----------|
-| **Consumer shell** | `/`, `/for-you`, `/capture`, `/profile` | Julienne-pattern mobile app | **Mobile-first** | Bottom nav; Discover = reviews + intent search; For you = taste matches (signed-in) |
+| **Consumer shell** | `/`, `/for-you`, `/capture`, `/profile` | Julienne-pattern mobile app | **Mobile-first** | Bottom nav; Search = reviews + intent search; For you = taste matches (signed-in) |
 | **Taste onboarding** | `/taste/onboarding` | Preference wizard | **Mobile-first** | Allergies grid, dietary cards, spice/budget — Mobbin Julienne reference patterns |
 | **Business entry** | `/for-business` (planned) | Operator conversion | **Mobile-first** | Side door: pilot signup / contact |
 | **Customer capture** | `/f/[locationId]` | Conversational mobile | **Mobile-first** | *Kaisa laga?* prompt, voice + text; optional taste profile link on thank-you |
@@ -51,7 +51,7 @@ Kaisa Laga should feel like one food lover asking another *"Kaisa laga?"* — no
 
 ### Migration note
 
-The consumer Discover tab (`discover-page.tsx`) keeps the editorial review rail and intent search bar, now inside a **Julienne-pattern bottom-nav shell** with `marketing-*` tokens. Taste onboarding borrows Julienne card/grid/progress patterns (Mobbin reference only — not the retired product name).
+The consumer Search tab (`discover-page.tsx`) keeps the editorial review rail and intent search bar, now inside a **Julienne-pattern bottom-nav shell** with `marketing-*` tokens. Taste onboarding borrows Julienne card/grid/progress patterns (Mobbin reference only — not the retired product name).
 
 Capture uses `.capture-surface` tokens in `globals.css`. Dashboard uses the shadcn shell.
 

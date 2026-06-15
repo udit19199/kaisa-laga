@@ -25,7 +25,8 @@
     "db:smoke:backend": "bun --env-file=.env.local scripts/smoke-backend.mjs",
     "vercel:env": "bun scripts/push-vercel-env.mjs",
     "vercel:sync-urls": "bun scripts/sync-vercel-production-urls.mjs",
-    "doctor": "npx react-doctor@latest"
+    "doctor": "npx react-doctor@latest",
+    "render:illustrations": "cd tools/remotion && bun install && bun run render"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

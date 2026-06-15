@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -22,7 +22,10 @@
 
 # misc
 .DS_Store
+Thumbs.db
+Desktop.ini
 *.pem
+*.log
 
 # debug
 npm-debug.log*
@@ -31,8 +34,10 @@ yarn-error.log*
 bun-debug.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — secrets local only; template is committed
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -40,6 +45,9 @@ bun-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# tooling caches
+.eslintcache
 
 # dashboard preview sandbox (removed)
 
@@ -56,3 +64,17 @@ next-env.d.ts
 
 # Drizzle generated audit output
 /drizzle/introspect/
+
+# Supabase local CLI
+.supabase/
+
+# E2E (Playwright)
+test-results/
+playwright-report/
+blob-report/
+
+# Remotion — local illustration renders (sources + lockfile committed; run: bun run render:illustrations)
+tools/remotion/node_modules/
+tools/remotion/out/
+tools/remotion/.remotion/
+

@@ -29,7 +29,7 @@ Kaisa Laga helps hospitality businesses collect honest feedback from verified vi
 
 **Review supply rule:** reviews exist only for businesses that have signed up and only from guests who visited and left feedback through Kaisa Laga. No scraped listings, no drive-by ratings.
 
-## Homepage (`/`) — Discover tab
+## Homepage (`/`) — Search tab
 
 **Audience:** Customers discovering verified reviews (public-facing discovery). Signed-in diners also reach **For you** (`/for-you`) for taste-matched venues.
 

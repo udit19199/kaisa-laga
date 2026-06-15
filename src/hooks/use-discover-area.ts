@@ -11,10 +11,10 @@ import {
 
 type GeoResponse = {
   suggestedAreaId: string | null;
-  mappedCity: "Bengaluru" | "Mumbai" | null;
+  mappedCity: "Jaipur" | "Bengaluru" | "Mumbai" | null;
 };
 
-const fallbackArea = getDefaultAreaForCity("Bengaluru");
+const fallbackArea = getDefaultAreaForCity("Jaipur");
 
 export function useDiscoverArea() {
   const [area, setAreaState] = useState<DiscoverAreaOption>(fallbackArea);
